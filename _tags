@@ -1,0 +1,5 @@
+<**/*.{ml,mli}> : annot, debug
+<src> : include
+<test> : include
+<test/*> : debug
+<test/test.{byte,native}> : use_str

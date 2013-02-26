@@ -1,0 +1,53 @@
+OASISFormat: 0.3
+Name: gg
+Version: 0.9.0
+Synopsis: Basic types for computer graphics in OCaml
+Authors: Daniel Bünzli <daniel.buenzli at erratique.ch>
+Copyrights: (c) 2013 Daniel C. Bünzli
+License: BSD3
+Homepage: http://erratique.ch/software/gg
+Description:
+ Gg provides basic support for computer graphics programming in
+ OCaml. It defines types for vectors, matrices, quaternions, colors,
+ color spaces, axis aligned boxes and raster data.
+ .
+ Gg is made of a single, independent, module and distributed under
+ the BSD3 license.
+
+OCamlVersion: >= 3.12.0
+Plugins: META (0.3)
+BuildTools:ocamlbuild
+
+Library gg
+ Path: src
+ Modules: Gg
+
+#Executable test
+# Path: test
+# MainIs: test.ml
+# BuildDepends: checkm gg
+# CompiledObject: best    
+# Install: false
+
+#Test test
+# Command: $test
+
+Document api
+ Title: Gg's documentation and API reference
+ Type: ocamlbuild (0.3)
+ BuildTools+: ocamldoc
+ XOCamlbuildLibraries: gg
+ XOCamlbuildPath: doc
+
+Document distribution
+ Title: "Gg's README and CHANGES files"
+ DataFiles: README CHANGES
+
+Document samples
+ Title: "Gg's sample code"
+ DataFiles: test/*.ml
+
+SourceRepository head
+ Type: git
+ Location: git://erratique.ch/repos/gg.git
+ Browser: http://erratique.ch/repos/gg

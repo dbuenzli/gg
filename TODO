@@ -1,0 +1,61 @@
+* General
+** Review with M.() notation in mind. 
+** M4, remove 3 in rot_map etc.
+** grep TODO
+** s/print/pp
+** coordinate system and rectangles (?), origin top-left, but this
+   implies that top < bottom, strange. bot-left is more math. See
+   how it works with raster
+** Do we introduce bigarray or leave that outside the module. 
+
+* Float module 
+** add clamp_angle 
+   let clamp_angle a = 
+     let a = mod_float a (6.28) in 
+     if a > 3.14 then 6.28 +. a else
+     if a < -3.14 then 6.28 +. a else
+     a
+
+
+* Color module
+** of_hsv etc., especially sRGB -> lsRGB
+** printers 
+** ? replace gamma by tone curves.
+** ? replace stops by tone curve
+** ? replace stops by ramp
+** ? mRGB specify in xyY or XYZ ? Have a look what png and tiff give.
+** ? d50, xyY or XYZ     
+** add delta functions
+** add links to poynton faqs and porter duff paper.
+** add d65
+** ? add porter duff blending + semantics, or pdf blending ? 
+
+* Raster module
+** Verify usable with opencl/gl
+** sample_format add reverse to specify BGR vs RGB, or not. 
+** Extensible sample semantics, or not.
+** add type image, which adds resolution and convention about first
+   sample lower left frontmost pixel ? 
+** Where do we put this, this is an image (vs raster) convention, but
+   it would be nice to put it somewhere. The first sample in the
+   buffer corresponds to the image's lower left and frontmost pixel.
+** for cast mustn't sformat be abstract ?  
+** shorter names ?
+** https://sites.google.com/site/openimageio/home
+
+* Future
+** Other bounding volumes Spheres, Oriented boxes
+** Add further datatypes see tmp/ 
+** Oboxes.
+
+* ANN
+  P.S. Take into account the following points. 
+
+  * Gg is incomplete, it's a work in progress but what is here works
+    and is expected to remain (note however that this release focuses
+    on 2D aspects, parts of the 3d things was reworked from older
+    code and was not thoroughly tested). 
+
+  * Gg is not a linear algebra package. It's a module to give you
+    basic mathematical tools and data structures for coding 2D & 3D
+    graphics.
