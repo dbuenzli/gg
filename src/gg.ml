@@ -2302,34 +2302,33 @@ end
 (* Raster samples *)
 
 module Raster = struct
-  type storage = 
-    [`Int8 | `Int16 | `Int32 | `Int64
+  type element_type = 
+    [ `Int8 | `Int16 | `Int32 | `Int64 
     | `Uint8 | `Uint16 | `Uint32 | `Uint64
     | `Float16 | `Float32 | `Float64 ]
-  type sample_pack =  
+
+  type component_pack =
     [ `None | `P332 | `P233 | `P565 | `P4444 | `P5551 | `P1555 | `P1010102 
-    | `P2101010 | `DXT1 |  `DTX3 | `DXT5 ]
-  type alpha = [ `Premul | `Plain ]
-  type sample_color_semantics = 
-      { alpha : [`None | `Before of alpha | `After of alpha];
-	space : Color.space; }
-  type sample_semantics = [ `Unknown | `Color of sample_color_semantics ]
-  type ('a, 'b) sample_format =
-      { dim : int;
-	storage : 'a;
-	pack : sample_pack;
-	semantics : 'b; } 
-  constraint 'a = [< storage] constraint 'b = [> sample_semantics]
+    | `P2101010 | `DXT1 |  `DTX3 | `DXT5 | `Other ]
 
-  let sample_format_cast s sf = failwith "TODO"
-  
-  type dim = [`D1 | `D2 | `D3 ]
-  
-  type ('a, 'b) format
+  type color_sample = { alpha : [ `None | `Before | `After ];
+                        profile : Color.space; }
 
-  let format ?first ?w_skip ?h_skip ?w ?h ?d sf d = 
-    failwith "TODO"
-  
+  type sample_semantics = [ `Unknown of int | `Color of color_sample ]
+  type sample_format =
+    { semantics : sample_semantics;
+      element_type : element_type; 
+      packed : component_pack; } 
+
+  let sample_dim sf = match sf.semantics with 
+  | `Unknown dim -> dim 
+  | `Color cs -> 
+      let alpha = match cs.alpha with `None -> 0 | `Before | `After -> 1 in 
+      alpha + failwith "TODO"
+     
+  type format
+
+  let format ?first ?w_skip ?h_skip ?w ?h ?d sf = failwith "TODO"
   let first f = failwith "TODO" 
   let width_skip f = failwith "TODO" 
   let height_skip f = failwith "TODO"
@@ -2339,12 +2338,11 @@ module Raster = struct
   let sample_format f = failwith "TODO"
   let dim f = failwith "TODO"
   let storage f = failwith "TODO"
-
   let size2 f = failwith "TODO"
   let size3 f = failwith "TODO"
   let buffer_size f = failwith "TODO"
-  let sub_format f ?x ?y ?z ?w ?h ?d ?dim () = failwith "TODO"
-  let print_format fmt f = failwith "TODO"
+  let sub_format f ?x ?y ?z ?w ?h ?d () = failwith "TODO"
+  let pp_format fmt f = failwith "TODO"
 
   type t 
 end
