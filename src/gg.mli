@@ -2686,8 +2686,6 @@ type color = v4
 (** The type for RGBA colors in linear sRGB space. 
     {{:Gg.Color.html#colors}Details}. *)
 
-
-
 (** Colors and color spaces.
 
     The functionnality provided by this module is twofold.  First,
@@ -2786,8 +2784,6 @@ module Color : sig
   val of_HSV : ?a:float -> cHSV -> color
   val to_HSV : color -> cHSV
 
-
-
   (** {1:colorspaces Color spaces} 
 
       A color space specifies how to interpret raw color intensities.
@@ -2805,6 +2801,9 @@ module Color : sig
                  `Unknown of int (** Number of components. *)]
   (** The type for color models. *)
 
+  val model_dim : model -> int 
+  (** [model_dim m] is the dimension of model [m]. *)
+
   type rendering_intent = [ `Perceptual | `Absolute_colorimetric | 
                             `Relative_colorimetric | `Saturation ]
   (** The type for rendering intents. *)
@@ -2812,8 +2811,8 @@ module Color : sig
   type space 
   (** The type for color spaces. *)
 
-  val comp_count : space -> int
-  (** [comp_count s] is the color space's number of components. *)
+  val space_dim : space -> int
+  (** [space_dim s] is the color space's dimension. *)
 
   val model : space -> model 
   (** [model s] is the color space's model. *)
@@ -2881,151 +2880,263 @@ end
 
 (** {1:raster Raster data} *)
 
+type raster
+(** The type for raster data. *)
+
 (** Raster data.
 
-    Raster data can represent discrete samples in 1D, 2D (images) or 3D
-    (volumetric data). More formally {e raster data} is a width, height
-    and depth (x, y and z) indexed collection of samples.
+    Raster data organizes data samples of any dimension in discrete
+    1D, 2D (images) or 3D space.
 
-    A {e sample} has a semantics that defines its dimension and the
-    meaning of its {e components}. For example a 4D sample could
-    represent a linear sRGB sample with an alpha component.
+    A sample has a {{!type:semantics}{e semantics}} that defines its
+    dimension and the meaning of its {e components}. For example a 4D
+    sample could represent a linear sRGBA sample. Samples are stored
+    in a {{!type:buffer}linear buffer} of {e scalars} of a given
+    {{!scalar_type}type}. A sample can use one scalar per component,
+    can be packed in a single scalar or may have no direct obvious
+    relationship to buffer scalars (compressed data). A
+    {{!type:sample_format}sample format} defines the semantics and
+    scalar storage of a sample.
 
-    Samples are stored in a linear buffer made of {e elements} of a
-    given {{!element_type}element type}. Samples can use one element
-    per component or can be packed in a single element.
-
-    A {{!format}raster format} value defines the extents of the index
-    and the sample format of raster data. The {{!sample_format}sample
-    format} defines the dimension and semantics of a sample aswell as
-    it storage in buffer elements. *)
+    A {{!t}{e raster data}} value is a collection of samples indexed by width, 
+    height and depth (i.e. x, y, z) and stored in a buffer. The extents of the
+    index and the sample format are defined by the raster data's
+    {{!type:format}format}.  *) 
 module Raster : sig
 
-  (** {1:samples Sample format} *)
+  (** {1:scalars Scalar types and buffers} *)
 
-  type element_type = 
+  type scalar_type = 
     [ `Int8 | `Int16 | `Int32 | `Int64 
     | `Uint8 | `Uint16 | `Uint32 | `Uint64
     | `Float16 | `Float32 | `Float64 ]
-  (** The type for buffer element types. *)
+  (** The type for scalar types. *)
 
-  type component_pack =
-    [ `None | `P332 | `P233 | `P565 | `P4444 | `P5551 | `P1555 | `P1010102 
-    | `P2101010 | `DXT1 |  `DTX3 | `DXT5 | `Other ]
-  (** The type for component packs.
+  val scalar_type_byte_count : scalar_type -> int 
+  (** [scalar_type_byte_count st] is the number of bytes used by a scalar
+      of type [st]. *)
 
-      Describes the bit layout of sample components when a sample is
-      packed in a single buffer element. *)
+  val pp_scalar_type : Format.formatter -> scalar_type -> unit 
+  (** [pp_scalar_type ppf st] prints a textual representation of [st]
+      on [ppf]. *)
 
-  type color_sample = { alpha : [ `None | `Before | `After ];
-                        profile : Color.space; }
-  (** The type for raster color samples. [alpha] indicates the existence 
-      of an alpha component before or after the color components. [profile]
-      indicates the color space of components, stored in the order given 
-      by the profile's {{:Gg.Color.html#TYPEmodel}color model}. *)
-                        
-  type sample_semantics = [ `Unknown of int | `Color of color_sample ]
-  (** The type for sample semantics. The argument of [`Unknown] specifies 
-      a dimension. *)
+  type ('a, 'b) b_array = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
+  (** The type for big arrays. *)
 
-  type sample_format =
-    { semantics : sample_semantics;
-      element_type : element_type; 
-      packed : component_pack; } 
-  (** The type for sample formats. 
+  type buffer = [ 
+  | `S_Uint8 of string 
+  | `A_Float64 of float array
+  | `B_Int8 of (int, Bigarray.int8_signed_elt) b_array
+  | `B_Int16 of (int, Bigarray.int16_signed_elt) b_array
+  | `B_Int32 of (int32, Bigarray.int32_elt) b_array
+  | `B_Int64 of (int64, Bigarray.int64_elt) b_array
+  | `B_Uint8 of (int, Bigarray.int8_unsigned_elt) b_array
+  | `B_Uint16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_Uint32 of (int32, Bigarray.int32_elt) b_array
+  | `B_Uint64 of (int64, Bigarray.int64_elt) b_array
+  | `B_Float16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_Float32 of (float, Bigarray.float32_elt) b_array
+  | `B_Float64 of (float, Bigarray.float64_elt) b_array ]
+  (** The type for linear buffer of scalars. *)
+
+  val buffer_scalar_type : buffer -> scalar_type 
+  (** [buffer_scalar_type b] is [b]'s buffer scalar type. *)
+
+  (** {1:semantics Sample semantics} *)
+
+  type semantics = 
+    [ `Other of int * string
+    | `Color of Color.model * bool]
+  (** The type for sample semantics. 
+      {ul 
+      {- [`Color (p, alpha)] is for color samples from the
+         color profile [p]. [alpha] indicates if there's an alpha
+         component on the {e right} of the color components.}
+      {- [`Other(dim, label)] is for samples of [dim] dimensions. [label]
+         can be used to identify the sample semantics.}} *)
   
-      [semantics] is the sample's component semantics, it also
-      implicitely defines its dimension.
-     
-      [element_type] and [packed] define the sample's storage
-      in the buffer as follows:
-      {ul
-      {- If [pack] is [`None], each {e component} is stored
-         separately, in increasing order, in a single buffer element
-         of the given [element_type].
-
-         For example for data with RGB semantics, [storage = `Float32] and
-         [pack = None] stores each sample as a sequence of three [`Float32]
-         elements, in R, G, B order.}
-      {- If [pack] is one of the [`P]* values each {e sample} is
-         stored in a single buffer element of the given [storage] type
-         according to the given bit layout. The first component is
-         stored in the most significant bits.  The size of the storage
-         type should match the size of the bit layout (it's the client
-         duty to handle errors). 
-         
-         For example for data with RGB semantics, [storage  = `Uint8] and 
-         [pack = `P332] stores each sample in a single byte as [0bRRRGGGBB].}
-      {- If [pack] is one of the [`DXT]* values, samples are stored in
-         a compressed format, buffer elements are not directly
-         related to samples anymore.}}
-
-      Sample format {{:#ex}examples}. *)
+  val lRGB : semantics 
+  (** [lRGB] is for linear RGB samples from the {!Color.mlRGB} profile. *)
   
+  val lRGBA : semantics
+  (** [lRGBA] is for linear RGB samples from the  {!Color.mlRGB} profile. *)
+
+  val lL : semantics
+  (** [lL] is for linear luminance (TODO gray ?) samples. *)
+
+  val lLA : semantics
+  (** [lLA] is for linear luminance with alpha samples. *)
+
+  val pp_semantics : Format.formatter -> semantics -> unit 
+  (** [pp_semantics ppf sem] prints a textual representation of [sem] on 
+      [ppf]. *)
+
+  (** {1:samples Sample format} *)
+
+  type sample_pack =
+    [ `PU8888 | `FourCC of string * scalar_type option
+    | `Other of string * scalar_type option ]
+  (** The type for sample packs. A sample pack describes storage for samples 
+      that do not use one scalar per component. 
+      {ul 
+      {- [`PU8888]. An arbitrary 4D sample X, Y, Z, W with unsigned
+         8 bits components packed in a single [`Uint32] scalar 
+         as [0xXXYYZZWWl].}
+      {- [`FourCC(code, restrict)]. A sample is stored according to the
+         format specified by the FourCC [code], a string of length 4.
+         If [restrict] is specified the pack can only be used with the
+         corresponding scalar type. For example [`FourCC("DXT5", Some
+         `Uint64)] can be used to specify a buffer of DXT5 compressed
+         data. [`FourCC] can also be used to describe the numerous YUV
+         packed pixel formats.}
+      {- [`Other(label, restrict)]. A sample is stored in some other
+         packing scheme identified by [label], [restrict] has the same
+         meaning as in [`FourCC].}}
+  *)
+
+  val pp_sample_pack : Format.formatter -> sample_pack -> unit 
+  (** [pp_sample_pack ppf pack] prints a textual representation of [pack]
+      on [ppf]. *)
+
+  type sample_format
+  (** The type for sample formats. *)
+  
+  val sample_format_v : ?pack:sample_pack -> semantics -> 
+    scalar_type -> sample_format 
+  (** [sample_format_v pack sem st] is a sample format with semantics 
+      [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
+      per sample component is used. If present, see {!type:sample_pack}.
+
+     {b Raises.} [Invalid_argument] if [pack] is incompatible with [st], 
+     see {!type:sample_pack} or if a [pack] [`FourCC] code is not made of 
+     4 bytes. *)
+
+  val semantics : sample_format -> semantics 
+  (** [semantics sf] is [sf]'s semantics. *)
+
+  val scalar_type : sample_format -> scalar_type 
+  (** [scalar_type sf] is [sf]'s buffer scalar type *)
+
+  val sample_pack : sample_format -> sample_pack option
+  (** [sample_pack sf] is [sf]'s sample pack, if any. *)
+
   val sample_dim : sample_format -> int
+  (** [sample_dim sf] is [sf]'s sample dimension. *)
+
+  val pp_sample_format : Format.formatter -> sample_format -> unit 
+  (** [pp_sample_format ppf sf] prints a textual representation of [sf]
+      on [ppf].*)
 
   (** {1:samples Raster format} *)
     
   type format
   (** The type for raster formats. *)
 
-  val format : ?first:int -> ?w_skip:int -> ?h_skip:int -> ?w:int -> 
+  val format_v : ?first:int -> ?w_skip:int -> ?h_skip:int -> w:int -> 
   ?h:int -> ?d:int -> sample_format -> format
-  (** Creates a new format for raster data with the given 
-      sample format and dimension. Arguments irrelevant for
-      a dimension are ignored. 
+  (** [format_v first w_skip h_skip w h d sf] is a new raster format
+      with sample format [sf]. 
       {ul
-      {- [first], buffer element where the data of the first sample
-      (indexed by (0, 0, 0)) starts.}
-      {- [w_skip], number of {e samples} to skip between two 
-      consecutive lines, defaults to [0].} 
-      {- [h_skip], number of sample {e lines} to skip between two 
-      consecutive raster planes, defaults to [0].}
-      {- [w], [h], [d], raster data width, height and depth in samples, 
-      [h] and [d] default to [1].}}
-  
+      {- [w], [h], [d], specify the index width, height and depth, in 
+         number of {e samples}. [h] and [d] default to [1].}
+      {- [first], {e buffer scalar} index where the data of the first sample
+         is stored.}
+      {- [w_skip], number of {e buffer scalars} to skip between two 
+         consecutive lines, defaults to [0].} 
+      {- [h_skip], number of {e buffer scalars} to skip between two 
+         consecutive planes, defaults to [0].}}
+     For certain sample formats [first], [w_skip] and [h_skip] can be used 
+     to specify subspaces in the collection of samples, see {!subspace}. 
 
-      {b Raises.} TODO [Invalid_argument] is raised if the bit layout
-      of a pixel format doesn't fits its storage and for compressed
-      pixel formats : if the storage is not [`Uint8] or the skip
-      values are different from [0] or the dimension in not [`D2]. *)
+  TODO document (x, y, z) -> buffer scalar index
+
+  {b Raises} [Invalid_argument] if [w], [h] or [d] is not positive or 
+  if [first], [w_skip] or [h_skip] is negative. *)
   
   val first : format -> int
-  val width_skip : format -> int
-  val height_skip : format -> int
-  val width : format -> int
-  val height : format -> int
-  val depth : format -> int
+  (** [first fmt] is the {e buffer scalar} index where the first sample is
+      stored. *)
+
+  val w_skip : format -> int
+  (** [w_skip fmt] is the number of {e buffer scalars} to skip between two 
+      consecutive lines. *)
+
+  val h_skip : format -> int
+  (** [h_skip fmt] is the number of {e buffer scalars} to skip between two
+      consecutive planes. *)
+
+  val w : format -> int
+  (** [w fmt] is the index width in number of {e samples}. *)
+
+  val h : format -> int
+  (** [h fmt] is the index height in number of {e samples}. *)
+
+  val d : format -> int
+  (** [d fmt] is the index depth in number of {e samples}. *)
+
   val sample_format : format -> sample_format
-  val dim : format -> [ `D1 | `D2 | `D3 ]
-  val storage : format -> 'a
-  val size2 : format -> size2
-  (** Width, height as floats. *)
+  (** [sample_format fmt] is [fmt]'s sample format. *)
 
-  val size3 : format -> size2
-  (** Width, height, depth. *)
+  val scalar_count : format -> int
+  (** [scalar_count fmt] is number of scalars needed to hold the raster
+      data described by [fmt] (this includes the skipped scalars).
 
-  val buffer_size : format -> int
-  (** [size fmt] is the number of buffer elements needed to hold the
-      raster data. *)
+      {b Raises} [Invalid_argument] if the sample format of [fmt] is
+      packed. *)
 
-  val sub_format : format -> ?x:int -> ?y:int -> ?z:int -> ?w:int -> 
-  ?h:int -> ?d:int -> unit -> 
-    format  
-   (** Format for a raster data subset of the given format.
-       {ul
-       {- [x],[y],[z], new start index of the raster data, defaults to [0,0,0].}
-       {- [w],[h],[d], new size of the raster data, defaults to the original 
-       size minus the new origin.}
-       {- [dim], new dimension of the raster data, must be smaller than the 
-       original one, defaults to the original dimension.}}
-
-       {b Note.} Raises [Invalid_argument] on compressed formats. 
-    *)
+  val format_dim : format -> int
+  (** [format_dim fmt] is [fmt]'s index dimension from 1 to 3. *)
+  
+  val subspace : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> 
+    format -> format
+  (** [subspace x y z w h d fmt] is a format for a subset of the index of 
+     [fmt]. 
+      {ul
+       {- [x], [y], [z], new sample origin of the raster data, 
+          defaults to [(0, 0, 0)].}
+       {- [w], [h], [d], new size of the index, defaults to [fmt]'s 
+          sizes minus the new sample origin.}}
+     {b Raises} [Invalid_argument], if the sample format of [fmt] is 
+     packed, if origin is out of bounds or if new size is larger than 
+     [fmt]'s size. *)
 
   val pp_format : Format.formatter -> format -> unit
+  (** [pp_format ppf fmt] prints a textual represenation of [fmt] on [ppf]. *)
 
-  type t 
+  (** {1 Raster data} *)
+
+  type t = raster
+  (** The type for raster data *)
+
+  val v : format -> buffer -> t
+  (** [v fmt buf] is raster data with format [fmt] and buffer [b]. 
+
+  {b Raises} [Invalid_argument] if the scalar_type of [fmt] doesn't
+  match [(Raster.buffer_scalar_type b)]. *)
+
+  val format : t -> format
+  (** [format r] is [r]'s format. *)
+
+  val buffer : t -> buffer
+  (** [buffer r] is [r]'s format. *)
+
+  val dim : t -> int
+  (** [dim r] is [Raster.format_dim (Raster.format r)]. *)
+
+  val size2 : t -> size2
+  (** [size2 r] is [r]'s index width and height as floats. *)
+
+  val size3 : t -> size3
+  (** [size3 r] is [r]'s index width, height and depth as floats. *)
+
+  val subraster : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> 
+    t -> t
+  (** [subraster r] is the raster value:
+{[
+ Raster.v (Raster.subspace ?x ?y ?z ?w ?h ?d (Raster.format r)) 
+     (Raster.buffer r)
+]}
+   *)
 end
 
 (** {1:basics Basics} 

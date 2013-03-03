@@ -4,8 +4,20 @@
    %%PROJECTNAME%% version %%VERSION%%
   ---------------------------------------------------------------------------*)
 
+let str = Printf.sprintf 
 let err_not_nan = "not a NaN"
 let err_empty_box = "empty box" 
+let err_packed_sf = "packed sample format"
+let err_illegal_fourcc c = str "illegal FourCC code (%S)" c
+let err_irange arg v min max = 
+  str "%s is %d but in expected in [%d;%d] range" arg v min max
+
+let err_iclass arg v pos = 
+  let kind = if pos then "positive" else "non-negative" in 
+  str "%s is %d but %s integer expected" arg v kind
+
+let err_sample_pack p st = 
+  str "sample pack %s incompatible with scalar type %s" p st
   
 let to_string_of_formatter pp v =                        (* NOT thread safe. *)
   Format.fprintf Format.str_formatter "%a" pp v; 
@@ -2283,7 +2295,13 @@ module Color = struct
                             `Relative_colorimetric | `Saturation ]
   type space = unit
 
-  let comp_count s = failwith "TODO"
+  let model_dim = function
+  | `Gray -> 1
+  | `XYZ | `Lab | `Luv | `YCbCr | `Yxy | `RGB | `HSV | `HLS | `CMY -> 3
+  | `CMYK -> 4
+  | `Unknown dim -> dim
+                 
+  let space_dim s = failwith "TODO"
   let model s = failwith "TODO"
   let mGray ?(gamma = 1.) ~white = failwith "TODO"
   let mRGB ?(gamma = 1.) ~white ~r ~g ~b = failwith "TODO"
@@ -2291,7 +2309,6 @@ module Color = struct
   let mXYZ = ()
   let msRGB = ()
   let mlRGB = ()
-
   module Icc = struct 
     type t 
   end
@@ -2302,50 +2319,180 @@ end
 (* Raster samples *)
 
 module Raster = struct
-  type element_type = 
-    [ `Int8 | `Int16 | `Int32 | `Int64 
-    | `Uint8 | `Uint16 | `Uint32 | `Uint64
+
+  (* Scalar type and buffers *)
+
+  type scalar_type = 
+    [ `Int8 | `Int16 | `Int32 | `Int64 | `Uint8 | `Uint16 | `Uint32 | `Uint64
     | `Float16 | `Float32 | `Float64 ]
 
-  type component_pack =
-    [ `None | `P332 | `P233 | `P565 | `P4444 | `P5551 | `P1555 | `P1010102 
-    | `P2101010 | `DXT1 |  `DTX3 | `DXT5 | `Other ]
+  let scalar_type_byte_count = function 
+  | `Int8 | `Uint8 -> 1 
+  | `Int16 | `Uint16 | `Float16 -> 2 
+  | `Int32 | `Uint32 | `Float32 -> 3
+  | `Int64 | `Uint64 | `Float64 -> 4
+    
+  let scalar_type_str = function 
+  | `Int8 -> "Int8" | `Int16 -> "Int16" | `Int32 -> "Int32" 
+  | `Int64 -> "Int64" | `Uint8 -> "Uint8" | `Uint16 -> "Uint16" 
+  | `Uint32 -> "Uint32" | `Uint64 -> "Uint64" | `Float16 -> "Float16" 
+  | `Float32 -> "Float32" | `Float64 -> "Float64"
 
-  type color_sample = { alpha : [ `None | `Before | `After ];
-                        profile : Color.space; }
+  let pp_scalar_type ppf st = Format.fprintf ppf "%s" (scalar_type_str st)
 
-  type sample_semantics = [ `Unknown of int | `Color of color_sample ]
+  type ('a, 'b) b_array = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
+  type buffer = [ 
+  | `S_Uint8 of string 
+  | `A_Float64 of float array
+  | `B_Int8 of (int, Bigarray.int8_signed_elt) b_array
+  | `B_Int16 of (int, Bigarray.int16_signed_elt) b_array
+  | `B_Int32 of (int32, Bigarray.int32_elt) b_array
+  | `B_Int64 of (int64, Bigarray.int64_elt) b_array
+  | `B_Uint8 of (int, Bigarray.int8_unsigned_elt) b_array
+  | `B_Uint16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_Uint32 of (int32, Bigarray.int32_elt) b_array
+  | `B_Uint64 of (int64, Bigarray.int64_elt) b_array
+  | `B_Float16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_Float32 of (float, Bigarray.float32_elt) b_array
+  | `B_Float64 of (float, Bigarray.float64_elt) b_array ]
+
+  let buffer_scalar_type = function 
+  | `B_Int8 _ -> `Int8 
+  | `B_Int16 _ -> `Int16 
+  | `B_Int32 _ -> `Int32
+  | `B_Int64 _ -> `Int64
+  | `B_Uint8 _ | `S_Uint8 _ -> `Uint8
+  | `B_Uint16 _ -> `Uint16
+  | `B_Uint32 _ -> `Uint32
+  | `B_Uint64 _ -> `Uint64
+  | `B_Float16 _ -> `Float16
+  | `B_Float32 _ -> `Float32
+  | `B_Float64 _ | `A_Float64 _ -> `Float64
+    
+  (* Semantics *)
+
+  type semantics = [ `Color of Color.model * bool | `Other of int * string ]
+  let lRGB = `Color (`RGB, false)
+  let lRGBA = `Color (`RGB, true)
+  let lL = `Color (`Gray, false)
+  let lLA = `Color (`Gray, true)
+  let pp_semantics ppf sem = failwith "TODO"
+
+  type sample_pack =
+    [ `PU8888 | `FourCC of string * scalar_type option
+    | `Other of string * scalar_type option ]
+
+  let sample_pack_str p = 
+    let restr = function None -> "" | Some t -> ", " ^ scalar_type_str t in
+    match p with
+    | `PU8888 -> "P8888"
+    | `FourCC (c, r) -> str "FourCC(%s%s)" c (restr r)
+    | `Other (s, r) -> str "Other(%s%s)" s (restr r)
+
+  let pp_sample_pack ppf p = Format.fprintf ppf "%s" (sample_pack_str p)
+
+  (* Sample format *)
+
   type sample_format =
-    { semantics : sample_semantics;
-      element_type : element_type; 
-      packed : component_pack; } 
+    { semantics : semantics;
+      scalar_type : scalar_type; 
+      pack : sample_pack option; } 
 
+  let sample_format_v ?pack semantics scalar_type = match pack with 
+  | None -> { semantics; scalar_type; pack }
+  | Some p -> 
+      let restrict = match p with 
+      | `PU8888 -> Some `Uint64 
+      | `Other (_, r) -> r
+      | `FourCC (c, r) -> 
+          if String.length c = 4 then r else invalid_arg (err_illegal_fourcc c)
+      in
+      match restrict with 
+      | None -> { semantics; scalar_type; pack } 
+      | Some st -> 
+          if st = scalar_type then { semantics; scalar_type; pack } else 
+          invalid_arg 
+            (err_sample_pack (sample_pack_str p) (scalar_type_str st))
+  
+  let semantics sf = sf.semantics 
+  let scalar_type sf = sf.scalar_type 
+  let sample_pack sf = sf.pack 
   let sample_dim sf = match sf.semantics with 
-  | `Unknown dim -> dim 
-  | `Color cs -> 
-      let alpha = match cs.alpha with `None -> 0 | `Before | `After -> 1 in 
-      alpha + failwith "TODO"
-     
-  type format
+  | `Other (dim, _) -> dim 
+  | `Color (profile, alpha) -> 
+      Color.model_dim profile + (if alpha then 1 else 0)
 
-  let format ?first ?w_skip ?h_skip ?w ?h ?d sf = failwith "TODO"
-  let first f = failwith "TODO" 
-  let width_skip f = failwith "TODO" 
-  let height_skip f = failwith "TODO"
-  let width f = failwith "TODO"
-  let height f = failwith "TODO"
-  let depth f = failwith "TODO"
-  let sample_format f = failwith "TODO"
-  let dim f = failwith "TODO"
-  let storage f = failwith "TODO"
-  let size2 f = failwith "TODO"
-  let size3 f = failwith "TODO"
-  let buffer_size f = failwith "TODO"
-  let sub_format f ?x ?y ?z ?w ?h ?d () = failwith "TODO"
+  let pp_sample_format ppf sf = failwith "TODO"  
+     
+  (* Raster format *)
+  
+  type format = 
+    { first : int; w_skip : int; h_skip : int; (* TODO store is as pitch ? *)
+      w : int; h : int; d : int; 
+      sf : sample_format; } 
+
+  let format_v ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) ?(d = 1) sf
+    =
+    let nneg a v = if v >= 0 then () else invalid_arg (err_iclass a v false) in
+    let pos a v = if v > 0 then () else invalid_arg (err_iclass a v true) in
+    nneg "first" first; nneg "w_skip" w_skip; nneg "h_skip" h_skip;
+    pos "w" w; pos "h" h; pos "d" d;
+    { first; w_skip; h_skip; w; h; d; sf} 
+
+  let first fmt = fmt.first
+  let w_skip fmt = fmt.w_skip
+  let h_skip fmt = fmt.h_skip
+  let w fmt = fmt.w
+  let h fmt = fmt.h
+  let d fmt = fmt.d
+  let sample_format fmt = fmt.sf
+  let scalar_count fmt =
+    if fmt.sf.pack <> None then invalid_arg err_packed_sf;
+    let sample_size = sample_dim fmt.sf in 
+    let plane_size = sample_size * fmt.w * fmt.h + fmt.w_skip * (fmt.h - 1) in
+    let vol_size = plane_size * fmt.d + fmt.h_skip * (fmt.d - 1) in
+    fmt.first + vol_size
+
+  let format_dim fmt = 
+    1 + (if fmt.h > 1 then 1 else 0) + (if fmt.d > 1 then 1 else 0)
+
+  let subspace ?(x = 0) ?(y = 0) ?(z = 0) ?w ?h ?d fmt = failwith "TODO"
+   (* 
+    let range a v min max = 
+      if v < min || v > max then failwith (err_irange a v min max);
+    in
+    if fmt.sf.pack <> None then invalid_arg err_packed_sf; 
+    range "x" x 0 (fmt.w - 1); 
+    range "y" y 0 (fmt.h - 1); 
+    range "z" z 0 (fmt.d - 1);
+    let w = match w with None -> fmt.w - x | Some w -> w in 
+    let h = match h with None -> fmt.h - y | Some h -> h in 
+    let d = match d with None -> fmt.d - z | Some d -> d in
+    range "w" w 1 fmt.w;
+    range "h" h 1 fmt.h;
+    range "d" d 1 fmt.d;
+    let sample_size = sample_dim fmt.sf in
+    let line_size = sample_size * fmt.w + fmt.w_skip in 
+    let plane_size = sample_size * fmt.w * fmt.h + fmt.w_skip * (fmt.h - 1) in
+    let first = z * plane_size + y * line_size + (y - 1) * fmt.w_skip 
+*)
+      
   let pp_format fmt f = failwith "TODO"
 
-  type t 
+  (* Raster data *)
+
+  type t = format * buffer 
+  let v f b = f, b
+  let format (fmt, _) = fmt
+  let buffer (_, b) = b
+  let dim (fmt, _) = format_dim fmt
+  let size2 (fmt, _) = Size2.v (float fmt.w) (float fmt.h)  
+  let size3 (fmt, _) = Size3.v (float fmt.w) (float fmt.h) (float fmt.d)
+  let subraster ?x ?y ?z ?w ?h ?d (fmt, b) = 
+    v (subspace ?x ?y ?z ?w ?h ?d fmt) b    
 end
+
+type raster = Raster.t
 
 (*---------------------------------------------------------------------------
    Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli
