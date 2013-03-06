@@ -2696,8 +2696,8 @@ type color = v4
     {3 References.}
     {ul
     {- Charles Poynton. 
-       {e {{:http://www.poynton.com/PDFs/ColorFAQ.pdf}Frequently
-      asked questions about color}}. 2006}
+       {e {{:http://www.poynton.com/notes/colour_and_gamma/ColorFAQ.html}
+       Frequently asked questions about color}}. 2006}
     {- Charles Poynton. 
        {e {{:http://www.poynton.com/PDFs/Guided_tour.pdf}A guided tour of 
        color space}}. 1997}
