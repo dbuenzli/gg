@@ -2683,199 +2683,163 @@ end
 (** {1:colors Colors} *)
 
 type color = v4
-(** The type for RGBA colors in linear sRGB space. 
-    {{:Gg.Color.html#colors}Details}. *)
+(** The type for colors in a linear sRGBA space, see  
+    {{!Color.t}details}. *)
 
-(** Colors and color spaces.
+(** Colors and color profiles.
 
-    The functionnality provided by this module is twofold.  First,
-    some functions are given to operate on {!color} values. 
+    [Color] provides some function to operate on {{!t}color} values
+    and basic support for ICC based {{!profile}color profiles} to 
+    precisely specify how to interpret raw color samples. Thorough color 
+    profile support and conversion is provided byte the {!Gcolor} module.
 
-    Second, types and functions are defined to provide {e basic}
-    support for {{:#colorspaces}color spaces}.
+    {3 References.}
+    {ul
+    {- Charles Poynton. 
+       {e {{:http://www.poynton.com/PDFs/ColorFAQ.pdf}Frequently
+      asked questions about color}}. 2006}
+    {- Charles Poynton. 
+       {e {{:http://www.poynton.com/PDFs/Guided_tour.pdf}A guided tour of 
+       color space}}. 1997}
+    {- Bruce MacEvoy. 
+       {{:http://www.handprint.com/LS/CVS/color.html}Color
+       vision} and
+      {{:http://www.handprint.com/HP/WCL/color7.html}modern color models}.}
+    {- International Color Consortium. 
+       {e {{:http://www.color.org/icc_specs2.xalter}ICC.1:2010-12 Image 
+       technology coulour management - Architecture, profile format, and 
+       data structure}}. 2010.}}
 
-    {b Note.} Component naming in color science is often case
-    sensitive, to accomodate this with OCaml's syntactic discipline
-    some types and values are prefixed by a single character like
-    ['c'] (for color) or ['m'] (for model).
-    {1:top  } *) 
+*)
 module Color : sig
-  type cXYZ = v3
-  (** The type for colors in the XYZ space. *)
 
-  type cxyY = v3
-  (** The type for colors in the xyY space. *)
+  (** {1:colors Constructors, accessors and constants} *)
 
-  type cLab = v3
-  (** The type for colors in the Lab space. *)
+  type t = color
+  (** The type for linear sRGBA colors.  
 
-  type cHSV = v3
-  (** The type for colors in the HSV space. 
-
-  {b Important.} HSV components are all in the [0] to [1] range. *)
+     Values of this type are in a RGB color space defined by a D65
+     white point and the ITU-R BT.709 primary chromaticities. This
+     corresponds to a {e linearized}
+     {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} space. All
+     components range from [0.] to [1.]. The fourth component [a] is the
+     color's {e alpha} component. It represents the color's opacity. [0]
+     denotes a fully transparent color and [1] a completly opaque one. *)
 
   type stops = (float * color) list
   (** The type for color stops. A piecewise linear color curve. *)  
 
-     
-  (** {1:colors Linear sRGB colors} 
-
-      Values of type {!color} are in a RGB color space defined by a
-      D65 white point and the ITU-R BT.709 primary chromaticities
-      (this corresponds to a {e linearized} sRGB space). All
-      components range from [0.] to [1.]. The fourth component [a] is
-      the color's {e alpha} component. It represents the color's
-      opacity. [0] denotes a fully transparent color and [1] a
-      completly opaque one. *)
-
-
   val v : float -> float -> float -> float -> color
   (** [v r g b a] is the color [(r, g, b, a)]. *)
 
-
-  (** {4 Accessors} *)
-
   val r : color -> float 
+  (** [r c] is the [r] component of [c]. *)
 
   val g : color -> float
+  (** [g c] is the [g] component of [c]. *)
 
   val b : color -> float
+  (** [b c] is the [b] component of [c]. *)
 
   val a : color -> float
-
-  (** {4:csts Constants and convenience constructors} *)
+  (** [a c] is the [a] component of [c]. *)
 
   val void : color
   (** [void] is [(color 0. 0. 0. 0.)] an invisible color. *)
 
   val black : color
-  (** [black] is [(color 1. 1. 1. 1.)] *)
+  (** [black] is [(color 0. 0. 0. 1.)] *)
+
+  val gray : ?a:float -> float -> color 
+  (** [gray a g] is ([color g g g a]) *)
 
   val white : color
-  (** [white] is [(color 0. 0. 0. 1.)] *)
-
-  val gray : float -> color 
-  (** [gray g] is [(color g g g 1.)] *)
-
-  val gray_a : float -> float -> color 
-  (** [gray_a g a] is [(color g g g a)] *)
+  (** [white] is [(color 1. 1. 1. 1.)] *)
 
   val red : color
   (** [red] is [(color 1. 0. 0. 1.)] *)
 
-  val red_a : float -> color
-  (** [red_a a] is [(color 1. 0. 0. a)] *)
-
   val green : color
   (** [green] is [(color 0. 1. 0. 1.)] *)
-
-  val green_a : float -> color
-  (** [green_a a] is [(color 0. 1. 0. a)] *)
 
   val blue : color
   (** [blue] is [(color 0. 0. 1. 1.)] *)
 
-  val blue_a : float -> color
-  (** [blue_a a] is [(color 0. 0. 1. a)] *)
+  (** {1 Basic color conversions} *)
+  
+  type srgba = v4
+  (** The type for colors in the 
+     {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB}A color space. *)
 
-  (** {4:csts Simple conversions} *)
+  val of_srgba : srgba -> color 
+  (** [of_srgba c] is the sRGBA color [c] as a {e linear} sRGBA color. *)
 
+  val to_srgba : color -> srgba
+  (** [to_srgba c] is the {e linear} sRGBA color [c] as a sRGBA color. *)
 
-  val of_HSV : ?a:float -> cHSV -> color
-  val to_HSV : color -> cHSV
+  type lcha = v4
+  (** The type for colors in the LChA color space. *)
 
-  (** {1:colorspaces Color spaces} 
+  val of_lcha : lcha -> color 
+  (** [of_lcha c] is the LChA color [c] as a {e linear} sRGBA color. *)
 
-      A color space specifies how to interpret raw color intensities.
-      More information about color spaces can be found here : 
-      
-      TODO remove ? Charles Poynton. 
-      {{:http://www.poynton.com/PDFs/Guided_tour.pdf}A guided tour of 
-      color space}. 1997
-      
-      Charles Poynton {{:http://www.poynton.com/PDFs/ColorFAQ.pdf}Frequently
-      asked questions about color}. 2006 *)
+  val to_lcha : color -> lcha
+  (** [to_lcha c] is the {e linear} sRGBA color [c] as a LChA color. *)
+  
+  (** {1 Color spaces} *)
 
-  type model = [ `XYZ | `Lab | `Luv | `YCbCr | `Yxy | `RGB | `Gray | `HSV | 
-                 `HLS | `CMYK | `CMY | 
-                 `Unknown of int (** Number of components. *)]
-  (** The type for color models. *)
-
-  val model_dim : model -> int 
-  (** [model_dim m] is the dimension of model [m]. *)
-
-  type rendering_intent = [ `Perceptual | `Absolute_colorimetric | 
-                            `Relative_colorimetric | `Saturation ]
-  (** The type for rendering intents. *)
-
-  type space 
-  (** The type for color spaces. *)
+  type space = [ 
+    | `XYZ | `Lab | `Luv | `YCbr | `Yxy | `RGB | `Gray | `HSV | `HLS 
+    | `CMYK | `CMY | `CLR2 | `CLR3 | `CLR4 | `CLR5 | `CLR6 | `CLR7 
+    | `CLR8 | `CLR9 | `CLRA | `CLRB | `CLRC | `CLRD | `CLRE | `CLRF ]
+  (** The type for color spaces. These correspond to the ICC v4 supported 
+      color space, see the
+      {{:http://www.color.org/icc_specs2.xalter}specification},
+      section 7.2.6. *) 
 
   val space_dim : space -> int
-  (** [space_dim s] is the color space's dimension. *)
+  (** [space_dim s] is the dimension of the color space [s]. *)
 
-  val model : space -> model 
-  (** [model s] is the color space's model. *)
+  val pp_space : Format.formatter -> space -> unit 
+  (** [pp_space s] prints a textual representation of [s] on [ppf]. *)
 
-  val mGray : ?gamma:float -> white:cxyY -> space
-  (** [mGray white] is a device independent gray color space with 
-      a white point of [white]. *)
+  (** {1 Color profiles} *)
 
-  val mRGB : ?gamma:float -> white:cxyY -> r:cxyY -> g:cxyY -> b:cxyY -> space
-  (** [mRGB white r g b] is a device independent RGB color space with
+  type profile 
+  (** The type for color profiles. *)
+
+  val profile_of_icc : string -> profile option
+  (** [profile_of_icc s] is a profile from the ICC profile byte 
+      stream [s]. [None] is returned if [s] doesn't seem to be a ICC profile. 
+
+      {b Note} A profile value is returned if a color space can be 
+      extracted, it doesn't guarantee a correct ICC profile byte stream. *)
+
+  val profile_to_icc : profile -> string 
+  (** [profile_to_icc p] is [p]'s ICC profile byte stream. *)
+  
+  val profile_space : profile -> space
+  (** [profile_space p] is [p]'s color space. *)
+
+  val profile_dim : profile -> int
+  (** [profile_space p] is [space_dim (profile_space d)]. *)
+
+  type xyY = v3
+  (** The type for colors in the xyY space. *)
+
+  val p_gray : ?gamma:float -> white:xyY -> profile
+  (** [p_gray white] is a device independent gray color space with 
+      a white point of [white] and a gamma of [gamma]. *)
+
+  val p_lgray : profile 
+  (** [p_lgray] is linear gray TODO *)
+
+  val p_rgb : ?gamma:float -> white:xyY -> r:xyY -> g:xyY -> b:xyY -> profile
+  (** [p_rgb white r g b] is a device independent RGB color space with
       primary chromaticities [r], [g], [b] and a white point of [white]. *)
 
-  val mLab : ?white:v3 -> space
-  (** [mLab white] is a CIE Lab color space with white point of [white]. *)
-
-  val mXYZ : space
-  (** [mXYZ] is the XYZ color space. *)
-
-  val msRGB : space
-  (** [msRGB] is the sRGB color space. *)
-
-  val mlRGB : space
-  (** [mlRGB] is the RGB color space defined by a
-      D65 white point and the ITU-R BT.709 primary chromaticities. This
-      is the color space of {!color}. *)
-
-
-  (** {2:icc ICC defined color spaces. } *)
-
-  (** {{:http://www.color.org/}ICC} profiles.  
-      For more information about ICC profile consult the
-      {{:http://www.color.org/faqs.xalter}ICC FAQ}      
-*)
-  module Icc : sig 
-    type t 
-  end
-
-  val of_icc : Icc.t -> space
-  (** Color space corresponding to the given
-  {{:http://www.color.org/}ICC} profile.  *) 
-
-  val to_icc : space -> Icc.t
-  (** {{:http://www.color.org/}ICC} profile corresponding to 
-      the color space. *)
-
-  (** {1:conv Converting color data} *)
-
-(*
-      
-  type ('a, 'b) data
-  type progress 
-  type ('a, 'b, 'c, 'd) map = 
-      ?progress:progress -> w:int -> h:int -> ('a, 'b) data -> ('c, 'd) data -> 
-	unit
-  (** The type for a function mapping pixel data from a color space to 
-      another. *)
-
-  val map : src:pf -> dst:pf -> rendering_intent -> ('a,
-  'b, 'c, 'd) map 
-
-  val proof_map : src:pf -> dst:pf -> proof:(t * rendering_intent) ->
-  rendering_intent -> ('a, 'b, 'c, 'd) map
-*)
+  val p_lrgb : profile
+  (** [p_lrgb] is the color profile of {{!t}color} values. *)
 end
 
 (** {1:raster Raster data} *)
@@ -2892,7 +2856,7 @@ type raster
     dimension and the meaning of its {e components}. For example a 4D
     sample could represent a linear sRGBA sample. Samples are stored
     in a {{!type:buffer}linear buffer} of {e scalars} of a given
-    {{!scalar_type}type}. A sample can use one scalar per component,
+    {{!type:scalar_type}type}. A sample can use one scalar per component,
     can be packed in a single scalar or may have no direct obvious
     relationship to buffer scalars (compressed data). A
     {{!type:sample_format}sample format} defines the semantics and
@@ -2946,7 +2910,7 @@ module Raster : sig
 
   type semantics = 
     [ `Other of int * string
-    | `Color of Color.model * bool]
+    | `Color of Color.profile * bool]
   (** The type for sample semantics. 
       {ul 
       {- [`Color (p, alpha)] is for color samples from the
@@ -2955,17 +2919,21 @@ module Raster : sig
       {- [`Other(dim, label)] is for samples of [dim] dimensions. [label]
          can be used to identify the sample semantics.}} *)
   
-  val lRGB : semantics 
-  (** [lRGB] is for linear RGB samples from the {!Color.mlRGB} profile. *)
+  val lrgb : semantics 
+  (** [lrgb] is for linear RGB samples from the {!Color.p_lrgb}
+      profile. *)
   
-  val lRGBA : semantics
-  (** [lRGBA] is for linear RGB samples from the  {!Color.mlRGB} profile. *)
+  val lrgba : semantics
+  (** [lrgba] is for linear RGB samples from the  {!Color.p_lrgb} 
+      profile with an alpha component. *)
 
-  val lL : semantics
-  (** [lL] is for linear luminance (TODO gray ?) samples. *)
+  val lgray : semantics
+  (** [lgray] is for linear Gray samples from the {!Color.p_lgray} 
+      profile. *)
 
-  val lLA : semantics
-  (** [lLA] is for linear luminance with alpha samples. *)
+  val lgraya : semantics
+  (** [lgraya] is for linear Gray samples from the {!Color.p_lgray} 
+      luminance with an alpha component. *)
 
   val pp_semantics : Format.formatter -> semantics -> unit 
   (** [pp_semantics ppf sem] prints a textual representation of [sem] on 
@@ -3111,7 +3079,7 @@ module Raster : sig
   val v : format -> buffer -> t
   (** [v fmt buf] is raster data with format [fmt] and buffer [b]. 
 
-  {b Raises} [Invalid_argument] if the scalar_type of [fmt] doesn't
+  {b Raises} [Invalid_argument] if the scalar type of [fmt] doesn't
   match [(Raster.buffer_scalar_type b)]. *)
 
   val format : t -> format

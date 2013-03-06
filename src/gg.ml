@@ -2216,10 +2216,10 @@ type box3 = Box3.t
 type color = V4.t
 
 module Color = struct
-  type cXYZ = V3.t
-  type cxyY = V3.t
-  type cLab = V3.t
-  type cHSV = V3.t
+
+  (* Constructors, accessors and constants *)
+
+  type t = color 
   type stops = (float * V4.t) list
 
   let v = V4.v
@@ -2227,93 +2227,80 @@ module Color = struct
   let g = V4.y
   let b = V4.z 
   let a = V4.w
-
   let void = v 0. 0. 0. 0. 
-  let black = v 1. 1. 1. 1. 
-  let white = v 0. 0. 0. 1. 
-  let gray g = v g g g 1.
-  let gray_a g a = v g g g a
+  let black = v 0. 0. 0. 1. 
+  let gray ?(a = 1.) g = v g g g a
+  let white = v 1. 1. 1. 1. 
   let red = v 1. 0. 0. 1.
-  let red_a a = v 1. 0. 0. a 
   let green = v 0. 1. 0. 1. 
-  let green_a a = v 0. 1. 0. a 
   let blue = v 0. 0. 1. 1. 
-  let blue_a a = v 0. 0. 1. a 
-  let of_HSV ?(a = 1.) hsv = (* TODO eps comparisons ? *)
-    let h = V3.x hsv in 
-    let s = V3.y hsv in 
-    let v = V3.z hsv in 
-    if s = 0. then V4.v v v v a else 
-    let sector = (h *. 360.) /. 60. in 
-    let i = floor sector in
-    let f = sector -. i in 
-    let p = v *. (1. -. s) in
-    let q = v *. (1. -. s *. f) in 
-    let t = v *. (1. -. s *. (1. -. f)) in 
-    match truncate i with 
-    | 0 -> V4.v v t p a 
-    | 1 -> V4.v q v p a
-    | 2 -> V4.v p v t a 
-    | 3 -> V4.v p q v a
-    | 4 -> V4.v t p v a
-    | _ -> V4.v v p q a
-    
-  let to_HSV c = (* TODO eps comparisons ? *)
-    let r = r c in 
-    let g = g c in 
-    let b = b c in 
-    let min = 
-      let m = if r < g then r else g in 
-      if m < b then m else b 
-    in
-    let max = 
-      let m = if r > g then r else g in 
-      if m > b then m else b 
-    in
-    if max = 0. then V3.v 0. 0. 0. else 
-    let delta = max -. min in 
-    let v = max in
-    let s = delta /. max in
-    let h = 
-      let h = 
-        if r == max then (g -. b) /. delta else
-        if g == max then 2. +. (b -. r) /. delta else
-        4. +. (r -. g) /. delta 
-      in
-      let h = h *. 60. in
-      if h < 0. then h +. 360. else h 
-    in
-    V3.v h s v        
+
+  (* Basic color conversions *)
+
+  type srgba = v4 
+  let of_srgba c = failwith "TODO"
+  let to_srgba c = failwith "TODO"
+
+  type lcha = v4 
+  let of_lcha c = failwith "TODO"
+  let to_lcha c = failwith "TODO"
 
   (* Color spaces *)
 
-  type model = [ `XYZ | `Lab | `Luv | `YCbCr | `Yxy | `RGB | `Gray | `HSV | 
-                 `HLS | `CMYK | `CMY | 
-                 `Unknown of int (** Number of components. *)]
+  type space = [ 
+    | `XYZ | `Lab | `Luv | `YCbr | `Yxy | `RGB | `Gray | `HSV | `HLS 
+    | `CMYK | `CMY | `CLR2 | `CLR3 | `CLR4 | `CLR5 | `CLR6 | `CLR7 
+    | `CLR8 | `CLR9 | `CLRA | `CLRB | `CLRC | `CLRD | `CLRE | `CLRF ]
 
-  type rendering_intent = [ `Perceptual | `Absolute_colorimetric | 
-                            `Relative_colorimetric | `Saturation ]
-  type space = unit
-
-  let model_dim = function
+  let space_dim = function 
   | `Gray -> 1
-  | `XYZ | `Lab | `Luv | `YCbCr | `Yxy | `RGB | `HSV | `HLS | `CMY -> 3
-  | `CMYK -> 4
-  | `Unknown dim -> dim
-                 
-  let space_dim s = failwith "TODO"
-  let model s = failwith "TODO"
-  let mGray ?(gamma = 1.) ~white = failwith "TODO"
-  let mRGB ?(gamma = 1.) ~white ~r ~g ~b = failwith "TODO"
-  let mLab ?white = failwith "TODO"
-  let mXYZ = ()
-  let msRGB = ()
-  let mlRGB = ()
-  module Icc = struct 
-    type t 
-  end
-  let of_icc icc = failwith "TODO"
-  let to_icc s = failwith "TODO"
+  | `CLR2 -> 2
+  | `CLR3 | `XYZ | `Lab | `Luv | `YCbr | `Yxy | `RGB | `HSV | `HLS | `CMY -> 3
+  | `CLR4 | `CMYK -> 4
+  | `CLR5 -> 5 | `CLR6 -> 6 | `CLR7 -> 7 | `CLR8 -> 8 | `CLR9 -> 9 
+  | `CLRA -> 10 | `CLRB -> 11 | `CLRC -> 12 | `CLRD -> 13 | `CLRE -> 14 
+  | `CLRF -> 15
+
+  let space_str = function 
+  | `XYZ -> "XYZ" | `Lab -> "Lab" | `Luv -> "Lub" | `YCbr -> "YCbr" 
+  | `Yxy -> "Yxy" | `RGB -> "RGB" | `Gray -> "Gray" | `HSV -> "HSV" 
+  | `HLS -> "HLS" | `CMYK -> "CMYK" | `CMY -> "CMY" | `CLR2 -> "2CLR" 
+  | `CLR3 -> "3CLR" | `CLR4 -> "4CLR" | `CLR5 -> "5CLR" | `CLR6 -> "6CLR" 
+  | `CLR7 -> "7CLR" | `CLR8 -> "8CLR" | `CLR9 -> "9CLR" | `CLRA -> "ACLR" 
+  | `CLRB -> "BCLR" | `CLRC -> "CCLR" | `CLRD -> "DCLR" | `CLRE -> "ECLR" 
+  | `CLRF -> "FCLR"
+
+  let pp_space ppf s = Format.fprintf ppf "%s" (space_str s)
+
+  (* Color profiles *) 
+
+  type profile = { space : space; icc : string } 
+  
+  let profile_of_icc icc = try
+    let space = 
+      if String.length icc < 20 then failwith "" else
+      match String.sub icc 16 4 with 
+      | "XYZ " -> `XYZ | "Lab " -> `Lab | "Luv " -> `Luv | "YCbr" -> `YCbr
+      | "Yxy " -> `Yxy | "RGB " -> `RGB | "GRAY" -> `Gray | "HSV " -> `HSV
+      | "HLS " -> `HLS | "CMYK" -> `CMYK | "CMY " -> `CMY | "2CLR" -> `CLR2
+      | "3CLR" -> `CLR3 | "4CLR" -> `CLR4 | "5CLR" -> `CLR5 | "6CLR" -> `CLR6
+      | "7CLR" -> `CLR7 | "8CLR" -> `CLR8 | "9CLR" -> `CLR9 | "ACLR" -> `CLRA
+      | "BCLR" -> `CLRB | "CCLR" -> `CLRC | "DCLR" -> `CLRD | "ECLR" -> `CLRE
+      | "FCLR" -> `CLRF
+      | _ -> failwith ""
+    in
+    Some { space; icc } 
+  with Failure _ -> None
+
+  let profile_to_icc p = p.icc
+  let profile_space p = p.space 
+  let profile_dim p = space_dim p.space 
+
+  type xyY = v3
+  let p_gray ?(gamma = 1.) ~white = failwith "TODO"
+  let p_lgray = { space = `Gray; icc = "TODO" } 
+  let p_rgb ?(gamma = 1.) ~white ~r ~g ~b = failwith "TODO"
+  let p_lrgb = { space = `RGB; icc = "TODO" }
 end
 
 (* Raster samples *)
@@ -2371,13 +2358,18 @@ module Raster = struct
     
   (* Semantics *)
 
-  type semantics = [ `Color of Color.model * bool | `Other of int * string ]
-  let lRGB = `Color (`RGB, false)
-  let lRGBA = `Color (`RGB, true)
-  let lL = `Color (`Gray, false)
-  let lLA = `Color (`Gray, true)
-  let pp_semantics ppf sem = failwith "TODO"
-
+  type semantics = [ `Color of Color.profile * bool | `Other of int * string ]
+  let lrgb = `Color (Color.p_lrgb, false)
+  let lrgba = `Color (Color.p_lrgb, true)
+  let lgray = `Color (Color.p_lgray, false)
+  let lgraya = `Color (Color.p_lgray, true)
+  let pp_semantics ppf = function 
+  | `Color (p, a) -> 
+      let a = if a then " alpha" else "" in
+      Format.fprintf ppf "Color(%a%s)" Color.pp_space (Color.profile_space p) a
+  | `Other (d, label) -> 
+      Format.fprintf ppf "Other(%d %s)" d label
+    
   type sample_pack =
     [ `PU8888 | `FourCC of string * scalar_type option
     | `Other of string * scalar_type option ]
@@ -2420,7 +2412,7 @@ module Raster = struct
   let sample_dim sf = match sf.semantics with 
   | `Other (dim, _) -> dim 
   | `Color (profile, alpha) -> 
-      Color.model_dim profile + (if alpha then 1 else 0)
+      Color.profile_dim profile + (if alpha then 1 else 0)
 
   let pp_sample_format ppf sf = failwith "TODO"  
      
