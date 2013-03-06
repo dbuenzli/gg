@@ -36,6 +36,12 @@ Executable test
 Test test
  Command: $test
 
+Library gcolor
+ Path: src
+ Modules: Gcolor
+ BuildDepends: gg, bigarray
+ FindlibParent: gg
+
 Executable benchmark
  Path: test/
  MainIs: benchmark.ml
