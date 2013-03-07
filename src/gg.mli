@@ -2865,7 +2865,13 @@ type raster
     A {{!t}{e raster data}} value is a collection of samples indexed by width, 
     height and depth (i.e. x, y, z) and stored in a buffer. The extents of the
     index and the sample format are defined by the raster data's
-    {{!type:format}format}.  *) 
+    {{!type:format}format}.  
+
+    {b Spatial convention.} If the sample index has to be interpreted
+    spatially. It must be interpreted relative to the origin of a
+    right-handed coordinate system. This means that the first sample,
+    indexed by [(0, 0, 0)]is the bottom-left backmost sample
+    (bottom-left sample for an image). *) 
 module Raster : sig
 
   (** {1:scalars Scalar types and buffers} *)
