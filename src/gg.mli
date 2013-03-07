@@ -3006,9 +3006,9 @@ module Raster : sig
   type format
   (** The type for raster formats. *)
 
-  val format_v : ?first:int -> ?w_skip:int -> ?h_skip:int -> w:int -> 
-  ?h:int -> ?d:int -> sample_format -> format
-  (** [format_v first w_skip h_skip w h d sf] is a new raster format
+  val format_v : ?res:v3 -> ?first:int -> ?w_skip:int -> 
+  ?h_skip:int -> w:int -> ?h:int -> ?d:int -> sample_format -> format
+  (** [format_v res first w_skip h_skip w h d sf] is a new raster format
       with sample format [sf]. 
       {ul
       {- [w], [h], [d], specify the index width, height and depth, in 
@@ -3018,7 +3018,9 @@ module Raster : sig
       {- [w_skip], number of {e buffer scalars} to skip between two 
          consecutive lines, defaults to [0].} 
       {- [h_skip], number of {e buffer scalars} to skip between two 
-         consecutive planes, defaults to [0].}}
+         consecutive planes, defaults to [0].}
+      {- [res], is an optional sample resolution specification in 
+         samples per meters.}}
      For certain sample formats [first], [w_skip] and [h_skip] can be used 
      to specify subspaces in the collection of samples, see {!subspace}. 
 
@@ -3060,6 +3062,9 @@ module Raster : sig
 
   val format_dim : format -> int
   (** [format_dim fmt] is [fmt]'s index dimension from 1 to 3. *)
+
+  val format_res : format -> v3 option
+  (** [format_res fmt] is [fmt]'s resolution in sample per meters, if any. *)
   
   val subspace : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> 
     format -> format
@@ -3096,6 +3101,9 @@ module Raster : sig
 
   val dim : t -> int
   (** [dim r] is [Raster.format_dim (Raster.format r)]. *)
+
+  val res : t -> v3 option
+  (** [res r] is [Raster.format_res (Raster.format r)]. *)
 
   val size2 : t -> size2
   (** [size2 r] is [r]'s index width and height as floats. *)

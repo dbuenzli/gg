@@ -2435,17 +2435,19 @@ module Raster = struct
   (* Raster format *)
   
   type format = 
-    { first : int; w_skip : int; h_skip : int; (* TODO store is as pitch ? *)
+    { res : v3 option;
+      first : int; w_skip : int; h_skip : int; (* TODO store is as pitch ? *)
       w : int; h : int; d : int; 
       sf : sample_format; } 
 
-  let format_v ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) ?(d = 1) sf
+  let format_v ?res ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
+      ?(d = 1) sf
     =
     let nneg a v = if v >= 0 then () else invalid_arg (err_iclass a v false) in
     let pos a v = if v > 0 then () else invalid_arg (err_iclass a v true) in
     nneg "first" first; nneg "w_skip" w_skip; nneg "h_skip" h_skip;
     pos "w" w; pos "h" h; pos "d" d;
-    { first; w_skip; h_skip; w; h; d; sf} 
+    { res; first; w_skip; h_skip; w; h; d; sf} 
 
   let first fmt = fmt.first
   let w_skip fmt = fmt.w_skip
@@ -2461,6 +2463,7 @@ module Raster = struct
     let vol_size = plane_size * fmt.d + fmt.h_skip * (fmt.d - 1) in
     fmt.first + vol_size
 
+  let format_res fmt = fmt.res
   let format_dim fmt = 
     1 + (if fmt.h > 1 then 1 else 0) + (if fmt.d > 1 then 1 else 0)
 
@@ -2494,6 +2497,7 @@ module Raster = struct
   let format (fmt, _) = fmt
   let buffer (_, b) = b
   let dim (fmt, _) = format_dim fmt
+  let res (fmt, _) = format_res fmt
   let size2 (fmt, _) = Size2.v (float fmt.w) (float fmt.h)  
   let size3 (fmt, _) = Size3.v (float fmt.w) (float fmt.h) (float fmt.d)
   let subraster ?x ?y ?z ?w ?h ?d (fmt, b) = 
