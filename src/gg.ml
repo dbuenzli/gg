@@ -2220,7 +2220,7 @@ module Color = struct
   (* Constructors, accessors and constants *)
 
   type t = color 
-  type stops = (float * V4.t) list
+  type stops = (float * t) list
 
   let v = V4.v
   let r = V4.x 
@@ -2237,9 +2237,25 @@ module Color = struct
 
   (* Basic color conversions *)
 
+  (* N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 
+     are wrong. *)
+
   type srgba = v4 
-  let of_srgba c = failwith "TODO"
-  let to_srgba c = failwith "TODO"
+
+  let of_srgba c = 
+    let s2l v = 
+      if v <= 0.04045 then v /. 12.92 else
+      ((v +. 0.055) /. 1.055) ** 2.4
+    in
+    v (s2l c.V4t.x) (s2l c.V4t.y) (s2l c.V4t.z) c.V4t.w
+    
+  let l2s_exp = 1. /. 2.4
+  let to_srgba c =
+    let l2s v = 
+      if v <= 0.0031308 then 12.92 *. v else
+      1.055 *. (v ** l2s_exp) -. 0.055
+    in
+    v (l2s c.V4t.x) (l2s c.V4t.y) (l2s c.V4t.z) c.V4t.w
 
   type lcha = v4 
   let of_lcha c = failwith "TODO"
