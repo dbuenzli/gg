@@ -1816,6 +1816,123 @@ module Box3_tests = struct
       >> C.success
 end
 
+module Color_tests = struct
+  open Color
+  let test n f = Test.add_test ("Color." ^ n) f
+
+  module type Param = sig
+    val name : string
+    val precision : int
+  end
+
+  module Testable_color (P:Param) = C.Make(struct
+    type t = v4
+    let print fmt v =
+      Format.fprintf fmt "@[<1>%s(%.*f@ %.*f@ %.*f@ %.*f)@]" P.name
+        P.precision (V4.x v) P.precision (V4.y v) P.precision (V4.z v)
+        P.precision (V4.w v)
+
+    let eps = 2. *. 10. ** (float (-P.precision));;
+
+    let compare a b =
+      V4.compare_f (Float.compare_tol ~eps) a b;;
+  end)
+
+  module SRGB = Testable_color(struct
+    let name = "sRGB"
+    let precision = 4
+  end)
+
+  module LRGB = Testable_color(struct
+    let name = "RGB"
+    let precision = 4
+  end)
+
+  module LAB = Testable_color(struct
+    let name = "LAB"
+    let precision = 3
+  end)
+
+  module LCH = Testable_color(struct
+    let name = "LCH"
+    let precision = 3
+  end)
+
+  type testcase = {
+    srgba: srgba;
+    color: color;
+    lab: laba;
+    gray: v2;
+  }
+
+  let to_testcase r' g' b' lr lg lb l a b gray =
+    let alpha = 0.5 in {
+    srgba = V4.v r' g' b' alpha;
+    color = V4.v lr lg lb alpha;
+    lab = V4.v l a b alpha;
+    gray = V2.v gray alpha
+  }
+
+  let rec generate_testcases f lst =
+    try
+      let line = input_line f in
+      let testcase =
+        Scanf.sscanf line "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f" to_testcase in
+      generate_testcases f (testcase :: lst)
+    with End_of_file -> List.rev lst;;
+
+
+  let srgb_check r t =
+    r >> LRGB.Order.(=) (of_srgba t.srgba) t.color
+      >> SRGB.Order.(=) (to_srgba t.color) t.srgba;;
+
+  let srgb_roundtrip color r =
+    let srgba = to_srgba color in
+    (* TODO: we should higher precision for round-trip check *)
+    r >> LRGB.Order.(=) ~id:"sRGB roundtrip" (of_srgba srgba) color;;
+
+  let lab_check r t =
+    r (* TODO: test LCH in separation *)
+      >> LAB.Order.(=) (lab_of_lch (to_lcha t.color)) t.lab
+      >> LRGB.Order.(=) (of_lcha (lch_of_lab t.lab)) t.color;;
+
+  let lch_roundtrip color r =
+    let lch = to_lcha color in
+    r >> LRGB.Order.(=) ~id:"LCH roundtrip" (of_lcha lch) color
+
+  let lab_roundtrip lab r =
+    let lch = lch_of_lab lab in
+    r >> LAB.Order.(=) ~id:"LAB roundtrip" (lab_of_lch lch) lab;;
+
+  let run_checks testcases f r =
+    List.fold_left f r testcases;;
+
+  let color_gen =
+    V4_tests.V4.gen ~min:0. ~len:1.;;
+
+  let () =
+    let f = open_in "test/rgbtest.csv" in
+    ignore (input_line f);(* header *)
+    let testcases = generate_testcases f [] in
+    begin test "of_srgba, to_srgba" & fun r ->
+      run_checks testcases srgb_check r >>
+      C.for_all color_gen srgb_roundtrip >>
+      C.success
+    end;
+(*    begin test "of_lch, to_lch, lab_of_lch, lch_of_lab" & fun r ->
+      run_checks testcases lab_check r >>
+      C.for_all color_gen lch_roundtrip r >>
+      C.success
+    end;*)
+(*  begin test "of_gray, to_gray" & fun r ->
+      run_checks testcases gray_check r;
+      C.for_all color_gen gray_roundtrip >>
+      C.success
+    end;*)
+    close_in f;;
+
+end
+
 (* main *)
 
 let main () = 
