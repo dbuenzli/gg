@@ -2824,19 +2824,9 @@ module Color : sig
   val profile_dim : profile -> int
   (** [profile_space p] is [space_dim (profile_space d)]. *)
 
-  type xyY = v3
-  (** The type for colors in the xyY space. *)
-
-  val p_gray : ?gamma:float -> white:xyY -> profile
-  (** [p_gray white] is a device independent gray color space with 
-      a white point of [white] and a gamma of [gamma]. *)
-
   val p_lgray : profile 
-  (** [p_lgray] is linear gray TODO *)
-
-  val p_rgb : ?gamma:float -> white:xyY -> r:xyY -> g:xyY -> b:xyY -> profile
-  (** [p_rgb white r g b] is a device independent RGB color space with
-      primary chromaticities [r], [g], [b] and a white point of [white]. *)
+  (** [p_lgray] is a linear gray color profile defined by a 
+      D65 white point. *)
 
   val p_lrgb : profile
   (** [p_lrgb] is the color profile of {{!t}color} values. *)

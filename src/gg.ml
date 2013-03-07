@@ -2311,11 +2311,7 @@ module Color = struct
   let profile_to_icc p = p.icc
   let profile_space p = p.space 
   let profile_dim p = space_dim p.space 
-
-  type xyY = v3
-  let p_gray ?(gamma = 1.) ~white = failwith "TODO"
   let p_lgray = { space = `Gray; icc = "TODO" } 
-  let p_rgb ?(gamma = 1.) ~white ~r ~g ~b = failwith "TODO"
   let p_lrgb = { space = `RGB; icc = "TODO" }
 end
 
