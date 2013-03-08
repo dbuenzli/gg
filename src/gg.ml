@@ -2263,13 +2263,10 @@ module Color = struct
     let to_lch lab =
       let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
       let c = sqrt (a *. a +. b *. b) in
-      let h = Float.deg_of_rad (atan2 b a) in
-      let h = if h < 0.0 then h +. 360. else h in
-      V3.v l c h
+      V3.v l c (atan2 b a)
 
     let of_lch lch =
       let l, c, h = lch.V3t.x, lch.V3t.y, lch.V3t.z  in
-      let h = Float.rad_of_deg h in
       let a = c *. (cos h) and b = c *. (sin h) in
       V3.v l a b
 
