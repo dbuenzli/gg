@@ -33,8 +33,12 @@ pre code { font-size : inherit; }
 
 /* ocamldoc markup workaround hacks */
 
+
+
 hr, hr + br, div + br, center + br, span + br, ul + br, ol + br, pre + br
 { display: none } /* annoying */
+
+div.info + br { display:block}
 
 .codepre br + br { display: none }
 h1 + pre { margin-bottom:1.375em} /* Toplevel module description */

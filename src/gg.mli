@@ -1,18 +1,18 @@
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli. All rights reserved.
+   Copyright (c) %%COPYRIGHT%%. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
    %%PROJECTNAME%% version %%VERSION%%
   --------------------------------------------------------------------------*)
 
 (** Basic types for computer graphics.  
 
-    [Gg] defines types and functions for {{:Gg.Float.html}floats},
-    {{:#vectors}vectors}, {{:#points}points},
-    {{:#matrices}matrices}, {{:#quaternions}quaternions}, {{:#sizes}sizes},
-    {{:#aboxes}axis aligned boxes}, {{:#colors}colors}, 
-    {{:Gg.Color.html#colorspaces}color spaces} and {{:#raster}raster data}.
+    [Gg] defines types and functions for {{!Float}floats},
+    {{!vectors}vectors}, {{!points}points},
+    {{!matrices}matrices}, {{!quaternions}quaternions}, {{!sizes}sizes},
+    {{!aboxes}axis aligned boxes}, {{!colors}colors}, 
+    {{!Color.colorprofiles}color profiles} and {{!raster}raster data}.
 
-    Consult the {{:#basics}basics}. Open the module to use it, this
+    Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope. 
 
     {e Version %%VERSION%% - %%EMAIL%% } *)
@@ -21,16 +21,16 @@
 
 (** Floating point number utilities.  
 
-    This module defines a few useful {{:#constants}constants},
-    {{:#functions}functions}, {{:#comparisons}predicates and
-    comparisons} on floating point numbers. The {{:#printers}printers}
+    This module defines a few useful {{!constants}constants},
+    {{!functions}functions}, {{!comparisons}predicates and
+    comparisons} on floating point numbers. The {{!printers}printers}
     output a lossless textual representation of floats.
 
-    {{:Gg.html#floatrecall}Quick recall} on OCaml's floating
+    {{!floatrecall}Quick recall} on OCaml's floating
     point representation. *)
 module Float : sig
 
- type t = float
+  type t = float
   (** The type for floating point numbers. *)
 
   (** {1:constants Constants} *)
@@ -248,7 +248,62 @@ module Float : sig
   val print : Format.formatter -> float -> unit
   (** [print ppf x] prints [x] on [ppf] according to the lossless
       representation of {!to_string}. *) 
+
+  (** {1:floatrecall Quick recall on OCaml's [float]s} 
+
+     An OCaml [float] is an
+     {{:http://ieeexplore.ieee.org/servlet/opac?punumber=4610933}IEEE-754}
+     64 bit double precision binary floating point number. The 64 bits
+     are laid out as follows :
+{v
++----------------+-----------------------+-------------------------+
+| sign s (1 bit) | exponent e (11 bits)  | significand t (52 bits) |
++----------------+-----------------------+-------------------------+
+               63|62                   52|51                      0|
+v}
+   
+    The value represented depends on s, e and t :
+{v
+sign   exponent       significand   value represented           meaning
+-------------------------------------------------------------------------
+s      0              0             -1^s * 0                    zero
+s      0              t <> 0        -1^s * 0.t * 2^-1022        subnormal
+s      0 < e < 2047   f             -1^s * 1.t * 2^(e - 1023)   normal
+s      2047           0             -1^s * infinity             infinity
+s      2047           t <> 0        NaN                         not a number
+v}
+
+     There are two zeros, a positive and a negative one but both are
+     deemed equal by [=] and [Pervasives.compare]. A NaN is never equal
+     (=) to {e itself} or to another NaN however [Pervasives.compare]
+     asserts any NaN to be equal to itself and to any other NaN.
+
+     The bit layout of a [float] can be converted to an [int64] and
+     back using [Int64.bits_of_float] and [Int64.float_of_bits].
+     
+     The bit 51 of a NaN is used to distinguish between quiet (bit set)
+     and signaling NaNs (bit cleared); the remaining 51 lower bits of
+     the significand are the NaN's {e payload} which can be used to
+     store diagnostic information. These features don't seem to used in
+     OCaml.
+     
+     The significand of a floating point number is made of 53 binary
+     digits (don't forget the implicit digit), this corresponds to 
+     log{_10}(2{^53}) ~ 16 {e decimal} digits.
+     
+     Only [float] values in the interval \][-2]{^52};2{^52}\[ may have
+     a fractional part. {!Float.max_frac_float} is the greatest
+     positive [float] with a fractional part.
+     
+     Any integer value in the interval \[[-2]{^53};2{^53}\] can be
+     represented exactly by a [float] value.  {e Integer} arithmetic
+     performed in this interval is exact.  {!Float.max_int_arith} is
+     2{^53}. *)
+
 end
+
+(** The following type are defined so that they can be used
+    in vector modules. The matrix modules are {{!matrices}here}. *)
 
 type m2
 (** The type for 2x2 matrices. *)
@@ -425,7 +480,6 @@ module type V = sig
   (** [print_f pp_comp ppf v] prints [v] like {!print} but uses 
       [pp_comp] to print floating point values. *)
 end
-
 
 module V2 : sig
   type t = v2
@@ -1332,7 +1386,7 @@ module M2 : sig
 
   val el : int -> int -> m2 -> float
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
-      {{:#accessors}element accessors}.
+      {{!accessors}element accessors}.
 
       {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
@@ -1502,7 +1556,7 @@ module M3 : sig
 
   val el : int -> int -> m3 -> float
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
-      {{:#accessors}element accessors}.
+      {{!accessors}element accessors}.
 
       {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
@@ -1711,7 +1765,7 @@ module M4 : sig
 
   val el : int -> int -> m4 -> float
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
-      {{:#accessors}element accessors}.
+      {{!accessors}element accessors}.
 
       {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
@@ -2683,8 +2737,7 @@ end
 (** {1:colors Colors} *)
 
 type color = v4
-(** The type for colors in a linear sRGBA space, see  
-    {{!Color.t}details}. *)
+(** The type for colors, see  {{!Color.t}details}. *)
 
 (** Colors and color profiles.
 
@@ -2707,7 +2760,7 @@ type color = v4
       {{:http://www.handprint.com/HP/WCL/color7.html}modern color models}.}
     {- International Color Consortium. 
        {e {{:http://www.color.org/icc_specs2.xalter}ICC.1:2010-12 Image 
-       technology coulour management - Architecture, profile format, and 
+       technology colour management - Architecture, profile format, and 
        data structure}}. 2010.}}
 
 *)
@@ -2716,15 +2769,14 @@ module Color : sig
   (** {1:colors Constructors, accessors and constants} *)
 
   type t = color
-  (** The type for linear sRGBA colors.  
-
-     Values of this type are in a RGB color space defined by a D65
-     white point and the ITU-R BT.709 primary chromaticities. This
-     corresponds to a {e linearized}
-     {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} space. All
-     components range from [0.] to [1.]. The fourth component [a] is the
-     color's {e alpha} component. It represents the color's opacity. [0]
-     denotes a fully transparent color and [1] a completly opaque one. *)
+  (** The type for colors in a device independent RGB color space with
+      an alpha component. The color space is defined by a D65 white
+      point and the ITU-R BT.709 primary (corresponds to a {e
+      linearized}
+      {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} space).
+      The {e alpha} component represent the color's opacity ranging
+      from [0.], a fully transparent color, to [1.] a completly opaque
+      one. *)
 
   type stops = (float * color) list
   (** The type for color stops. A piecewise linear color curve. *)  
@@ -2774,31 +2826,31 @@ module Color : sig
      by CSS. *)
 
   val of_srgba : srgba -> color 
-  (** [of_srgba c] is the sRGBA color [c] as a {e linear} sRGBA color. *)
+  (** [of_srgba c] is the {{!srgba}sRGBA} color [c] as a {{!t}color} value. *)
 
   val to_srgba : color -> srgba
-  (** [to_srgba c] is the {e linear} sRGBA color [c] as a sRGBA color. *)
+  (** [to_srgba c] is the {{!t}color} value [c] as a {{!srgba}sRGBA} color. *)
 
   type lcha = v4
   (** The type for colors in the CIE L*C*h* color space with a D50 reference 
-      whitepoint and an alpha component. This color space is CIE L*a*b* with 
+      white point and an alpha component. This color space is CIE L*a*b* with 
       polar coordinates, the meaning and range of the components is:
      {ul
      {- L* is the lightness in the range [0.] to [100.].}
-     {- C* represents chroma.}
-     {- h* represents hue in degrees in the range [0.] to [360].
-        TODO: should we use radians? YES.}}
+     {- C* represents chroma, in the range [0.] to 
+        [181.02], but less in practice.}
+     {- h* represents hue in degrees in the range [0.] to [2pi].}}
    *)
 
   val of_lcha : lcha -> color 
-  (** [of_lcha c] is the LChA color [c] as a {e linear} sRGBA color. *)
+  (** [of_lcha c] is the {{!lcha}LChA} color [c] as a {{!t}color} value. *)
 
   val to_lcha : color -> lcha
-  (** [to_lcha c] is the {e linear} sRGBA color [c] as a LChA color. *)
+  (** [to_lcha c] is the {{!t}color} value [c] as a {{!lcha}LChA} color. *)
 
   type laba = v4
   (** The type for colors in the CIE L*a*b* color space with a D50 reference
-      whitepoint and an alpha component. The meaning and range of the 
+      white point and an alpha component. The meaning and range of the 
       components is:
       {ul
       {- L* is lightness in the range [0.] to [100.]}
@@ -2806,10 +2858,10 @@ module Color : sig
    *)
 
   val of_laba : laba -> color 
-  (** [of_laba c] is the LabA color [c] as a {e linear} sRGBA color. *)
+  (** [of_laba c] is the {{!laba}LabA} color [c] as a {{!t}color} value. *)
 
   val to_laba : color -> laba
-  (** [to_laba c] is the {e linear} sRGBA color [c] as a LabA color. *)
+  (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. *)
   
   (** {1 Color spaces} *)
 
@@ -2828,14 +2880,14 @@ module Color : sig
   val pp_space : Format.formatter -> space -> unit 
   (** [pp_space s] prints a textual representation of [s] on [ppf]. *)
 
-  (** {1 Color profiles} *)
+  (** {1:colorprofiles Color profiles} *)
 
   type profile 
   (** The type for {{:http://www.color.org/}ICC} color profiles. A
       color profile can describe the characteristics of a color space,
-      an input or output device, and provide a mapping to a profile
+      an input or output device and provide a mapping to a profile
       connection space (PCS), which is either CIE L*a*b* or XYZ with a
-      D50 whitepoint.  For more information about ICC profile consult
+      D50 white point.  For more information about ICC profile consult
       the {{:http://www.color.org/faqs.xalter}ICC FAQ} and the
       {{:http://color.org/icc_specs2.xalter}ICC v4 specification}.
 
@@ -3259,57 +3311,8 @@ end
        are undefined on certain arguments but do not raise [Invalid_argument]
        on those. As usual do not rely on the behaviour of functions on undefined
        argument, these are subject to change.}}
+*)
 
-    {1:floatrecall Quick recall on OCaml's [float]s} 
-
-    An OCaml [float] is an
-    {{:http://ieeexplore.ieee.org/servlet/opac?punumber=4610933}IEEE-754}
-    64 bit double precision binary floating point number. The 64 bits
-    are laid out as follows :
-{v
-+----------------+-----------------------+-------------------------+
-| sign s (1 bit) | exponent e (11 bits)  | significand t (52 bits) |
-+----------------+-----------------------+-------------------------+
-               63|62                   52|51                      0|
-v}
-   
-    The value represented depends on s, e and t :
-{v
-sign   exponent       significand   value represented           meaning
--------------------------------------------------------------------------
-s      0              0             -1^s * 0                    zero
-s      0              t <> 0        -1^s * 0.t * 2^-1022        subnormal
-s      0 < e < 2047   f             -1^s * 1.t * 2^(e - 1023)   normal
-s      2047           0             -1^s * infinity             infinity
-s      2047           t <> 0        NaN                         not a number
-v}
-
-    There are two zeros, a positive and a negative one but both are
-    deemed equal by [=] and [Pervasives.compare]. A NaN is never equal
-    (=) to {e itself} or to another NaN however [Pervasives.compare]
-    asserts any NaN to be equal to itself and to any other NaN.
-
-    The bit layout of a [float] can be converted to an [int64] and
-    back using [Int64.bits_of_float] and [Int64.float_of_bits].
-
-    The bit 51 of a NaN is used to distinguish between quiet (bit set)
-    and signaling NaNs (bit cleared); the remaining 51 lower bits of
-    the significand are the NaN's {e payload} which can be used to
-    store diagnostic information. These features don't seem to used in
-    OCaml.
-
-    The significand of a floating point number is made of 53 binary
-    digits (don't forget the implicit digit), this corresponds to 
-    log{_10}(2{^53}) ~ 16 {e decimal} digits.
-
-    Only [float] values in the interval \][-2]{^52};2{^52}\[ may have
-    a fractional part. {!Float.max_frac_float} is the greatest
-    positive [float] with a fractional part.
-
-    Any integer value in the interval \[[-2]{^53};2{^53}\] can be
-    represented exactly by a [float] value.  {e Integer} arithmetic
-    performed in this interval is exact.  {!Float.max_int_arith} is
-    2{^53}. *)
 
 (*---------------------------------------------------------------------------
    Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli
