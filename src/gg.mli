@@ -2769,10 +2769,9 @@ module Color : sig
   
   type srgba = v4
   (** The type for colors in the 
-     {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB}A color space.
-     This is usually the colorspace used in images for the web, and is also
-     OpenGL's output colorspace if FRAMEBUFFER_SRGB is enabled.
-   *)
+     {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} color space 
+     with an alpha component. This is the color space used, for example,
+     by CSS. *)
 
   val of_srgba : srgba -> color 
   (** [of_srgba c] is the sRGBA color [c] as a {e linear} sRGBA color. *)
@@ -2781,14 +2780,14 @@ module Color : sig
   (** [to_srgba c] is the {e linear} sRGBA color [c] as a sRGBA color. *)
 
   type lcha = v4
-  (** The type for colors in the LChA color space.
-   * CIE L*C*h* colorspace (i.e. CIE L*a*b* with polar coordinates),
-   * with a D50 reference whitepoint.
-   *
-   * L* represents the lightness, with a range from [0.] to [100.],
-   * C* represents chroma
-   * h* represents hue in degrees (i.e. [0.] to [360].)
-   * TBD: should we use radians?
+  (** The type for colors in the CIE L*C*h* color space with a D50 reference 
+      whitepoint and an alpha component. This color space is CIE L*a*b* with 
+      polar coordinates, the meaning and range of the components is:
+     {ul
+     {- L* is the lightness in the range [0.] to [100.].}
+     {- C* represents chroma.}
+     {- h* represents hue in degrees in the range [0.] to [360].
+        TODO: should we use radians? YES.}}
    *)
 
   val of_lcha : lcha -> color 
@@ -2798,17 +2797,19 @@ module Color : sig
   (** [to_lcha c] is the {e linear} sRGBA color [c] as a LChA color. *)
 
   type laba = v4
-  (** The type for colors in the CIE L*a*b* color space, with a D50 reference
-   * whitepoint, and an alpha component.
-   * L* represents lightness, and has a range from [0.] to [100.],
-   * a* and b*'s practical range is [-128.] to [127.]
+  (** The type for colors in the CIE L*a*b* color space with a D50 reference
+      whitepoint and an alpha component. The meaning and range of the 
+      components is:
+      {ul
+      {- L* is lightness in the range [0.] to [100.]}
+      {- a* and b*'s practical range is [-128.] to [127.]}}
    *)
 
-  val lab_of_lch : lcha -> laba
-  (** Convert from CIE L*C*h* to CIE L*a*b* *)
+  val of_laba : laba -> color 
+  (** [of_laba c] is the LabA color [c] as a {e linear} sRGBA color. *)
 
-  val lch_of_lab : laba -> lcha
-  (** Convert from CIE L*a*b* to CIE L*C*h* *)
+  val to_laba : color -> laba
+  (** [to_laba c] is the {e linear} sRGBA color [c] as a LabA color. *)
   
   (** {1 Color spaces} *)
 
@@ -2830,19 +2831,17 @@ module Color : sig
   (** {1 Color profiles} *)
 
   type profile 
-  (** The type for {{:http://www.color.org/}ICC} color profiles.
-   *
-      A color profile can describe the characteristics of a colorspace,
-      an input or output device, and provide a mapping to a profile connection
-      space (PCS), which is either CIE L*a*b* or XYZ with a D50 whitepoint.
-      For more information about ICC profile consult the
-      {{:http://www.color.org/faqs.xalter}ICC FAQ} and the
-      {{:http://color.org/icc_specs2.xalter}ICC v4 specification and its
-      errata}.
+  (** The type for {{:http://www.color.org/}ICC} color profiles. A
+      color profile can describe the characteristics of a color space,
+      an input or output device, and provide a mapping to a profile
+      connection space (PCS), which is either CIE L*a*b* or XYZ with a
+      D50 whitepoint.  For more information about ICC profile consult
+      the {{:http://www.color.org/faqs.xalter}ICC FAQ} and the
+      {{:http://color.org/icc_specs2.xalter}ICC v4 specification}.
 
-      Only a few built-in profiles are defined here, for more built-in profiles,
-      and the ability to customize the profile see {!Gcolor.ICC}.
-    *)
+      This module defines only a profile for the color space of 
+      {!color} and a grayscale color space. More profiles and
+      profile constructors can be found in {!Gcolor.ICC}. *)
 
   val profile_of_icc : string -> profile option
   (** [profile_of_icc s] is a profile from the ICC profile byte 

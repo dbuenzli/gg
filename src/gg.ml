@@ -2262,91 +2262,76 @@ module Color = struct
     let rgb_of_d50xyz = M3.v
       3.1339  (-1.6170) (-0.4906)
     (-0.9785)   1.9160   0.0333
-      0.0720  (-0.2290)  1.4057;;
+      0.0720  (-0.2290)  1.4057
 
-    let d50xyz_of_rgb = M3.inv rgb_of_d50xyz;;
-
-    let to_xyz rgb =
-      V3.ltr d50xyz_of_rgb rgb;;
-
-    let of_xyz xyz =
-      V3.ltr rgb_of_d50xyz xyz;;
+    let d50xyz_of_rgb = M3.inv rgb_of_d50xyz
+    let to_xyz rgb = V3.ltr d50xyz_of_rgb rgb
+    let of_xyz xyz = V3.ltr rgb_of_d50xyz xyz
   end
 
   let d50 = V3.v 0.9642 1.0 0.8249
 
   module LAB = struct
     let to_lch lab =
-      let l,a,b = V3.to_tuple lab in
+      let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
       let c = sqrt (a *. a +. b *. b) in
       let h = Float.deg_of_rad (atan2 b a) in
       let h = if h < 0.0 then h +. 360. else h in
-      V3.v l c h;;
+      V3.v l c h
 
     let of_lch lch =
-      let l,c,h = V3.to_tuple lch in
+      let l, c, h = lch.V3t.x, lch.V3t.y, lch.V3t.z  in
       let h = Float.rad_of_deg h in
       let a = c *. (cos h) and b = c *. (sin h) in
-      V3.v l a b;;
+      V3.v l a b
 
     let eps = (6. /. 29.) ** 3.
-    let f v =
-      if v > eps then
-        v ** (1.0 /. 3.0)
-      else
-        (841. /. 108.) *. v +. 4. /. 29.;;
+    let f v = 
+      if v > eps then v ** (1.0 /. 3.0) else 
+      (841. /. 108.) *. v +. 4. /. 29.
 
     let inv v =
-      if v > (6. /. 29.) then
-        v ** 3.
-      else
-        (108. /. 841.) *. (v -. 4. /. 29.);;
+      if v > (6. /. 29.) then v ** 3. else
+      (108. /. 841.) *. (v -. 4. /. 29.)
 
     let of_rgb rgb =
-      let xyz = (RGB.to_xyz rgb) in
+      let xyz = RGB.to_xyz rgb in
       let fx = f ((V3.x xyz) /. (V3.x d50))
       and fy = f ((V3.y xyz) /. (V3.y d50))
       and fz = f ((V3.z xyz) /. (V3.z d50)) in
       let l = 116. *. fy -. 16.
       and a = 500. *. (fx -. fy)
       and b = 200. *. (fy -. fz) in
-      V3.v l a b;;
+      V3.v l a b
 
     let to_rgb lab =
-      let l,a,b = V3.to_tuple lab in
+      let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
       let fy = (l +. 16.) /. 116. in
       let fx = a /. 500. +. fy
       and fz = fy -. b /. 200. in
       let x = (V3.x d50) *. (inv fx)
       and y = (V3.y d50) *. (inv fy)
       and z = (V3.z d50) *. (inv fz) in
-      V3.v x y z;;
+      V3.v x y z
 
-    let rgb_of_lch lch =
-      to_rgb (of_lch lch);;
-
-    let lch_of_rgb rgb =
-      to_lch (of_rgb rgb);;
+    let rgb_of_lch lch = to_rgb (of_lch lch)
+    let lch_of_rgb rgb = to_lch (of_rgb rgb)
   end
 
   let preserve_alpha f = fun v4 ->
     let alpha = V4.w v4 in
     let v3 = f (V3.of_v4 v4) in
-    V4.of_v3 v3 ~w:alpha;;
-
-  type laba = v4
-  let lab_of_lch =
-    preserve_alpha LAB.of_lch;;
-
-  let lch_of_lab =
-    preserve_alpha LAB.to_lch;;
+    V4.of_v3 v3 ~w:alpha
 
   type lcha = v4 
-  let of_lcha =
-    preserve_alpha LAB.rgb_of_lch;;
+  let of_lcha = preserve_alpha LAB.rgb_of_lch
+  let to_lcha = preserve_alpha LAB.lch_of_rgb
 
-  let to_lcha =
-    preserve_alpha LAB.lch_of_rgb;;
+  type laba = v4
+  let lab_of_lch = preserve_alpha LAB.of_lch
+  let lch_of_lab = preserve_alpha LAB.to_lch
+  let to_laba c = failwith "TODO"  
+  let of_laba c = failwith "TODO"
 
   (* Color spaces *)
 
