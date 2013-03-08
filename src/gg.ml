@@ -2271,41 +2271,50 @@ module Color = struct
       V3.v l a b
 
     let eps = (6. /. 29.) ** 3.
+    let eps' = (6. /. 29.)
     let f v = 
       if v > eps then v ** (1.0 /. 3.0) else 
       (841. /. 108.) *. v +. 4. /. 29.
 
     let inv v =
-      if v > (6. /. 29.) then v ** 3. else
+      if v > eps' then v *. v *. v else
       (108. /. 841.) *. (v -. 4. /. 29.)
 
-    let rgb_to_xyzrd50 =
-      (* If you modify number of significant digits
-       * check that the tests still pass *)
-      (* RGB -> XYZ (D50) -> rescaled to D50 -> XrYrZr *)
-      M3.v
-      0.45204 0.39963 0.14833
-      0.22238 0.71703 0.06059
-      0.01688 0.11775 0.86537
-
-    let xyzrd50_to_rgb = M3.inv rgb_to_xyzrd50
-
+    (*
+     * The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
+       Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
+        D65 = CCT 6504
+        D50 = as usual (ICC specified)
+        Bradford matrix
+        5 fractional digits in the matrix
+       scale = M3.scale (V3.div (V3.v 1. 1. 1.) d50)
+       Then we match the results from LittleCMS better.
+     *)
     let of_rgb rgb =
-      let xyzr = V3.ltr rgb_to_xyzrd50 rgb in
-      let fx = f (V3.x xyzr)
-      and fy = f (V3.y xyzr)
-      and fz = f (V3.z xyzr) in
+      let xr =
+        0.4520417*.rgb.V3t.x +.0.3996304*.rgb.V3t.y +.0.1483279*.rgb.V3t.z
+      and yr =
+        0.2223801*.rgb.V3t.x +.0.7170343*.rgb.V3t.y +.0.0605856*.rgb.V3t.z
+      and zr =
+        0.0168785*.rgb.V3t.x +.0.1177517*.rgb.V3t.y +.0.8653698*.rgb.V3t.z in
+      let fx = f xr and fy = f yr and fz = f zr in
       let l = 116. *. fy -. 16.
       and a = 500. *. (fx -. fy)
       and b = 200. *. (fy -. fz) in
       V3.v l a b
 
+    (* The matrix used in the multiplication below is the inverse of the one
+     * above *)
     let to_rgb lab =
-      let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
+      let l = lab.V3t.x and a = lab.V3t.y and b = lab.V3t.z in
       let fy = (l +. 16.) /. 116. in
       let fx = a /. 500. +. fy
       and fz = fy -. b /. 200. in
-      V3.ltr xyzrd50_to_rgb (V3.v (inv fx) (inv fy) (inv fz))
+      let fx' = inv fx and fy' = inv fy and fz' = inv fz in
+      V3.v
+        ( 3.0236033*.fx' -.1.6186705*.fy' -.0.4049328*.fz')
+        (-0.9436024*.fx' +.1.9160071*.fy' +.0.0275953*.fz')
+        ( 0.0694234*.fx' -.0.2291418*.fy' +.1.1597184*.fz')
 
     let rgb_of_lch lch = to_rgb (of_lch lch)
     let lch_of_rgb rgb = to_lch (of_rgb rgb)
