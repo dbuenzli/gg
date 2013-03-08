@@ -18,6 +18,10 @@ OCamlVersion: >= 3.12.0
 Plugins: META (0.3)
 BuildTools:ocamlbuild
 
+Flag bench
+ Description: build benchmarks
+ Default: false
+
 Library gg
  Path: src
  Modules: Gg
@@ -31,6 +35,14 @@ Executable test
 
 Test test
  Command: $test
+
+Executable benchmark
+ Path: test/
+ MainIs: benchmark.ml
+ CompiledObject: best
+ Build$: flag(bench)
+ Install$: false
+ BuildDepends: gg, bench, bigarray
 
 Document api
  Title: Gg's documentation and API reference
