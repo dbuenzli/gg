@@ -2442,12 +2442,14 @@ module Raster = struct
     
   (* Semantics *)
 
-  type semantics = [ `Color of Color.profile * bool | `Other of int * string ]
+  type sample_semantics = 
+    [ `Color of Color.profile * bool | `Other of int * string ]
+
   let lrgb = `Color (Color.p_lrgb, false)
   let lrgba = `Color (Color.p_lrgb, true)
   let lgray = `Color (Color.p_lgray, false)
   let lgraya = `Color (Color.p_lgray, true)
-  let pp_semantics ppf = function 
+  let pp_sample_semantics ppf = function 
   | `Color (p, a) -> 
       let a = if a then " alpha" else "" in
       Format.fprintf ppf "Color(%a%s)" Color.pp_space (Color.profile_space p) a
@@ -2470,7 +2472,7 @@ module Raster = struct
   (* Sample format *)
 
   type sample_format =
-    { semantics : semantics;
+    { semantics : sample_semantics;
       scalar_type : scalar_type; 
       pack : sample_pack option; } 
 
@@ -2490,86 +2492,85 @@ module Raster = struct
           invalid_arg 
             (err_sample_pack (sample_pack_str p) (scalar_type_str st))
   
-  let semantics sf = sf.semantics 
-  let scalar_type sf = sf.scalar_type 
-  let sample_pack sf = sf.pack 
-  let sample_dim sf = match sf.semantics with 
+  let sf_semantics sf = sf.semantics 
+  let sf_scalar_type sf = sf.scalar_type 
+  let sf_pack sf = sf.pack 
+  let sf_dim sf = match sf.semantics with 
   | `Other (dim, _) -> dim 
   | `Color (profile, alpha) -> 
       Color.profile_dim profile + (if alpha then 1 else 0)
 
+  let sf_scalar_count ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
+      ?(d = 1) sf 
+    = 
+    let x_pitch = sf_dim sf in 
+    let y_pitch = x_pitch * w + w_skip in
+    let z_pitch = y_pitch * h - w_skip (* last line *) + h_skip in
+    let size = z_pitch * d - h_skip (* last plane *) in 
+    first + size
+
   let pp_sample_format ppf sf = failwith "TODO"  
      
-  (* Raster format *)
+  (* Raster data *)
   
-  type format = 
-    { res : v3 option;
-      first : int; w_skip : int; h_skip : int; (* TODO store is as pitch ? *)
+  type t =
+    { res : v3 option; 
+      first : int; w_skip : int; h_skip : int;
       w : int; h : int; d : int; 
-      sf : sample_format; } 
+      sf : sample_format; 
+      buf : buffer;  } 
 
-  let format_v ?res ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
-      ?(d = 1) sf
+  let v ?res ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) ?(d = 1) 
+      sf buf
     =
     let nneg a v = if v >= 0 then () else invalid_arg (err_iclass a v false) in
     let pos a v = if v > 0 then () else invalid_arg (err_iclass a v true) in
     nneg "first" first; nneg "w_skip" w_skip; nneg "h_skip" h_skip;
     pos "w" w; pos "h" h; pos "d" d;
-    { res; first; w_skip; h_skip; w; h; d; sf} 
+    { res; first; w_skip; h_skip; w; h; d; sf; buf} 
 
-  let first fmt = fmt.first
-  let w_skip fmt = fmt.w_skip
-  let h_skip fmt = fmt.h_skip
-  let w fmt = fmt.w
-  let h fmt = fmt.h
-  let d fmt = fmt.d
-  let sample_format fmt = fmt.sf
-  let scalar_count fmt =
-    if fmt.sf.pack <> None then invalid_arg err_packed_sf;
-    let sample_size = sample_dim fmt.sf in 
-    let plane_size = sample_size * fmt.w * fmt.h + fmt.w_skip * (fmt.h - 1) in
-    let vol_size = plane_size * fmt.d + fmt.h_skip * (fmt.d - 1) in
-    fmt.first + vol_size
+  let res r = r.res
+  let first r = r.first
+  let w_skip r = r.w_skip
+  let h_skip r = r.h_skip
+  let w r = r.w
+  let h r = r.h
+  let d r = r.d
+  let sample_format r = r.sf
+  let buffer r = r.buf
+  let dim r = 1 + (if r.h > 1 then 1 else 0) + (if r.d > 1 then 1 else 0)
+  let size2 r = Size2.v (float r.w) (float r.h)  
+  let size3 r = Size3.v (float r.w) (float r.h) (float r.d)
+  let pitches r =
+    if r.sf.pack <> None then invalid_arg err_packed_sf;
+    let x_pitch = sf_dim r.sf in 
+    let y_pitch = x_pitch * r.w + r.w_skip in
+    let z_pitch = y_pitch * r.h - r.w_skip (* last line *) + r.h_skip in
+    x_pitch, y_pitch, z_pitch          
 
-  let format_res fmt = fmt.res
-  let format_dim fmt = 
-    1 + (if fmt.h > 1 then 1 else 0) + (if fmt.d > 1 then 1 else 0)
-
-  let subspace ?(x = 0) ?(y = 0) ?(z = 0) ?w ?h ?d fmt = failwith "TODO"
-   (* 
+  let sub ?(x = 0) ?(y = 0) ?(z = 0) ?w ?h ?d r =
     let range a v min max = 
       if v < min || v > max then failwith (err_irange a v min max);
     in
-    if fmt.sf.pack <> None then invalid_arg err_packed_sf; 
-    range "x" x 0 (fmt.w - 1); 
-    range "y" y 0 (fmt.h - 1); 
-    range "z" z 0 (fmt.d - 1);
-    let w = match w with None -> fmt.w - x | Some w -> w in 
-    let h = match h with None -> fmt.h - y | Some h -> h in 
-    let d = match d with None -> fmt.d - z | Some d -> d in
-    range "w" w 1 fmt.w;
-    range "h" h 1 fmt.h;
-    range "d" d 1 fmt.d;
-    let sample_size = sample_dim fmt.sf in
-    let line_size = sample_size * fmt.w + fmt.w_skip in 
-    let plane_size = sample_size * fmt.w * fmt.h + fmt.w_skip * (fmt.h - 1) in
-    let first = z * plane_size + y * line_size + (y - 1) * fmt.w_skip 
-*)
-      
-  let pp_format fmt f = failwith "TODO"
+    if r.sf.pack <> None then invalid_arg err_packed_sf; 
+    range "x" x 0 (r.w - 1); 
+    range "y" y 0 (r.h - 1); 
+    range "z" z 0 (r.d - 1);
+    let w = match w with None -> r.w - x | Some w -> w in 
+    let h = match h with None -> r.h - y | Some h -> h in 
+    let d = match d with None -> r.d - z | Some d -> d in
+    range "w" w 1 r.w;
+    range "h" h 1 r.h;
+    range "d" d 1 r.d;
+    let x_pitch, y_pitch, z_pitch = pitches r in
+    let first' = r.first + z * z_pitch + y * y_pitch + x * x_pitch in
+    let w_skip' = r.w_skip + (r.w - w) * x_pitch in
+    let h_skip' = r.h_skip + (r.h - h) * y_pitch in
+    { res = r.res; first = first'; w_skip = w_skip'; h_skip = h_skip';
+      w; h; d; sf = r.sf; buf = r.buf }
 
-  (* Raster data *)
-
-  type t = format * buffer 
-  let v f b = f, b
-  let format (fmt, _) = fmt
-  let buffer (_, b) = b
-  let dim (fmt, _) = format_dim fmt
-  let res (fmt, _) = format_res fmt
-  let size2 (fmt, _) = Size2.v (float fmt.w) (float fmt.h)  
-  let size3 (fmt, _) = Size3.v (float fmt.w) (float fmt.h) (float fmt.d)
-  let subraster ?x ?y ?z ?w ?h ?d (fmt, b) = 
-    v (subspace ?x ?y ?z ?w ?h ?d fmt) b    
+  let pp ppf r = failwith "TODO"
+  let to_string r = failwith "TODO"
 end
 
 type raster = Raster.t
