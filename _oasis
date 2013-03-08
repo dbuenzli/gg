@@ -2,8 +2,8 @@ OASISFormat: 0.3
 Name: gg
 Version: 0.9.0
 Synopsis: Basic types for computer graphics in OCaml
-Authors: Daniel Bünzli <daniel.buenzli at erratique.ch>
-Copyrights: (c) 2013 Daniel C. Bünzli
+Authors: Daniel Bünzli <daniel.buenzli at erratique.ch>, Edwin Török <edwin at etorok.net>
+Copyrights: (c) 2013 Daniel C. Bünzli and Edwin Török
 License: BSD3
 Homepage: http://erratique.ch/software/gg
 Description:
@@ -22,15 +22,15 @@ Library gg
  Path: src
  Modules: Gg
 
-#Executable test
-# Path: test
-# MainIs: test.ml
-# BuildDepends: checkm gg
-# CompiledObject: best    
-# Install: false
+Executable test
+ Path: test
+ MainIs: test.ml
+ BuildDepends: str, gg
+ CompiledObject: best    
+ Install: false
 
-#Test test
-# Command: $test
+Test test
+ Command: $test
 
 Document api
  Title: Gg's documentation and API reference
