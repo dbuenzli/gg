@@ -1821,40 +1821,76 @@ module Color_tests = struct
   let test n f = Test.add_test ("Color." ^ n) f
 
   module type Param = sig
-    val name : string
-    val precision : int
+    val bits : int
   end
 
-  module Testable_color (P:Param) = C.Make(struct
-    type t = v4
-    let print fmt v =
-      Format.fprintf fmt "@[<1>%s(%.*f@ %.*f@ %.*f@ %.*f)@]" P.name
-        P.precision (V4.x v) P.precision (V4.y v) P.precision (V4.z v)
-        P.precision (V4.w v)
+  let c lab = V2.norm (V2.v (V3.y lab) (V3.z lab))
 
-    let eps = 2. *. 10. ** (float (-P.precision))
-    let compare a b = V4.compare_f (Float.compare_tol ~eps) a b
-  end)
+  let deltaE_lab lab1 lab2 =
+    (* TODO: use these from Gcolor *)
+    let cie76 = V3.norm (V3.sub lab1 lab2) in
+    let dL,da,db = V3.to_tuple (V3.sub lab1 lab2) in
+    let c1 = c lab1 and c2 = c lab2 in
+    let dC = c1 -. c2 in
+    let dH2 = da *. da +. db *. db -. dC *. dC in
+    let dH2 = if dH2 < 0.0 then 0.0 else dH2 in
+    let sC = 1. +. 0.045 *. c1
+    and sH = 1. +. 0.015 *. c2 in
+    let cie94 = sqrt (dL *. dL +. (dC *. dC /. sC) +. (dH2 /. sH)) in
+    V2.v cie76 cie94
 
-  module SRGB = Testable_color(struct
-    let name = "sRGB"
-    let precision = 4
-  end)
+  let to_lab v = V3.of_v4 (to_laba v)
 
-  module LRGB = Testable_color(struct
-    let name = "RGB"
-    let precision = 4
-  end)
+  let deltaE color1 color2 =
+    deltaE_lab (to_lab color1) (to_lab color2)
 
-  module LAB = Testable_color(struct
-    let name = "LAB"
-    let precision = 3
-  end)
+  let print_deltaE name fmt v =
+    let dE = V2.x !v and dE94 = V2.y !v in
+    Format.fprintf fmt "%s Max DeltaE = %g, Max CIE94 DeltaE = %g@\n" name dE dE94
 
-  module LCH = Testable_color(struct
-    let name = "LCH"
-    let precision = 3
-  end)
+  module Testable_color (P: Param) = struct
+    module Cc = C.Make(struct
+      type conv_to_lab = v4 -> v3
+      type t = conv_to_lab * Test.run * v4
+      let digits = truncate (ceil ((float P.bits) *. log(2.) /. log(10.)))
+      let eps = 2. ** (float (-P.bits))
+      let print_float fmt v =
+        Format.fprintf fmt "%.*f" digits v
+      let print fmt (_,_,v) = V4.print_f print_float fmt v
+      let compare (conv,r,a) (_,_,b) =
+        let cmp = V4.compare_f (Float.compare_tol ~eps) a b in
+        if cmp = 0 then 0
+        else begin
+          let dE = deltaE_lab (conv a) (conv b) in
+          ignore (C.log (print_deltaE "") (ref dE) r);
+          cmp
+        end
+    end)
+
+    let update_max maxDeltaE dE =
+      let dE76,dE94 = V2.to_tuple dE in
+      let max76,max94 = V2.to_tuple !maxDeltaE in
+      maxDeltaE := V2.v (max dE76 max76) (max dE94 max94)
+
+    let compare_rgb max id color1 color2 = fun r ->
+      update_max max (deltaE color1 color2);
+      r >> Cc.Order.(=) ~id (to_lab,r,color1) (to_lab,r,color2)
+
+    let compare_lab max id lab1 lab2 = fun r ->
+      update_max max (deltaE_lab (V3.of_v4 lab1) (V3.of_v4 lab2));
+      r >> Cc.Order.(=) ~id (V3.of_v4,r,lab1) (V3.of_v4,r,lab2)
+  end
+
+  (** Lab fractional bits ~ 8 if we want 16-bit precision *)
+  module Color8 = Testable_color(struct let bits = 8 end)
+
+  (* Require 16-bit precision, so that 8-bit sRGB to 16-bit linear is accurate
+   * *)
+  module Color16 = Testable_color(struct let bits = 16 end)
+
+  (* Require 24-bit precision from roundtrips,
+   * so that float32 HDR image conversions are accurate enough *)
+  module Color24 = Testable_color(struct let bits = 24 end)
 
   type testcase = {
     srgba: srgba;
@@ -1879,29 +1915,33 @@ module Color_tests = struct
       generate_testcases f (testcase :: lst)
     with End_of_file -> List.rev lst
 
-
+  let srgb_dEmax = ref V2.zero
   let srgb_check r t =
-    r >> LRGB.Order.(=) (of_srgba t.srgba) t.color
-      >> SRGB.Order.(=) (to_srgba t.color) t.srgba
+    r >> Color16.compare_rgb srgb_dEmax "RGB" (of_srgba t.srgba) t.color
 
   let srgb_roundtrip color r =
     let srgba = to_srgba color in
-    (* TODO: we should higher precision for round-trip check *)
-    r >> LRGB.Order.(=) ~id:"sRGB roundtrip" (of_srgba srgba) color
+    let color' = of_srgba srgba in
+    r >> Color24.compare_rgb srgb_dEmax "sRGB roundtrip" color' color
 
+  let lab_dEmax = ref V2.zero
   let lab_check r t =
-    r >> LAB.Order.(=) (to_laba t.color) t.lab
-      >> LRGB.Order.(=) (of_laba t.lab) t.color
+    r >> Color8.compare_rgb lab_dEmax "RGB" (of_laba t.lab) t.color
+      >> Color8.compare_lab lab_dEmax "LAB" (to_laba t.color) t.lab
 
+  let lch_dEmax = ref V2.zero
   let lch_roundtrip color r =
     let lch = to_lcha color in
-    r >> LRGB.Order.(=) ~id:"LCh roundtrip" (of_lcha lch) color
+    let color' = of_lcha lch in
+    r >> Color24.compare_rgb lch_dEmax "LCh roundtrip" color' color
 
   let lab_roundtrip color r =
     let laba = to_laba color in
-    r >> LRGB.Order.(=) ~id:"Lab roundtrip" (of_laba laba) color
+    let color' = of_laba laba in
+    r >> Color24.compare_rgb lab_dEmax "LAB roundtrip" color' color
 
   let run_checks testcases f r = List.fold_left f r testcases
+
   let color_gen = V4_tests.V4.gen ~min:0. ~len:1.
 
   let () =
@@ -1909,26 +1949,35 @@ module Color_tests = struct
     ignore (input_line f);(* header *)
     let testcases = generate_testcases f [] in
     begin test "of_srgba, to_srgba (testcases)" & fun r ->
-      run_checks testcases srgb_check r >>
-      C.success
+      srgb_dEmax := V2.zero;
+      r >> run_checks testcases srgb_check
+        >> C.log (print_deltaE "sRGB testcases") srgb_dEmax
+        >> C.success
     end;
     begin test "of_srgba, to_srgba (roundtrip)" & fun r ->
+      srgb_dEmax := V2.zero;
       C.for_all color_gen srgb_roundtrip r >>
+      C.log (print_deltaE "sRGB <-> RGB") srgb_dEmax >>
       C.success
     end;
-(*    begin test "of_laba, to_laba (testcases)" & fun r ->
-      run_checks testcases lab_check r >>
-      C.success
-    end;*)
+    begin test "of_laba, to_laba (testcases)" & fun r ->
+      lab_dEmax := V2.zero;
+      r >> run_checks testcases lab_check
+        >> C.log (print_deltaE "LAB testcases") lab_dEmax
+        >> C.success
+    end;
     begin test "of_laba, to_laba (roundtrip)" & fun r ->
+      lab_dEmax := V2.zero;
       C.for_all color_gen lab_roundtrip r >>
+      C.log (print_deltaE "LAB <-> RGB") lab_dEmax >>
       C.success
     end;
     begin test "of_lcha, to_lcha (roundtrip)" & fun r ->
-      C.for_all color_gen lch_roundtrip r >>
-      C.success
+      lch_dEmax := V2.zero;
+      r >> C.for_all color_gen lch_roundtrip
+        >> C.log (print_deltaE "LCH <-> RGB") lch_dEmax
+        >> C.success
     end;
-    (* TODO: lch tests *)
 (*  begin test "of_gray, to_gray" & fun r ->
       run_checks testcases gray_check r;
       C.for_all color_gen gray_roundtrip >>
