@@ -2271,7 +2271,7 @@ module Color = struct
 
   let d50 = V3.v 0.9642 1.0 0.8249
 
-  module LAB = struct
+  module Lab = struct
     let to_lch lab =
       let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
       let c = sqrt (a *. a +. b *. b) in
@@ -2312,7 +2312,7 @@ module Color = struct
       let x = (V3.x d50) *. (inv fx)
       and y = (V3.y d50) *. (inv fy)
       and z = (V3.z d50) *. (inv fz) in
-      V3.v x y z
+      RGB.of_xyz (V3.v x y z)
 
     let rgb_of_lch lch = to_rgb (of_lch lch)
     let lch_of_rgb rgb = to_lch (of_rgb rgb)
@@ -2324,14 +2324,12 @@ module Color = struct
     V4.of_v3 v3 ~w:alpha
 
   type lcha = v4 
-  let of_lcha = preserve_alpha LAB.rgb_of_lch
-  let to_lcha = preserve_alpha LAB.lch_of_rgb
+  let of_lcha = preserve_alpha Lab.rgb_of_lch
+  let to_lcha = preserve_alpha Lab.lch_of_rgb
 
   type laba = v4
-  let lab_of_lch = preserve_alpha LAB.of_lch
-  let lch_of_lab = preserve_alpha LAB.to_lch
-  let to_laba c = failwith "TODO"  
-  let of_laba c = failwith "TODO"
+  let to_laba = preserve_alpha Lab.of_rgb
+  let of_laba = preserve_alpha Lab.to_rgb
 
   (* Color spaces *)
 

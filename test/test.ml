@@ -1890,19 +1890,16 @@ module Color_tests = struct
     r >> LRGB.Order.(=) ~id:"sRGB roundtrip" (of_srgba srgba) color
 
   let lab_check r t =
-    r >> Test.todo "lab_check" (* TODO: test LCH in separation *)
-(*      >> LAB.Order.(=) (lab_of_lch (to_lcha t.color)) t.lab
-      >> LRGB.Order.(=) (of_lcha (lch_of_lab t.lab)) t.color
-*)
+    r >> LAB.Order.(=) (to_laba t.color) t.lab
+      >> LRGB.Order.(=) (of_laba t.lab) t.color
 
   let lch_roundtrip color r =
     let lch = to_lcha color in
-    r >> LRGB.Order.(=) ~id:"LCH roundtrip" (of_lcha lch) color
+    r >> LRGB.Order.(=) ~id:"LCh roundtrip" (of_lcha lch) color
 
-  let lab_roundtrip lab r = r >> Test.todo "lab_roundtrip" 
-(*    let lch = lch_of_lab lab in
-    r >> LAB.Order.(=) ~id:"LAB roundtrip" (lab_of_lch lch) lab
-*)
+  let lab_roundtrip color r =
+    let laba = to_laba color in
+    r >> LRGB.Order.(=) ~id:"Lab roundtrip" (of_laba laba) color
 
   let run_checks testcases f r = List.fold_left f r testcases
   let color_gen = V4_tests.V4.gen ~min:0. ~len:1.
@@ -1911,16 +1908,27 @@ module Color_tests = struct
     let f = open_in "test/rgbtest.csv" in
     ignore (input_line f);(* header *)
     let testcases = generate_testcases f [] in
-    begin test "of_srgba, to_srgba" & fun r ->
+    begin test "of_srgba, to_srgba (testcases)" & fun r ->
       run_checks testcases srgb_check r >>
-      C.for_all color_gen srgb_roundtrip >>
       C.success
     end;
-(*    begin test "of_lch, to_lch, lab_of_lch, lch_of_lab" & fun r ->
+    begin test "of_srgba, to_srgba (roundtrip)" & fun r ->
+      C.for_all color_gen srgb_roundtrip r >>
+      C.success
+    end;
+(*    begin test "of_laba, to_laba (testcases)" & fun r ->
       run_checks testcases lab_check r >>
-      C.for_all color_gen lch_roundtrip r >>
       C.success
     end;*)
+    begin test "of_laba, to_laba (roundtrip)" & fun r ->
+      C.for_all color_gen lab_roundtrip r >>
+      C.success
+    end;
+    begin test "of_lcha, to_lcha (roundtrip)" & fun r ->
+      C.for_all color_gen lch_roundtrip r >>
+      C.success
+    end;
+    (* TODO: lch tests *)
 (*  begin test "of_gray, to_gray" & fun r ->
       run_checks testcases gray_check r;
       C.for_all color_gen gray_roundtrip >>
