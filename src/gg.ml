@@ -2257,22 +2257,6 @@ module Color = struct
     in
     v (l2s c.V4t.x) (l2s c.V4t.y) (l2s c.V4t.z) c.V4t.w
 
-  module RGB = struct
-    type t = v3
-
-    let rgb_of_d50xyz = M3.v
-      (* Don't use less than 5 fractional digits because that'll cause D50 to be
-       * transformed to something other than (1,1,1), considering 16-bits
-       * precision. *)
-      3.13587  (-1.61867) (-0.49089)
-    (-0.97864)   1.91601    0.03345
-      0.07200  (-0.22914)   1.40589
-
-    let d50xyz_of_rgb = M3.inv rgb_of_d50xyz
-    let to_xyz rgb = V3.ltr d50xyz_of_rgb rgb
-    let of_xyz xyz = V3.ltr rgb_of_d50xyz xyz
-  end
-
   let d50 = V3.v 0.9642 1.0 0.8249
 
   module Lab = struct
@@ -2298,11 +2282,22 @@ module Color = struct
       if v > (6. /. 29.) then v ** 3. else
       (108. /. 841.) *. (v -. 4. /. 29.)
 
+    let rgb_to_xyzrd50 =
+      (* If you modify number of significant digits
+       * check that the tests still pass *)
+      (* RGB -> XYZ (D50) -> rescaled to D50 -> XrYrZr *)
+      M3.v
+      0.45204 0.39963 0.14833
+      0.22238 0.71703 0.06059
+      0.01688 0.11775 0.86537
+
+    let xyzrd50_to_rgb = M3.inv rgb_to_xyzrd50
+
     let of_rgb rgb =
-      let xyz = RGB.to_xyz rgb in
-      let fx = f ((V3.x xyz) /. (V3.x d50))
-      and fy = f ((V3.y xyz) /. (V3.y d50))
-      and fz = f ((V3.z xyz) /. (V3.z d50)) in
+      let xyzr = V3.ltr rgb_to_xyzrd50 rgb in
+      let fx = f (V3.x xyzr)
+      and fy = f (V3.y xyzr)
+      and fz = f (V3.z xyzr) in
       let l = 116. *. fy -. 16.
       and a = 500. *. (fx -. fy)
       and b = 200. *. (fy -. fz) in
@@ -2313,10 +2308,7 @@ module Color = struct
       let fy = (l +. 16.) /. 116. in
       let fx = a /. 500. +. fy
       and fz = fy -. b /. 200. in
-      let x = (V3.x d50) *. (inv fx)
-      and y = (V3.y d50) *. (inv fy)
-      and z = (V3.z d50) *. (inv fz) in
-      RGB.of_xyz (V3.v x y z)
+      V3.ltr xyzrd50_to_rgb (V3.v (inv fx) (inv fy) (inv fz))
 
     let rgb_of_lch lch = to_rgb (of_lch lch)
     let lch_of_rgb rgb = to_lch (of_rgb rgb)
