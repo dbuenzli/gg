@@ -2259,10 +2259,14 @@ module Color = struct
 
   module RGB = struct
     type t = v3
+
     let rgb_of_d50xyz = M3.v
-      3.1339  (-1.6170) (-0.4906)
-    (-0.9785)   1.9160   0.0333
-      0.0720  (-0.2290)  1.4057
+      (* Don't use less than 5 fractional digits because that'll cause D50 to be
+       * transformed to something other than (1,1,1), considering 16-bits
+       * precision. *)
+      3.13587  (-1.61867) (-0.49089)
+    (-0.97864)   1.91601    0.03345
+      0.07200  (-0.22914)   1.40589
 
     let d50xyz_of_rgb = M3.inv rgb_of_d50xyz
     let to_xyz rgb = V3.ltr d50xyz_of_rgb rgb
