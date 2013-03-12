@@ -148,6 +148,8 @@ module ICC : sig
   type viewing_conditions
   type cat = m3
 
+  val curve_identity: curve
+
   (* Profile parameters *)
   val bradford: cat
   (** The Bradford chromatic adaptation matrix.

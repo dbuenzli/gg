@@ -2229,7 +2229,7 @@ module Color = struct
   let a = V4.w
   let void = v 0. 0. 0. 0. 
   let black = v 0. 0. 0. 1. 
-  let gray ?(a = 1.) g = v g g g a
+  let of_gray ?(a = 1.) g = v g g g a
   let white = v 1. 1. 1. 1. 
   let red = v 1. 0. 0. 1.
   let green = v 0. 1. 0. 1. 
@@ -2332,6 +2332,12 @@ module Color = struct
   type laba = v4
   let to_laba = preserve_alpha Lab.of_rgb
   let of_laba = preserve_alpha Lab.to_rgb
+
+  let to_gray c =
+    (* match luminance (Y component of CIE XYZ) of RGB with
+     * luminance of grayscale.
+     * The coefficients are from the 2nd row of RGB -> D50 XYZ conversion matrix *)
+    c.V4t.x *. 0.22238 +. c.V4t.y *. 0.717034 +. c.V4t.z *. 0.0605856
 
   (* Color spaces *)
 

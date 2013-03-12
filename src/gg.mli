@@ -2802,8 +2802,8 @@ module Color : sig
   val black : color
   (** [black] is [(color 0. 0. 0. 1.)] *)
 
-  val gray : ?a:float -> float -> color 
-  (** [gray a g] is ([color g g g a]) *)
+  val of_gray : ?a:float -> float -> color 
+  (** [of_gray a g] is ([color g g g a]) *)
 
   val white : color
   (** [white] is [(color 1. 1. 1. 1.)] *)
@@ -2862,7 +2862,10 @@ module Color : sig
 
   val to_laba : color -> laba
   (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. *)
-  
+
+  val to_gray : color -> float
+  (** [to_gray c] is the {{!t}color} value [c] converted to grayscale *)
+
   (** {1 Color spaces} *)
 
   type space = [ 
@@ -2912,8 +2915,7 @@ module Color : sig
   (** [profile_space p] is [space_dim (profile_space d)]. *)
 
   val p_lgray : profile 
-  (** [p_lgray] is a linear gray color profile defined by a 
-      D65 white point. *)
+  (** [p_lgray] is a linear gray color profile *)
 
   val p_lrgb : profile
   (** [p_lrgb] is the color profile of {{!t}color} values. *)

@@ -199,7 +199,7 @@ module ICC = struct
   let primaries p = failwith "TODO"
   let curve p = [| p.curve1; p.curve2; p.curve3 |]
   let viewing_conditions p = failwith "TODO"
-  let to_xyz p = failwith "TODO"
+  let to_xyz p = p.to_xyz
 
   let pXYZ ?(cat=bradford) wp = {
     model = `XYZ;

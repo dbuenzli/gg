@@ -89,7 +89,10 @@ static void init(void)
    cmsHPROFILE hsRGB = cmsCreate_sRGBProfile();
    cmsHPROFILE hLab = cmsCreateLab4Profile(NULL);
    cmsHPROFILE hlRGB = cmsCreateRGBProfile(&D65, &primaries, linrgb);
-   cmsHPROFILE hlGray = cmsCreateGrayProfile(&D65, linear);
+   cmsHPROFILE hlGray = cmsCreateGrayProfile(cmsD50_xyY(), linear);
+//   hlRGB = cmsOpenProfileFromFile("/usr/share/color/icc/krita/scRGB.icm","r");
+   hlGray = cmsOpenProfileFromFile("/usr/share/color/icc/Gray.icc","r");
+//  hlGray = cmsOpenProfileFromFile("~/Downloads/GRAY.pf","r"); 
 
    xform_srgb_to_lrgb = cmsCreateTransform(hsRGB, TYPE_RGB_DBL,
                                            hlRGB, TYPE_RGB_DBL,

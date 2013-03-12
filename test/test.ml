@@ -1853,10 +1853,11 @@ module Color_tests = struct
       type conv_to_lab = v4 -> v3
       type t = conv_to_lab * Test.run * v4
       let digits = truncate (ceil ((float P.bits) *. log(2.) /. log(10.)))
-      let eps = 2. ** (float (-P.bits))
+      let eps = 2. ** ( -. float P.bits)
       let print_float fmt v =
         Format.fprintf fmt "%.*f" digits v
       let print fmt (_,_,v) = V4.print_f print_float fmt v
+
       let compare (conv,r,a) (_,_,b) =
         let cmp = V4.compare_f (Float.compare_tol ~eps) a b in
         if cmp = 0 then 0
@@ -1896,7 +1897,7 @@ module Color_tests = struct
     srgba: srgba;
     color: color;
     lab: laba;
-    gray: v2;
+    gray: float;
   }
 
   let to_testcase r' g' b' lr lg lb l a b gray =
@@ -1904,7 +1905,7 @@ module Color_tests = struct
     srgba = V4.v r' g' b' alpha;
     color = V4.v lr lg lb alpha;
     lab = V4.v l a b alpha;
-    gray = V2.v gray alpha
+    gray = gray
   }
 
   let rec generate_testcases f lst =
@@ -1928,6 +1929,12 @@ module Color_tests = struct
   let lab_check r t =
     r >> Color8.compare_rgb lab_dEmax "RGB" (of_laba t.lab) t.color
       >> Color8.compare_lab lab_dEmax "LAB" (to_laba t.color) t.lab
+
+  let gray_dEmax = ref V2.zero
+  let gray_check r t =
+    r >> Color8.compare_rgb gray_dEmax "Gray (RGB)"
+        (of_gray (to_gray t.color)) (of_gray t.gray)
+      >> C.success
 
   let lch_dEmax = ref V2.zero
   let lch_roundtrip color r =
@@ -1978,11 +1985,11 @@ module Color_tests = struct
         >> C.log (print_deltaE "LCH <-> RGB") lch_dEmax
         >> C.success
     end;
-(*  begin test "of_gray, to_gray" & fun r ->
-      run_checks testcases gray_check r;
-      C.for_all color_gen gray_roundtrip >>
-      C.success
-    end;*)
+    begin test "of_gray, to_gray" & fun r ->
+      r >> run_checks testcases gray_check
+        >> C.log (print_deltaE "Gray testcases") gray_dEmax
+        >> C.success
+    end;
     close_in f
 
 end
