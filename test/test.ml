@@ -1884,9 +1884,13 @@ module Color_tests = struct
   (** Lab fractional bits ~ 8 if we want 16-bit precision *)
   module Color8 = Testable_color(struct let bits = 8 end)
 
-  (* Require 16-bit precision, so that 8-bit sRGB to 16-bit linear is accurate
+  (* Require 15-bit precision, so that 8-bit sRGB to 16-bit linear is accurate,
+   * but allow for last bit to change.
+   * The precision of ICC profiles is 16-bit too, and this inevitably leads
+   * to different rounding when using built-in profiles vs when using an ICC
+   * profile.
    * *)
-  module Color16 = Testable_color(struct let bits = 16 end)
+  module Color16 = Testable_color(struct let bits = 15 end)
 
   (* Require 24-bit precision from roundtrips,
    * so that float32 HDR image conversions are accurate enough *)
