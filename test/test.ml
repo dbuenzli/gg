@@ -1978,11 +1978,6 @@ module Color_tests = struct
         >> C.log (print_deltaE "LCH <-> RGB") lch_dEmax
         >> C.success
     end;
-(*  begin test "of_gray, to_gray" & fun r ->
-      run_checks testcases gray_check r;
-      C.for_all color_gen gray_roundtrip >>
-      C.success
-    end;*)
     close_in f
 
 end

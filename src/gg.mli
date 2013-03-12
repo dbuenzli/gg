@@ -2912,8 +2912,7 @@ module Color : sig
   (** [profile_space p] is [space_dim (profile_space d)]. *)
 
   val p_lgray : profile 
-  (** [p_lgray] is a linear gray color profile defined by a 
-      D65 white point. *)
+  (** [p_lgray] is a linear gray color profile *)
 
   val p_lrgb : profile
   (** [p_lrgb] is the color profile of {{!t}color} values. *)
