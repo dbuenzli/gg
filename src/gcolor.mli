@@ -88,6 +88,8 @@ module Whitepoint : sig
       whitepoint of a daylight illuminant with specified correlated color
       temperature. *)
 
+  val to_xy : t -> v2
+
   val d50 : t
   (** CIE illuminant D50 with X=0.9642 Y=1.0 Z=0.8249 *)
 

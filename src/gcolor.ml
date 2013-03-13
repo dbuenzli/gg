@@ -88,7 +88,7 @@ module Whitepoint = struct
    *
    * Everyone seems to define this with different truncations.
    *
-   * x=0.31271 y=0.32902 => X=0.9504 Y=1.0 Z=1.0889
+   * x=0.3127(1) y=0.3290(2) => X=0.9504 Y=1.0 Z=1.0889
    * This is the definition used by http://www.color.org/chadtag.xalter
    * and sRGB_IEC61966-2-1*.icc
    * We use this definition.
@@ -98,6 +98,10 @@ module Whitepoint = struct
    *
    * sRGB.icc (LittleCMS): X=0.95015, Y=1.0000, Z=1.08826
    * This matches if you calculate D65 with a CCT of 6504 K
+   * (0.3127(1) 0.3291(2))
+   * This also matches the definition of sRGB from http://www.color.org/sRGB.xalter
+   *
+   *
    *)
 
   let d93 = of_temperature 9305. (* 9300 * 1.4388/1.438 *)

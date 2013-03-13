@@ -2,3 +2,4 @@
 #directory "_build/test";;
 #load "gg.cmo";;
 #use "src/gg_init.ml";;
+#load "gcolor.cmo";;
