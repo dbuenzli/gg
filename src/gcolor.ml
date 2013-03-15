@@ -110,6 +110,7 @@ end
 
 type space = [ Color.space | `CAM02Jab | `CAM02JCh | `LCh | `IPT ]
 module ICC = struct
+  (* TODO: could avoid polymorphic variants *)
   type parametricCurve =
     [ `Gamma1 of float
       (** [Gamma g]
@@ -144,6 +145,164 @@ module ICC = struct
     curve3: curve;
     wp: whitepoint;(* have to use chad on this to get real wp *)
   }
+
+
+  type ops = Curves of curve array | M3 of m3 (* TODO: nxm matrix, cLUT *)
+
+  type processing_element = {
+    inputs: int;
+    op: ops;
+  }
+
+  type pipeline = processing_element list
+
+  let m3_opt = function
+    | Some m3 -> m3
+    | None -> M3.id
+
+  let build_toxyz icc =
+    [ { inputs = 3; op = Curves [| icc.curve1; icc.curve2; icc.curve3 |]};
+      { inputs = 3; op = M3 (m3_opt icc.to_xyz)};
+      { inputs = 3; op = M3 (m3_opt icc.chad)};
+    ]
+
+  let minvalue = -65536.0
+
+  let parameters_of_curve = function
+    | `Identity ->
+      1., 1., 0., 0., minvalue, 0., 0.
+    | `Gamma1 g ->
+      g, 1., 0., 0., minvalue, 0., 0.
+    | `Gamma2 (g, a, b) ->
+      g, a, b, 0., -. b /. a, 0., 0.
+    | `Gamma3 (g, a, b, c) ->
+      g, a, b, 0., -. b /. a, 0., c
+    | `Gamma4 (g, a, b, c, d) ->
+      g, a, b, c, d, 0., 0.
+    | `Gamma5 (g, a, b, c, d, e, f) ->
+      g, a, b, c, d, e, f
+
+  (* Are the 2 numbers the same if they were encoded
+   * into s15Fixed16Number? *)
+  let same_sf32 a b =
+    let n = (abs_float (a -. b)) < 1. /. 65536. in
+    (*Printf.printf "comparing %.10g %.10g -> %b\n" a b n;*)
+    n
+
+  let build_curve (g, a, b, c, d, e, f) =
+    if (same_sf32 a 1.) && (same_sf32 b 0.) && (same_sf32 e 0.) && same_sf32 d minvalue then
+         if same_sf32 g 1. then `Identity
+         else `Gamma1 g
+    else if (same_sf32 d (-. b /. a)) &&
+            (same_sf32 c 0.) && (same_sf32 e 0.) then begin
+      if same_sf32 f 0. then
+        `Gamma2 (g, a, b)
+      else
+        `Gamma3 (g, a, b, f)
+    end else if same_sf32 e 0. && same_sf32 f 0. then
+      `Gamma4 (g,a,b,c,d)
+    else
+      `Gamma5 (g, a, b, c, d, e, f)
+  ;;
+
+  let inv curve =
+    let g,a,b,c,d,e,f = parameters_of_curve curve in
+    (** Y = (aX+b)^g+e when X >= d
+     *  Y = cX + f when X < d
+     *  ==>
+     *  X = ((Y - e)^(1/g) - b)/a when Y >= split
+     *  X = (Y - f)/c when Y < split
+     *  ==>
+     *  X = ((Y - e) * (1/a^g)) ^ (1/g) - b/a when Y >= split
+     *  X = (1/c) * Y - f/c when Y < split
+     *  ==>
+     *  a' = a^-g
+     *  b' = -e * a'
+     *  c' = 1/c
+     *  d' = c' * d + f'
+     *  e' = -b/a
+     *  f' = -f/c
+     *  g' = 1/g
+    *)
+    let a' = a ** (-.g) in
+    let b' = -. e *. a' in
+    let c' = 1. /. c in
+    let f' = -. f /. c in
+    let d' = (a *. d +. b) ** g +. e in
+    let e' = -. b /. a in
+    let g' = 1. /. g in
+    g', a', b', c', d', e', f'
+
+  type pipe_run = float array -> int -> float array
+
+  let compare_eps a b =
+    let d = abs_float (a -. b) in
+    if d < 1e-9 then 0
+    else compare a b
+
+  let is_mul_noop m1 m2 =
+    M3.compare_f compare_eps (M3.mul m1 m2) M3.id
+
+  let is_identity c1 c2 =
+    let g1,a1,b1,c1,d1,e1,f1 = parameters_of_curve c1
+    and g2,a2,b2,c2,d2,e2,f2 = inv c2 in
+    same_sf32 g1 g2 && same_sf32 a1 a2 && same_sf32 b1 b2 && same_sf32 c1 c2 &&
+    same_sf32 d1 d2 && same_sf32 e1 e2 && same_sf32 f1 f2
+
+  let is_composition_identity ca1 ca2 =
+    List.for_all2 is_identity (Array.to_list ca1) (Array.to_list ca2)
+
+  let is_identity c =
+    (build_curve (parameters_of_curve c)) = `Identity
+
+  let are_identity_curves ca =
+    List.for_all is_identity (Array.to_list ca)
+
+  let optimize (inputs, accum) e =
+    assert (inputs = e.inputs);
+    let outputs = match e.op with
+    | M3 _ -> 3
+    | Curves ca -> Array.length ca in
+    match e.op, accum with
+    | M3 m2, {op = M3 m1;_} :: tl ->
+        assert (e.inputs = 3);
+        let m = M3.mul m1 m2 in
+        if (M3.compare_f compare_eps m M3.id) = 0 then
+          (* matrix is multipled with its inverse -> we can skip *)
+          (outputs, tl)
+        else
+          (outputs, { inputs = 3; op = M3 m} :: tl)
+    | M3 m, tl when (M3.compare_f compare_eps m M3.id) = 0 ->
+      (* matrix is identity -> we can skip *)
+      (outputs, tl)
+    | Curves ca2, {op = Curves ca1;_} :: tl when is_composition_identity ca1 ca2 ->
+        (outputs, tl)
+    | Curves ca, tl when are_identity_curves ca ->
+        (outputs, tl)
+    | _ ->
+        (* some other combination: not optimizable for now. *)
+        (outputs, e :: accum)
+
+  let optimize_pipeline inputs pipe =
+    let _, rev1 = List.fold_left optimize (inputs, []) pipe in
+    let _, pipe2 = List.fold_left optimize (inputs, []) (List.rev rev1) in
+    pipe2
+    (* TODO: check for 3D LUT optimization possibility *)
+
+  let inv_op = function
+    | {op=M3 m;_} -> {inputs=3;op=M3 (M3.inv m)}
+    | {op=Curves ca;inputs} ->
+        {inputs; op = Curves (Array.map (fun c -> build_curve (inv c)) ca)}
+
+  let inv_pipeline pipe =
+    List.rev_map inv_op pipe
+
+  let build_ofxyz icc =
+    inv_pipeline (build_toxyz icc)
+
+  let link icc1 icc2 =
+    optimize_pipeline 3 (*TODO*) ((build_toxyz icc1) @ (build_ofxyz icc2))
+
   let model icc = icc.model
   type primaries = {
     xr: float; yr: float;
@@ -261,6 +420,57 @@ module ICC = struct
   }
   let plRGB = pRGB rec709 Whitepoint.d65 curve_identity
   let psRGB = pRGB rec709 Whitepoint.d65 curve_sRGB
+
+  let print_curve fmt curve = match (build_curve (parameters_of_curve curve))
+  with
+    | `Identity ->
+        Format.fprintf fmt "id@\n"
+    | `Gamma1 g ->
+        Format.fprintf fmt "X^%.5f@\n" g
+    | `Gamma2 (g,a,b) ->
+        Format.fprintf fmt "(%.5f*X+%.5f)^%.5f when X >= -%.5f/%.5f@\n"
+          a b g b a;
+        Format.fprintf fmt "0 when X < -%.5f/%.5f@\n" b a
+    | `Gamma3 (g,a,b,c) ->
+        Format.fprintf fmt "(%.5f*X+%.5f)^%.5f when X >= -%.5f/%.5f@\n"
+          a b g b a;
+        Format.fprintf fmt "%.5f when X < -%.5f/%.5f@\n" c b a
+    | `Gamma4 (g,a,b,c,d) ->
+        Format.fprintf fmt "(%.5f*X+%.5f)^%.5f when X >= %.5f@\n"
+          a b g d;
+        Format.fprintf fmt "%.5f*X when X < %.5f@\n" c d
+    | `Gamma5 (g,a,b,c,d,e,f) ->
+        Format.fprintf fmt "(%.5f*X+%.5f)^%.5f+.%5f when X >= %.5f@\n"
+          a b g e d;
+        Format.fprintf fmt "%.5f*X+%.5f when X < %.5f@\n" c f d
+
+  let print_pipeline fmt pipe =
+    List.iter (fun e -> match e.op with
+      | M3 m ->
+          Format.fprintf fmt "Matrix:@[";
+          M3.print fmt m;
+          Format.fprintf fmt "@]@\n"
+      | Curves ca ->
+          Format.fprintf fmt "Curves:@[";
+          Array.iter (print_curve fmt) ca;
+          Format.fprintf fmt "@]@\n"
+    ) pipe
+
+  let () =
+    print_pipeline Format.std_formatter (build_toxyz plRGB);
+    let pipe = link psRGB psRGB in
+    Format.fprintf Format.std_formatter "sRGB->sRGB: @\n";
+    print_pipeline Format.std_formatter pipe;
+    let pipe = link psRGB plRGB in
+    Format.fprintf Format.std_formatter "sRGB->lRGB: @\n";
+    print_pipeline Format.std_formatter pipe;
+    let pipe = link plRGB psRGB in
+    Format.fprintf Format.std_formatter "lRGB->sRGB: @\n";
+    print_pipeline Format.std_formatter pipe;
+    let pipe = link plRGB plRGB in
+    Format.fprintf Format.std_formatter "lRGB->lRGB: @\n";
+    print_pipeline Format.std_formatter pipe
+
   let pHSV () = failwith "TODO"
   let pHLS () = failwith "TODO"
   let pCAM02Jab vc = failwith "TODO"
@@ -270,11 +480,6 @@ module ICC = struct
   let pCMYK () = failwith "TODO"
   let pIPT () = failwith "TODO"
   let pGeneric n = failwith "TODO"
-
-  (* Are the 2 numbers the same if they were encoded
-   * into s15Fixed16Number? *)
-  let same_sf32 a b =
-    (abs_float (a -. b)) < 1. /. 65536.;;
 
   let eval_curve c x = match c with
     | `Gamma1 g -> x ** g
@@ -298,109 +503,12 @@ module ICC = struct
         c *. x +. f
     | `Custom f -> f x
 
-  let parameters_of_curve = function
-    | `Gamma1 g ->
-      g, 1., 0., 0., 0., 0., 0.
-    | `Gamma2 (g, a, b) ->
-      g, a, b, 0., -. b /. a, 0., 0.
-    | `Gamma3 (g, a, b, c) ->
-      g, a, b, 0., -. b /. a, 0., c
-    | `Gamma4 (g, a, b, c, d) ->
-      g, a, b, c, d, 0., 0.
-    | `Gamma5 (g, a, b, c, d, e, f) ->
-      g, a, b, c, d, e, f
 
   let eval_type5 g a b c d e f x =
     if x >= d then
       (a *. x +. b) ** g +. e
     else
       c *. x +. f;;
-
-  let inv curve =
-    let g,a,b,c,d,e,f = parameters_of_curve curve in
-    (** Y = (aX+b)^g+e when X >= d
-     *  Y = cX + f when X < d
-     *  ==>
-     *  X = ((Y - e)^(1/g) - b)/a when Y >= split
-     *  X = (Y - f)/c when Y < split
-     *  ==>
-     *  X = ((Y - e) * (1/a^g)) ^ (1/g) - b/a when Y >= split
-     *  X = (1/c) * Y - f/c when Y < split
-     *  ==>
-     *  a' = a^-g
-     *  b' = -e * a'
-     *  c' = 1/c
-     *  d' = c' * d + f'
-     *  e' = -b/a
-     *  f' = -f/c
-     *  g' = 1/g
-    *)
-    let a' = a ** (-.g) in
-    let b' = -. e *. a' in
-    let c' = 1. /. c in
-    let f' = -. f /. c in
-    let d' = c *. d +. f in
-    let e' = -. b /. a in
-    let g' = 1. /. g in
-    `Gamma5 (g', a', b', c', d', e', f');;
-
-  (* ignore this for now, its not used *)
-  (* create a curve that combines other 2 *)
-  let compose_pcurve c1 c2 =
-    (* X1 = (a1*X+b1)^g1+e1 when X >= d1
-     *  X1 = c1*X+f1 when X < d1;
-     *  Y = (a2*X1+b2)^g2+e2 when X >= d2
-     *  Y = c2*X1+f2 when X < d2; *)
-    (* bring to common representation *)
-    let g1,a1,b1,c1,d1,e1,f1 = parameters_of_curve c1
-    and g2,a2,b2,c2,d2,e2,f2 = parameters_of_curve c2 in
-    let c1_split =
-      eval_type5 g1 a1 b1 c1 d1 e1 f1 d1 in
-    let split =
-      if same_sf32 c1_split d2 || d2 = 0. then Some d1
-      else if c1_split = 0. then
-        let `Gamma5 (_, _, _, _, d, _, _) = inv (`Gamma5 (g2, a2, b2, c2, d2, e2, f2)) in
-        Some d
-      else None in
-    match split, g1 = 1., g2 = 1. with
-    | Some d, true, _ ->
-      (* first curve is linear *)
-      let a' = a2 *. a1
-      and b' = a2 *. (b1 +. e1) +. b2
-      and e' = e2
-      and c' = c2 *. c1
-      and f' = c2 *. f1 +. f2 in
-      Some (`Gamma5 (g2, a', b', c', d, e', f'))
-    | Some d, _, true ->
-      (* second curve is linear *)
-      let a2' = a2 ** (1. /. g1) in
-      let a' = a1 *. a2'
-      and b' = b1 *. a2'
-      and e' = a2 *. e1 +. b2 +. e2
-      and c' = c2 *. c1
-      and f' = c2 *. f1 +. f2 in
-      Some (`Gamma5 (g1, a', b', c', d, e', f'))
-    | Some _, false, false -> None (* can't expand (a+b)^g *)
-    | None, _, _ -> None (* more than one discontinuity point would be needed *)
-  ;;
-
-  let optimize_curve p =
-    let g, a, b, c, d, e, f = parameters_of_curve p in
-    if (same_sf32 a 1.) &&
-       (same_sf32 b 0.) && (same_sf32 c 0.) && (same_sf32 d 0.) &&
-       (same_sf32 e 0.) && (same_sf32 f 0.) then
-      `Gamma1 g
-    else if (same_sf32 d (-. b /. a)) &&
-            (same_sf32 c 0.) && (same_sf32 e 0.) then begin
-      if same_sf32 f 0. then
-        `Gamma2 (g, a, b)
-      else
-        `Gamma3 (g, a, b, f)
-    end else if same_sf32 e 0. && same_sf32 f 0. then
-      `Gamma4 (g,a,b,c,d)
-    else
-      `Gamma5 (g, a, b, c, d, e, f)
-  ;;
 
   (* Are these 2 XYZ numbers the same after encoding
    * to XYZNumber? *)
