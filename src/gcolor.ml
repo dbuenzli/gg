@@ -258,11 +258,13 @@ module ICC = struct
   let are_identity_curves ca =
     List.for_all is_identity (Array.to_list ca)
 
+  let outputs = function
+    | M3 _ -> 3
+    | Curves ca -> Array.length ca
+
   let optimize (inputs, accum) e =
     assert (inputs = e.inputs);
-    let outputs = match e.op with
-    | M3 _ -> 3
-    | Curves ca -> Array.length ca in
+    let outputs = outputs e.op in
     match e.op, accum with
     | M3 m2, {op = M3 m1;_} :: tl ->
         assert (e.inputs = 3);
@@ -288,6 +290,62 @@ module ICC = struct
     let _, pipe2 = List.fold_left optimize (inputs, []) (List.rev rev1) in
     pipe2
     (* TODO: check for 3D LUT optimization possibility *)
+
+  let v3_of_array a p =
+    V3.v a.(p) a.(p+1) a.(p+2)
+
+  let v3_to_array v =
+    [| V3.x v; V3.y v; V3.z v |]
+
+  let eval_curve c x = match c with
+    | `Identity -> x
+    | `Gamma1 g -> x ** g
+    | `Gamma2 (g, a, b) ->
+      if x >= -.b /. a then
+        (a *. x +. b) ** g
+      else 0.
+    | `Gamma3 (g,a,b,c) ->
+      if x >= -.b /. a then
+        (a *. x +. b) ** g
+      else c
+    | `Gamma4 (g,a,b,c,d) ->
+      if x >= d then
+        (a *. x +. b) ** g
+      else
+        c *. x
+    | `Gamma5 (g,a,b,c,d,e,f) ->
+      if x >= d then
+        (a *. x +. b) ** g +. e
+      else
+        c *. x +. f
+    | `Custom f -> f x
+
+  let eval_curve_from input pos = fun i curve ->
+    eval_curve curve input.(pos+i)
+
+  let rec eval input pos = function
+    | [] -> input
+    | {op=M3 m;_} :: tl ->
+        eval (v3_to_array (V3.ltr m (v3_of_array input pos))) 0 tl
+    | {op=Curves ca;_} :: tl ->
+        Array.mapi (eval_curve_from input pos) ca
+
+  (* unoptimized *)
+   let eval_pipeline input pipe =
+    if pipe = [] then input
+    else
+      let inputs = (List.hd pipe).inputs in
+      if (Array.length input) mod inputs <> 0 then
+        invalid_arg "input is not multiple of colorspace components";
+      let out = outputs (List.hd (List.rev pipe)).op in
+      let colors = (Array.length input) / inputs in
+      let n = colors * out in
+      let result = Array.make n 0. in
+      for i = 0 to (colors-1) do
+        let r = eval input (i * inputs) pipe in
+        Array.blit r 0 result (i*out) out
+      done;
+      result
 
   let inv_op = function
     | {op=M3 m;_} -> {inputs=3;op=M3 (M3.inv m)}
@@ -480,28 +538,6 @@ module ICC = struct
   let pCMYK () = failwith "TODO"
   let pIPT () = failwith "TODO"
   let pGeneric n = failwith "TODO"
-
-  let eval_curve c x = match c with
-    | `Gamma1 g -> x ** g
-    | `Gamma2 (g, a, b) ->
-      if x >= -.b /. a then
-        (a *. x +. b) ** g
-      else 0.
-    | `Gamma3 (g,a,b,c) ->
-      if x >= -.b /. a then
-        (a *. x +. b) ** g
-      else c
-    | `Gamma4 (g,a,b,c,d) ->
-      if x >= d then
-        (a *. x +. b) ** g
-      else
-        c *. x
-    | `Gamma5 (g,a,b,c,d,e,f) ->
-      if x >= d then
-        (a *. x +. b) ** g +. e
-      else
-        c *. x +. f
-    | `Custom f -> f x
 
 
   let eval_type5 g a b c d e f x =
