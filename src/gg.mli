@@ -82,8 +82,11 @@ module Float : sig
      {{:http://mathworld.wolfram.com/Degree.html}degrees} in
      {{:http://mathworld.wolfram.com/Radian.html}radians}. *) 
 
+  val wrap_angle : float -> float
+  (** [wrap_angle r] is the angle [r] in the interval \[[-pi;pi]\[. *)
+
   val random : ?min:float -> len:float -> unit -> float
- (** [random min len ()] is a random float in the interval
+  (** [random min len ()] is a random float in the interval
       \[[min;min+len]\] ([min] defaults to 0.). Uses the standard
       library's default [Random] state for the generation.
 

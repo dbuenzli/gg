@@ -56,6 +56,11 @@ module Float = struct
   let deg_of_rad r =  r *. r2d
   let rad_of_deg d =  d *. d2r
 
+  let pi2 = 2. *. pi
+  let wrap_angle r = 
+    let r = mod_float (r +. pi) pi2 in 
+    if r < 0. then r +. pi else r -. pi
+
   let random ?(min = 0.) ~len () = 
     let t0 = float (Random.bits ()) /. 1073741823. in (* ≠ from Random.float *)
     let t1 = (float (Random.bits ()) +. t0) /. 1073741824. in

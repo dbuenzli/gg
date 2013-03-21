@@ -80,6 +80,31 @@ module Float_tests = struct
       >> (abs_float (Float.rad_of_deg 180. -. Float.pi) < 1e-10) 
       >> Cf.holds Float.is_nan (Float.rad_of_deg nan) 
       >> C.success
+
+  let () = test "wrap_angle" & fun r -> 
+    let is_num f = not (Float.is_nan f || Float.is_inf f) in r 
+    >> (abs_float (Float.wrap_angle 0.) < 1e-10)
+    >> (abs_float (Float.wrap_angle (2. *. Float.pi)) < 1e-10)
+    >> (abs_float (Float.wrap_angle (4. *. Float.pi)) < 1e-10)
+    >> (abs_float (Float.wrap_angle (6. *. Float.pi)) < 1e-10)
+    >> (abs_float (Float.wrap_angle (-2. *. Float.pi)) < 1e-10)
+    >> (abs_float (Float.wrap_angle (-4. *. Float.pi)) < 1e-10)
+    >> (abs_float (Float.wrap_angle (-6. *. Float.pi)) < 1e-10)
+    >> (abs_float ((Float.wrap_angle Float.pi) +. Float.pi) < 1e-10)
+    >> (abs_float ((Float.wrap_angle (3. *. Float.pi)) +. Float.pi) < 1e-10)
+    >> (abs_float ((Float.wrap_angle (5. *. Float.pi)) +. Float.pi) < 1e-10)
+    >> (abs_float ((Float.wrap_angle (-.Float.pi)) +. Float.pi) < 1e-10)
+    >> (abs_float ((Float.wrap_angle (-.3. *. Float.pi)) +. Float.pi) < 1e-10)
+    >> (abs_float ((Float.wrap_angle (-.5. *. Float.pi)) +. Float.pi) < 1e-10)
+    >> Cf.for_all ~cond:is_num any_float
+      begin fun v r ->
+        let w = Float.wrap_angle v in r 
+        >> (w < Float.pi) 
+        >> (w >= -.Float.pi)
+        >> C.success
+      end
+    >> Cf.holds Float.is_nan (Float.wrap_angle nan) 
+    >> C.success
         
   let () = test "random functions" & fun r ->
     r >> C.for_all Gen.unit 
