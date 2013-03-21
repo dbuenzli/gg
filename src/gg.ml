@@ -1,5 +1,5 @@
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli. All rights reserved.
+   Copyright (c) %%COPYRIGHT%%. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
    %%PROJECTNAME%% version %%VERSION%%
   ---------------------------------------------------------------------------*)

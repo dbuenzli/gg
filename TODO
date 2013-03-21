@@ -11,6 +11,8 @@
      if a > 3.14 then 6.28 +. a else
      if a < -3.14 then 6.28 +. a else
      a
+** Remove copysign, it's part of pervasives now.
+** Use hypot
 
 * Color module
 ** ? add porter duff blending + semantics, or pdf blending ? 

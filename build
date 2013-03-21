@@ -124,7 +124,7 @@ publish_opam ()
     project_info 
     ARCHIVE=$NAME-$VERSION.tbz
     OPAMPACK=$NAME.$VERSION
-    SITEGENROOT=~/sync/erratique
+    SITEGENROOT=${SITEGENROOT:="~/sync/erratique"}
     OPAMROOT=$SITEGENROOT/maps/software/opam
     $MKDIR -p $OPAMROOT/packages/$OPAMPACK/files
 
