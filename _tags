@@ -3,4 +3,4 @@
 <test> : include
 <test/*> : debug
 <test/test.{byte,native}> : use_str
-<test/benchmark.{byte,native,ml}>: pkg_unix, pkg_bench, use_bigarray
+<test/benchmark.{byte,native,ml}>: package(unix), package(bench), package(bigarray)
