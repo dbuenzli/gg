@@ -51,8 +51,8 @@ project_info ()
   SYNOPSIS=`$OASISQ Synopsis`
   DESCRIPTION=`$OASISQ Description | $SED "s|$|\\\\\|"`
   HOMEPAGE=`$OASISQ Homepage`
+  MAINTAINER=`$OASISQ Maintainers`
   AUTHORS=`$OASISQ Authors`
-  COPYRIGHT=`$OASISQ Copyrights`
   OCAMLVERSION=`$OASISQ OCamlVersion`
   DEPS=`$OASISQ "Library(\"$NAME\").BuildDepends"`
   if [ "$DEPS" ]; then
@@ -94,7 +94,6 @@ distrib ()
             s|%%DESCRIPTION%%|$DESCRIPTION |g; \
             s|%%HOMEPAGE%%|$HOMEPAGE|g; \
             s|%%AUTHORS%%|$AUTHORS|g; \
-            s|%%COPYRIGHT%%|$COPYRIGHT|g; \
             s|%%OCAMLVERSION%%|$OCAMLVERSION|g; \
             s|%%DEPS%%|$DEPS|g; \
             s|%%PPDEPS%%|$PPDEPS |g;" \
@@ -138,7 +137,7 @@ EOF
 
     cat > opam <<EOF
 opam-version: "1"
-maintainer: "$AUTHORS"
+maintainer: "$MAINTAINER"
 homepage: "$HOMEPAGE"
 authors: ["$AUTHORS"]
 doc: "$HOMEPAGE/doc/$MODNAME"

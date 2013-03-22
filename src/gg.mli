@@ -1,5 +1,5 @@
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHT%%. All rights reserved.
+   Copyright (c) 2013 Daniel C. Bünzli. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
    %%PROJECTNAME%% version %%VERSION%%
   --------------------------------------------------------------------------*)
@@ -15,7 +15,7 @@
     Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope. 
 
-    {e Version %%VERSION%% - %%EMAIL%% } *)
+    {e Version %%VERSION%% - %%AUTHORS%% } *)
 
 (**    {1:float Floats} *)
 
@@ -3316,9 +3316,8 @@ end
        argument, these are subject to change.}}
 *)
 
-
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli
+   Copyright (c) 2013 Daniel C. Bünzli
    All rights reserved.
 
    Redistribution and use in source and binary forms, with or without

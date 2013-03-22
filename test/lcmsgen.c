@@ -1,5 +1,5 @@
 /*
-   Copyright (c) %%COPYRIGHTYEAR%%, Török Edwin
+   Copyright (c) 2013 Török Edwin
    All rights reserved.
 
    Redistribution and use in source and binary forms, with or without

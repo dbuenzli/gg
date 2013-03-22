@@ -1,8 +1,8 @@
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli. All rights reserved.
+   Copyright (c) 2013 Daniel C. Bünzli. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
    %%PROJECTNAME%% version %%VERSION%%
-  ---------------------------------------------------------------------------*)
+  --------------------------------------------------------------------------*)
 
 type 'a printer = Format.formatter -> 'a -> unit
 type 'a gen = (int -> Random.State.t -> 'a) * 'a printer
@@ -749,7 +749,7 @@ module Gen = struct
 end
 
 (*---------------------------------------------------------------------------
-   Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli
+   Copyright (c) 2013 Daniel C. Bünzli
    All rights reserved.
 
    Redistribution and use in source and binary forms, with or without
