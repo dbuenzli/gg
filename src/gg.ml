@@ -2247,96 +2247,80 @@ module Color = struct
 
   type srgba = v4 
 
+  let c0 = 0.04045
+  let c1 = 1. /. 12.92
+  let c2 = 0.055
+  let c3 = 1. /. 1.055
+  let c4 = 2.4
   let of_srgba c = 
-    let s2l v = 
-      if v <= 0.04045 then v /. 12.92 else
-      ((v +. 0.055) /. 1.055) ** 2.4
-    in
-    v (s2l c.V4t.x) (s2l c.V4t.y) (s2l c.V4t.z) c.V4t.w
-    
-  let l2s_exp = 1. /. 2.4
+    let r = V4t.(if c.x <= c0 then c1 *. c.x else (c3 *. (c.x +. c2)) ** c4) in
+    let g = V4t.(if c.y <= c0 then c1 *. c.y else (c3 *. (c.y +. c2)) ** c4) in
+    let b = V4t.(if c.z <= c0 then c1 *. c.z else (c3 *. (c.z +. c2)) ** c4) in
+    v r g b c.V4t.w
+
+  let c0 = 0.0031308
+  let c1 = 12.92
+  let c2 = 1.055
+  let c3 = 1. /. 2.4
+  let c4 = 0.055
   let to_srgba c =
-    let l2s v = 
-      if v <= 0.0031308 then 12.92 *. v else
-      1.055 *. (v ** l2s_exp) -. 0.055
-    in
-    v (l2s c.V4t.x) (l2s c.V4t.y) (l2s c.V4t.z) c.V4t.w
+    let r = V4t.(if c.x <= c0 then c1 *. c.x else c2 *. (c.x ** c3) -. c4) in 
+    let g = V4t.(if c.y <= c0 then c1 *. c.y else c2 *. (c.y ** c3) -. c4) in 
+    let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
+    v r g b c.V4t.w
 
-  let d50 = V3.v 0.9642 1.0 0.8249
-
-  module Lab = struct
-    let to_lch lab =
-      let l, a, b = lab.V3t.x, lab.V3t.y, lab.V3t.z in
-      let c = sqrt (a *. a +. b *. b) in
-      V3.v l c (atan2 b a)
-
-    let of_lch lch =
-      let l, c, h = lch.V3t.x, lch.V3t.y, lch.V3t.z  in
-      let a = c *. (cos h) and b = c *. (sin h) in
-      V3.v l a b
-
-    let eps = (6. /. 29.) ** 3.
-    let eps' = (6. /. 29.)
-    let f v = 
-      if v > eps then v ** (1.0 /. 3.0) else 
-      (841. /. 108.) *. v +. 4. /. 29.
-
-    let inv v =
-      if v > eps' then v *. v *. v else
-      (108. /. 841.) *. (v -. 4. /. 29.)
-
-    (*
-     * The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
-       Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
-        D65 = CCT 6504
-        D50 = as usual (ICC specified)
-        Bradford matrix
-        5 fractional digits in the matrix
+  (* The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
+     Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
+       D65 = CCT 6504
+       D50 = as usual (ICC specified)
+       Bradford matrix
+       5 fractional digits in the matrix
        scale = M3.scale (V3.div (V3.v 1. 1. 1.) d50)
-       Then we match the results from LittleCMS better.
-     *)
-    let of_rgb rgb =
-      let xr =
-        0.4520417*.rgb.V3t.x +.0.3996304*.rgb.V3t.y +.0.1483279*.rgb.V3t.z
-      and yr =
-        0.2223801*.rgb.V3t.x +.0.7170343*.rgb.V3t.y +.0.0605856*.rgb.V3t.z
-      and zr =
-        0.0168785*.rgb.V3t.x +.0.1177517*.rgb.V3t.y +.0.8653698*.rgb.V3t.z in
-      let fx = f xr and fy = f yr and fz = f zr in
-      let l = 116. *. fy -. 16.
-      and a = 500. *. (fx -. fy)
-      and b = 200. *. (fy -. fz) in
-      V3.v l a b
+     Then we match the results from LittleCMS better. *)
+  let eps = (6. /. 29.) ** 3.
+  let c0 = 1. /. 3.
+  let c1 = 841. /. 108.
+  let c2 = 4. /. 29.
+  let to_lab ~to_lch c = 
+    let xr = V4t.(0.4520417 *. c.x +.0.3996304 *. c.y +. 0.1483279 *. c.z) in
+    let yr = V4t.(0.2223801 *. c.x +.0.7170343 *. c.y +. 0.0605856 *. c.z) in
+    let zr = V4t.(0.0168785 *. c.x +.0.1177517 *. c.y +. 0.8653698 *. c.z) in
+    let fx = if xr > eps then xr ** c0 else (c1 *. xr +. c2) in
+    let fy = if yr > eps then yr ** c0 else (c1 *. yr +. c2) in
+    let fz = if zr > eps then zr ** c0 else (c1 *. zr +. c2) in
+    let l = 116. *. fy -. 16. in
+    let a = 500. *. (fx -. fy) in
+    let b = 200. *. (fy -. fz) in
+    if to_lch then V4.v l (sqrt (a *. a +. b *. b)) (atan2 b a) c.V4t.w else
+    V4.v l a b c.V4t.w
 
-    (* The matrix used in the multiplication below is the inverse of the one
-     * above *)
-    let to_rgb lab =
-      let l = lab.V3t.x and a = lab.V3t.y and b = lab.V3t.z in
-      let fy = (l +. 16.) /. 116. in
-      let fx = a /. 500. +. fy
-      and fz = fy -. b /. 200. in
-      let fx' = inv fx and fy' = inv fy and fz' = inv fz in
-      V3.v
-        ( 3.0236033*.fx' -.1.6186705*.fy' -.0.4049328*.fz')
-        (-0.9436024*.fx' +.1.9160071*.fy' +.0.0275953*.fz')
-        ( 0.0694234*.fx' -.0.2291418*.fy' +.1.1597184*.fz')
-
-    let rgb_of_lch lch = to_rgb (of_lch lch)
-    let lch_of_rgb rgb = to_lch (of_rgb rgb)
-  end
-
-  let preserve_alpha f = fun v4 ->
-    let alpha = V4.w v4 in
-    let v3 = f (V3.of_v4 v4) in
-    V4.of_v3 v3 ~w:alpha
+  (* Matrix below is the inverse of the one above *)
+  let eps' = 6. /. 29.
+  let c0 = 108. /. 841.
+  let c1 = 4. /. 29.
+  let of_lab ~of_lch c = 
+    let l = c.V4t.x in 
+    let a = if of_lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
+    let b = if of_lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in 
+    let fy = (l +. 16.) /. 116. in
+    let fx = a /. 500. +. fy in
+    let fz = fy -. b /. 200. in
+    let fx' = if fx > eps' then fx *. fx *. fx else c0 *. (fx -. c1) in
+    let fy' = if fy > eps' then fy *. fy *. fy else c0 *. (fy -. c1) in
+    let fz' = if fz > eps' then fz *. fz *. fz else c0 *. (fz -. c1) in
+    V4.v
+      ( 3.0236033 *.fx' -. 1.6186705*.fy' -. 0.4049328 *. fz')
+      (-0.9436024 *.fx' +. 1.9160071*.fy' +. 0.0275953 *. fz')
+      ( 0.0694234 *.fx' -. 0.2291418*.fy' +. 1.1597184 *. fz')
+      c.V4t.w
 
   type lcha = v4 
-  let of_lcha = preserve_alpha Lab.rgb_of_lch
-  let to_lcha = preserve_alpha Lab.lch_of_rgb
+  let of_lcha c = of_lab ~of_lch:true c 
+  let to_lcha c = to_lab ~to_lch:true c
 
   type laba = v4
-  let to_laba = preserve_alpha Lab.of_rgb
-  let of_laba = preserve_alpha Lab.to_rgb
+  let of_laba c = of_lab ~of_lch:false c
+  let to_laba c = to_lab ~to_lch:false c
 
   (* Color spaces *)
 
