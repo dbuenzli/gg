@@ -195,7 +195,7 @@ module Float : sig
   (** [nan_payload x] is the 51 lower significand bits (or less, as
       [int] allows) of the NaN [x].  
 
-      {b Raises} [Invalid_argument] if [x] is not a NaN. *)
+      @raise Invalid_argument if [x] is not a NaN. *)
 
   (** {1:comparisons Predicates and comparisons} *)
 
@@ -347,7 +347,7 @@ module type V = sig
   val comp : int -> t -> float
   (** [comp i v] is [v]{_[i]}, the [i]th component of [v].
       
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val zero : t
   (** [zero] is the neutral element for {!add}. *)
@@ -363,7 +363,7 @@ module type V = sig
       {{:http://mathworld.wolfram.com/OrthonormalBasis.html}orthonormal basis} 
       of the vector space {!t} with inner product {!dot}. 
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   (** {1:functions Functions} *)
 
@@ -499,7 +499,7 @@ module V2 : sig
   val comp : int -> v2 -> float
   (** [comp i v] is [v]{_[i]}, the [i]th component of [v].
       
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val x : v2 -> float 
   (** [x v] is the x component of [v].*)
@@ -527,7 +527,7 @@ module V2 : sig
       {{:http://mathworld.wolfram.com/OrthonormalBasis.html}orthonormal basis} 
       of the vector space {!t} with inner product {!dot}. 
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : float * float -> v2
   (** [of_tuple (x,y)] is [v x y]. *)
@@ -696,7 +696,7 @@ module V3 : sig
   val comp : int -> v3 -> float
   (** [comp i v] is [v]{_[i]}, the [i]th component of [v].
       
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val x : v3 -> float 
   (** [x v] is the x component of [v]. *)
@@ -730,7 +730,7 @@ module V3 : sig
       {{:http://mathworld.wolfram.com/OrthonormalBasis.html}orthonormal basis} 
       of the vector space {!t} with inner product {!dot}. 
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : (float * float * float) -> v3
   (** [of_tuple (x,y,z)] is [v x y z]. *)
@@ -901,7 +901,7 @@ module V4 : sig
   val comp : int -> v4 -> float
   (** [comp i v] is [v]{_[i]}, the [i]th component of [v].
       
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val x : v4 -> float 
   (** [x v] is the x component of [v]. *)
@@ -941,7 +941,7 @@ module V4 : sig
       {{:http://mathworld.wolfram.com/OrthonormalBasis.html}orthonormal basis} 
       of the vector space {!t} with inner product {!dot}. 
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : (float * float * float * float) -> v4
   (** [of_tuple (x,y,z,w)] is [v x y z w]. *)
@@ -1235,18 +1235,18 @@ module type M = sig
   val el : int -> int -> t -> float
   (** [el i j a] is the element [a]{_[ij]}. 
 
-      {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
 
   val row : int -> t -> v
   (** [row i a] is the [i]th row of [a].
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val col : int -> t -> v
   (** [col j a] is the [j]th column of [a]. 
 
-      {b Raises} [Invalid_argument] if [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [j] is not in \[[0;]{!dim}\[.*)
 
   val zero : t
   (** [zero] is the neutral element for {!add}. *)
@@ -1383,17 +1383,17 @@ module M2 : sig
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
       {{!accessors}element accessors}.
 
-      {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
   val row : int -> m2 -> v2
   (** [row i a] is the [i]th row of [a].
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val col : int -> m2 -> v2
   (** [col j a] is the [j]th column of [a]. 
 
-      {b Raises} [Invalid_argument] if [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [j] is not in \[[0;]{!dim}\[.*)
 
   val zero : m2
   (** [zero] is the neutral element for {!add}. *)
@@ -1553,17 +1553,17 @@ module M3 : sig
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
       {{!accessors}element accessors}.
 
-      {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
   val row : int -> m3 -> v3
   (** [row i a] is the [i]th row of [a].
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val col : int -> m3 -> v3
   (** [col j a] is the [j]th column of [a]. 
 
-      {b Raises} [Invalid_argument] if [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [j] is not in \[[0;]{!dim}\[.*)
 
   val zero : m3
   (** [zero] is the neutral element for {!add}. *)
@@ -1762,17 +1762,17 @@ module M4 : sig
   (** [el i j a] is the element [a]{_[ij]}. See also the direct
       {{!accessors}element accessors}.
 
-      {b Raises} [Invalid_argument] if [i] or [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] or [j] is not in \[[0;]{!dim}\[.*)
 
   val row : int -> m4 -> v
   (** [row i a] is the [i]th row of [a].
 
-      {b Raises} [Invalid_argument] if [i] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val col : int -> m4 -> v
   (** [col j a] is the [j]th column of [a]. 
 
-      {b Raises} [Invalid_argument] if [j] is not in \[[0;]{!dim}\[.*)
+      @raise Invalid_argument if [j] is not in \[[0;]{!dim}\[.*)
 
   val zero : m4
   (** [zero] is the neutral element for {!add}. *)
@@ -2208,12 +2208,12 @@ module type Box = sig
   val o : t -> p
   (** [o b] is the origin of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val size : t -> size
   (** [size b] is the size of [b]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val zero : t
   (** [zero] is a box whose origin and size is zero. *)
@@ -2230,17 +2230,17 @@ module type Box = sig
   val min : t -> p
   (** [min b] is the smallest point of [b] (its origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val max : t -> p
   (** [max b] is the greatest point of [b] (its size added to the origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val mid : t -> p 
   (** [mid b] is the mid point between [min] and [max]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val area : t -> float
   (** [area b] is the surface area of [b]. *)
@@ -2353,7 +2353,7 @@ module Box2 : sig
   val o : box2 -> p2
   (** [o b] is the origin of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val ox : box2 -> float 
   (** [ox b] is [V2.x (o b)]. *)
@@ -2364,7 +2364,7 @@ module Box2 : sig
   val size : box2 -> size
   (** [size b] is the size of [b]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val w : box2 -> float 
   (** [w b] is [Size2.w (size b)]. *)
@@ -2387,7 +2387,7 @@ module Box2 : sig
   val min : box2 -> p2
   (** [min b] is the smallest point of [b] (its origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val minx : box2 -> float 
   (** [minx b] is [V2.x (min b)]. *)
@@ -2398,7 +2398,7 @@ module Box2 : sig
   val max : box2 -> p2
   (** [max b] is the greatest point of [b] (its size added to the origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val maxx : box2 -> float 
   (** [maxx b] is [V2.x (max b)]. *)
@@ -2409,7 +2409,7 @@ module Box2 : sig
   val mid : box2 -> p2 
   (** [mid b] is the mid point between [min] and [max]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val midx : box2 -> float 
   (** [midx b] is [V2.x (mid b)]. *)
@@ -2420,22 +2420,22 @@ module Box2 : sig
   val bottom_left : box2 -> p2
   (** [bottom_left b] is the bottom-left corner of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val bottom_right : box2 -> p2
   (** [bottom_right b] is the bottom-right corner of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val top_left : box2 -> p2
   (** [top_left b] is the top-left corner of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val top_right : box2 -> p2
   (** [top_right b] is the top-right corner of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val area : box2 -> float
   (** [area b] is the surface area of [b]. *)
@@ -2557,7 +2557,7 @@ module Box3 : sig
   val o : box3 -> p3
   (** [o b] is the origin of [b].
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val ox : box3 -> float 
   (** [ox b] is [V3.x (o b)]. *)
@@ -2571,7 +2571,7 @@ module Box3 : sig
   val size : box3 -> size3
   (** [size b] is the size of [b]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val w : box3 -> float 
   (** [w b] is [Size3.w (size b)]. *)
@@ -2597,7 +2597,7 @@ module Box3 : sig
   val min : box3 -> p3
   (** [min b] is the smallest point of [b] (its origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val minx : box3 -> float 
   (** [minx b] is [V3.x (min b)]. *)
@@ -2611,7 +2611,7 @@ module Box3 : sig
   val max : box3 -> p3
   (** [max b] is the greatest point of [b] (its size added to the origin). 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val maxx : box3 -> float 
   (** [maxx b] is [V3.x (max b)]. *)
@@ -2625,7 +2625,7 @@ module Box3 : sig
   val mid : box3 -> p3 
   (** [mid b] is the mid point between [min] and [max]. 
 
-      {b Raises} [Invalid_argument] on {!empty} *)
+      @raise Invalid_argument on {!empty} *)
 
   val midx : box3 -> float 
   (** [midx b] is [V3.x (mid b)]. *)
@@ -3051,7 +3051,7 @@ module Raster : sig
       [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
       per sample component is used. If present, see {!type:sample_pack}.
 
-     {b Raises.} [Invalid_argument] if [pack] is incompatible with [st], 
+     @raise Invalid_argument if [pack] is incompatible with [st], 
      see {!type:sample_pack} or if a [pack] [`FourCC] code is not made of 
      4 bytes. *)
 
@@ -3073,7 +3073,7 @@ module Raster : sig
       number of scalars needed to hold a raster data with the corresponding 
       parameters, see {!v} for their description. 
 
-      {b Raises} [Invalid_argument] if [sf] is packed. *)
+      @raise Invalid_argument if [sf] is packed. *)
 
   val pp_sample_format : Format.formatter -> sample_format -> unit 
   (** [pp_sample_format ppf sf] prints a textual representation of [sf]
@@ -3107,7 +3107,7 @@ module Raster : sig
      The function {!pitches} can be used to easily compute the buffer
      scalar index where a sample [(x,y,z)] starts.
 
-  {b Raises} [Invalid_argument] if [w], [h] or [d] is not positive or 
+  @raise Invalid_argument if [w], [h] or [d] is not positive or 
   if [first], [w_skip] or [h_skip] is negative. Or if the scalar type of 
   [sf] doesn't match [(Raster.buffer_scalar_type b)].
 *)
@@ -3163,7 +3163,7 @@ module Raster : sig
           defaults to [(0, 0, 0)].}
        {- [w], [h], [d], new size of the index, defaults to [r]'s 
           sizes minus the new sample origin.}}
-     {b Raises} [Invalid_argument], if the sample format of [r] is 
+     @raise Invalid_argument, if the sample format of [r] is 
      packed, if the origin is out of bounds or if new size is larger than 
      [r]'s size. *)
 
@@ -3178,7 +3178,7 @@ module Raster : sig
 (Raster.first r) + z * z_pitch + y * y_pitch + x * x_pitch
 ]}
   
-      {b Raises} [Invalid_argument] if the sample format of [r] is
+      @raise Invalid_argument if the sample format of [r] is
       packed.
   *)
 
