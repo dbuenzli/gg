@@ -328,7 +328,7 @@ type v3
 type v4
 (** The type for 4D vectors. *)
 
-(** Implemented by all vector types. {1:top  }*)
+(** Implemented by all vector types. *)
 module type V = sig
   type t
   (** The type for vectors. *)
@@ -1086,7 +1086,7 @@ type p2 = v2
 type p3 = v3
 (** The type for 3D points. *)
 
-(** Implemented by all point types. {1:top  }*)
+(** Implemented by all point types. *)
 module type P = sig
   type t
   (** The type for points. *)
@@ -1107,7 +1107,7 @@ module type P = sig
   (** {1:functions Functions} *)  
 
   val mid : t -> t -> t
-  (** [mid p q] is the mid point [p + (q-p)/2]. *)
+  (** [mid p q] is the mid point [(p + q)/2]. *)
       
   val tr : mh -> t -> t
   (** [tr m p] is the 
@@ -1149,7 +1149,7 @@ module P2 : sig
   (** {1:functions Functions} *)
   
   val mid : p2 -> p2 -> p2
-  (** [mid p q] is the mid point [p + (q-p)/2]. *)
+  (** [mid p q] is the mid point [(p + q)/2]. *)
 
   val tr : m3 -> p2 -> p2
   (** [tr m p] is the 
@@ -1195,7 +1195,7 @@ module P3 : sig
   (** {1:functions Functions} *)
   
   val mid : p3 -> p3 -> p3
-  (** [mid p q] is the mid point [p + (q-p)/2]. *)
+  (** [mid p q] is the mid point [(p + q)/2]. *)
 
   val tr : m4 -> p3 -> p3
   (** [tr m p] is the 
@@ -1223,7 +1223,7 @@ end
     {{:http://en.wikipedia.org/wiki/Column-major_order}column-major
     order}. *)
 
-(** Implemented by all (square) matrix types.  {1:top  } *)
+(** Implemented by all (square) matrix types. *)
 module type M = sig
   type t
   (** The type for matrices. *)
@@ -2086,7 +2086,7 @@ type size2 = v2
 type size3 = v3
 (** The type for sizes in 3D space. *)
 
-(** Implemented by all size types. {1:top  }*)
+(** Implemented by all size types. *)
 module type Size = sig
   type t
   (** The type for sizes. *)
@@ -2178,7 +2178,7 @@ type box3
 (** The type for 3D axis-aligned boxes
     ({{:http://mathworld.wolfram.com/Cuboid.html}cuboids}). *)
 
-(** Implemented by all axis-aligned box types. {1:top  }*)
+(** Implemented by all axis-aligned box types. *)
 module type Box = sig
   type t
   (** The type for boxes. *)

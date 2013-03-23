@@ -673,7 +673,7 @@ module P2 = struct
 
   (* Functions *)  
 
-  let mid p q = v (p.x +. 0.5 *. (q.x -. p.x)) (p.y +. 0.5 *. (q.y -. p.y))
+  let mid p q = v (0.5 *. (p.x +. q.x)) (0.5 *. (p.y +. q.y))
 
   open M3t
   let tr m p = 
@@ -698,9 +698,9 @@ module P3 = struct
   (* Functions *)  
 
   let mid p q = 
-    v (p.x +. 0.5 *. (q.x -. p.x)) 
-      (p.y +. 0.5 *. (q.y -. p.y))
-      (p.z +. 0.5 *. (q.z -. p.z))
+    v (0.5 *. (p.x +. q.x)) 
+      (0.5 *. (p.y +. q.y))
+      (0.5 *. (p.z +. q.z))
 
   open M4t
   let tr m p = 
