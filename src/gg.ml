@@ -18,7 +18,17 @@ let err_iclass arg v pos =
 
 let err_sample_pack p st = 
   str "sample pack %s incompatible with scalar type %s" p st
-  
+
+let pp_pad ppf len = for i = 1 to len do Format.pp_print_space ppf () done
+let pp_buf buf ppf fmt =
+  let flush ppf =
+    Format.pp_print_flush ppf (); 
+    let s = Buffer.contents buf in 
+    Buffer.clear buf;
+    s, String.length s
+  in
+  Format.kfprintf flush ppf fmt
+    
 let to_string_of_formatter pp v =                        (* NOT thread safe. *)
   Format.fprintf Format.str_formatter "%a" pp v; 
   Format.flush_str_formatter ()
@@ -874,16 +884,26 @@ module M2 = struct
     let c = cmp a.e11 b.e11 in c
     
   (* Printers *)
-  	
-  let pp ppf a = 
-    Format.fprintf ppf "@[<v1>(@[<1>(% g@ % g )@]@,@[<1>(% g@ % g )@])@]"
-      a.e00 a.e01 a.e10 a.e11
 
   let pp_f pp_e ppf a = 
-    Format.fprintf ppf "@[<v1>(@[<1>(%a@ %a)@]@,@[<1>(%a@ %a)@])@]"
-      pp_e a.e00 pp_e a.e01 pp_e a.e10 pp_e a.e11
-
-  let to_string p = to_string_of_formatter pp p
+    let max : int -> int -> int = fun a b -> if a > b then a else b in
+    let b = Buffer.create 30 in
+    let bppf = Format.formatter_of_buffer b in
+    let e00, e00l = pp_buf b bppf "%a" pp_e a.e00 in 
+    let e10, e10l = pp_buf b bppf "%a" pp_e a.e10 in 
+    let max0 = max e00l e10l in
+    let e01, e01l = pp_buf b bppf "%a" pp_e a.e01 in 
+    let e11, e11l = pp_buf b bppf "%a" pp_e a.e11 in 
+    let max1 = max e01l e11l in
+    Format.fprintf ppf 
+      "@[<v>@[<1>|%a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s|@]@]"
+      pp_pad (max0 - e00l) e00 pp_pad (max1 - e01l) e01
+      pp_pad (max0 - e10l) e10 pp_pad (max1 - e11l) e11
+    
+  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp ppf a = pp_f pp_e_default ppf a
+  let to_string p = to_string_of_formatter pp p   	
 end
 
 module M3 = struct
@@ -1133,20 +1153,36 @@ module M3 = struct
     let c = cmp a.e22 b.e22 in c
 
   (* Printers *)
-
-  let pp ppf a = 
-    Format.fprintf ppf 
-      "@[<v1>(@[<1>(% g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g )@]@,\
-       @[<1>(% g@ % g@ % g )@])@]"
-      a.e00 a.e01 a.e02 a.e10 a.e11 a.e12 a.e20 a.e21 a.e22
       
   let pp_f pp_e ppf a = 
-    Format.fprintf ppf
-      "@[<v1>(@[<1>(%a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a)@])@]"
-      pp_e a.e00 pp_e a.e01 pp_e a.e02 
-      pp_e a.e10 pp_e a.e11 pp_e a.e12 
-      pp_e a.e20 pp_e a.e21 pp_e a.e22
+    let max : int -> int -> int -> int = fun a b c -> 
+      if a > b then (if a > c then a else c) else (if b > c then b else c)
+    in
+    let b = Buffer.create 30 in
+    let bppf = Format.formatter_of_buffer b in
+    let e00, e00l = pp_buf b bppf "%a" pp_e a.e00 in 
+    let e10, e10l = pp_buf b bppf "%a" pp_e a.e10 in 
+    let e20, e20l = pp_buf b bppf "%a" pp_e a.e20 in 
+    let max0 = max e00l e10l e20l in
+    let e01, e01l = pp_buf b bppf "%a" pp_e a.e01 in 
+    let e11, e11l = pp_buf b bppf "%a" pp_e a.e11 in 
+    let e21, e21l = pp_buf b bppf "%a" pp_e a.e21 in 
+    let max1 = max e01l e11l e21l in
+    let e02, e02l = pp_buf b bppf "%a" pp_e a.e02 in 
+    let e12, e12l = pp_buf b bppf "%a" pp_e a.e12 in 
+    let e22, e22l = pp_buf b bppf "%a" pp_e a.e22 in 
+    let max2 = max e02l e12l e22l in
+    Format.fprintf ppf 
+      "@[<v>@[<1>|%a%s@ %a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s@ %a%s|@]@]"
+      pp_pad (max0 - e00l) e00 pp_pad (max1 - e01l) e01 pp_pad (max2 - e02l) e02
+      pp_pad (max0 - e10l) e10 pp_pad (max1 - e11l) e11 pp_pad (max2 - e12l) e12
+      pp_pad (max0 - e20l) e20 pp_pad (max1 - e21l) e21 pp_pad (max2 - e22l) e22
+    
 
+  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p 
 end
 
@@ -1501,24 +1537,50 @@ module M4 = struct
 
   (* Printers *)
 
-  let pp ppf a = 
-    Format.fprintf ppf 
-      "@[<v1>(@[<1>(% g@ % g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g@ % g )@]@,\
-       @[<1>(% g@ % g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g@ % g )@])@]"
-      a.e00 a.e01 a.e02 a.e03
-      a.e10 a.e11 a.e12 a.e13
-      a.e20 a.e21 a.e22 a.e23
-      a.e30 a.e31 a.e32 a.e33
-      
   let pp_f pp_e ppf a = 
+    let max : int -> int -> int -> int -> int = fun a b c d -> 
+      let max1 = if a > b then a else b in
+      let max2 = if c > d then c else d in 
+      if max1 > max2 then max1 else max2 
+    in
+    let b = Buffer.create 30 in
+    let bppf = Format.formatter_of_buffer b in
+    let e00, e00l = pp_buf b bppf "%a" pp_e a.e00 in 
+    let e10, e10l = pp_buf b bppf "%a" pp_e a.e10 in 
+    let e20, e20l = pp_buf b bppf "%a" pp_e a.e20 in 
+    let e30, e30l = pp_buf b bppf "%a" pp_e a.e30 in 
+    let max0 = max e00l e10l e20l e30l in
+    let e01, e01l = pp_buf b bppf "%a" pp_e a.e01 in 
+    let e11, e11l = pp_buf b bppf "%a" pp_e a.e11 in 
+    let e21, e21l = pp_buf b bppf "%a" pp_e a.e21 in 
+    let e31, e31l = pp_buf b bppf "%a" pp_e a.e31 in 
+    let max1 = max e01l e11l e21l e31l in
+    let e02, e02l = pp_buf b bppf "%a" pp_e a.e02 in 
+    let e12, e12l = pp_buf b bppf "%a" pp_e a.e12 in 
+    let e22, e22l = pp_buf b bppf "%a" pp_e a.e22 in 
+    let e32, e32l = pp_buf b bppf "%a" pp_e a.e32 in 
+    let max2 = max e02l e12l e22l e32l in
+    let e03, e03l = pp_buf b bppf "%a" pp_e a.e03 in 
+    let e13, e13l = pp_buf b bppf "%a" pp_e a.e13 in 
+    let e23, e23l = pp_buf b bppf "%a" pp_e a.e23 in 
+    let e33, e33l = pp_buf b bppf "%a" pp_e a.e33 in 
+    let max3 = max e03l e13l e23l e33l in
     Format.fprintf ppf 
-      "@[<v1>(@[<1>(%a@ %a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a@ %a)@]@,\
-       @[<1>(%a@ %a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a@ %a)@])@]"
-      pp_e a.e00 pp_e a.e01 pp_e a.e02 pp_e a.e03
-      pp_e a.e10 pp_e a.e11 pp_e a.e12 pp_e a.e13
-      pp_e a.e20 pp_e a.e21 pp_e a.e22 pp_e a.e23
-      pp_e a.e30 pp_e a.e31 pp_e a.e32 pp_e a.e33
-
+      "@[<v>@[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
+            @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@]"
+      pp_pad (max0 - e00l) e00 pp_pad (max1 - e01l) e01 
+      pp_pad (max2 - e02l) e02 pp_pad (max3 - e03l) e03 (**)
+      pp_pad (max0 - e10l) e10 pp_pad (max1 - e11l) e11 
+      pp_pad (max2 - e12l) e12 pp_pad (max3 - e13l) e13 (**)
+      pp_pad (max0 - e20l) e20 pp_pad (max1 - e21l) e21 
+      pp_pad (max2 - e22l) e22 pp_pad (max3 - e23l) e23 (**)
+      pp_pad (max0 - e30l) e30 pp_pad (max1 - e31l) e31 
+      pp_pad (max2 - e32l) e32 pp_pad (max3 - e33l) e33
+    
+  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p 
 end    
 
