@@ -1,4 +1,5 @@
 #directory "_build/src";;
 #directory "_build/test";;
 #load "gg.cmo";;
-#use "src/gg_init.ml";;
+#directory "+compiler-libs";;
+#use "src/gg_top.ml";;

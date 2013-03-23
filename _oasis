@@ -26,6 +26,16 @@ Flag bench
 Library gg
  Path: src
  Modules: Gg
+ XMETAExtraLines: archive(byte,toploop) += "gg_top.cma"
+                  archive(native,toploop) += "gg_top.cmxa"
+
+Library gg_top
+ FindlibParent: gg
+ FindlibName: top
+ Path: src
+ Modules: Gg_top
+ BuildDepends: compiler-libs.toplevel
+ XMETADescription: Toplevel module for Gg.
 
 Executable test
  Path: test

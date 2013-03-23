@@ -4,18 +4,26 @@
    %%PROJECTNAME%% version %%VERSION%%
   --------------------------------------------------------------------------*)
 
-open Gg;;
+let exec s =
+  let l = Lexing.from_string s in
+  let ph = !Toploop.parse_toplevel_phrase l in
+  assert(Toploop.execute_phrase false Format.err_formatter ph)
+;;
 
-#install_printer V2.print;;
-#install_printer V3.print;;
-#install_printer V4.print;;
+(* Open Gg and install printers *)
 
-#install_printer M2.print;;
-#install_printer M3.print;;
-#install_printer M4.print;;
+let setup () = 
+  exec "open Gg;;";
+  exec "#install_printer V2.pp;;";
+  exec "#install_printer V3.pp;;";
+  exec "#install_printer V4.pp;;";
+  exec "#install_printer M2.pp;;";
+  exec "#install_printer M3.pp;;";
+  exec "#install_printer M4.pp;;";
+  exec "#install_printer Box2.pp;;";
+  exec "#install_printer Box3.pp;;"
 
-#install_printer Box2.print;;
-#install_printer Box3.print;;
+let () = setup ()
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Daniel C. Bünzli
