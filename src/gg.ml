@@ -126,11 +126,7 @@ module Float = struct
     if (abs_float (x -. xi)) < eps then xi else x 
 
   let sign x = if x > 0. then 1. else (if x < 0. then -1. else x)
-  let sign_bit x = (Int64.logand (Int64.bits_of_float x) bfloat_sign) <> 0L	
-  let copy_sign m s =
-    let m = abs_float m in
-    if (Int64.logand (Int64.bits_of_float s) bfloat_sign) = 0L then m else -. m
-
+  let sign_bit x = (Int64.logand (Int64.bits_of_float x) bfloat_sign) <> 0L
   let succ x = match classify_float x with
   | FP_normal | FP_subnormal -> 
       if x > 0. then Int64.float_of_bits (Int64.add (Int64.bits_of_float x) 1L)

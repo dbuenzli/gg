@@ -297,28 +297,7 @@ module Float_tests = struct
       >> Cf.holds (C.neg Float.sign_bit) infinity
       >> Cf.holds (C.neg Float.sign_bit) nan
       >> C.success
-      
-  let () = test "copy_sign" & fun r ->
-    let check m r =
-      let copy_check p m s r = 
-	let mc = Float.copy_sign m s in 
-	r >> Cf.holds p mc 
-	  >> (abs_float mc = abs_float m)
-	  >> C.success
-      in
-      r >> copy_check Float.sign_bit m (-. nan)
-	>> copy_check Float.sign_bit m neg_infinity
-	>> copy_check Float.sign_bit m (-3.)
-	>> copy_check Float.sign_bit m (-0.)
-	>> copy_check (C.neg Float.sign_bit) m 0.
-	>> copy_check (C.neg Float.sign_bit) m 3.
-	>> copy_check (C.neg Float.sign_bit) m infinity
-	>> copy_check (C.neg Float.sign_bit) m nan
-	>> C.success
-    in
-    r >> check (-. nan) >> check neg_infinity >> check (-3.) >>
-    check (-0.) >> check 0. >> check 3. >> check infinity >> check nan
-      
+            
   let () = test "succ" & fun r -> 
     r >> Cf.holds Float.is_nan (Float.succ (-. nan))
       >> (Float.succ neg_infinity = -. max_float)

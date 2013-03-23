@@ -173,9 +173,6 @@ module Float : sig
   val sign_bit : float -> bool
   (** [sign_bit x] is [true] iff the sign bit is set in [x]. *)
   
-  val copy_sign : float -> float -> float 
-  (** [copy_sign x s] is [x] with the sign of [s]. *)
-
   val succ : float -> float 
   (** [succ x] is the floating point value just after [x] towards positive
       infinity. Returns in particular : 
