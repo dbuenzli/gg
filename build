@@ -71,13 +71,14 @@ varsubsts()
   $FIND $ROOTDIR \
     \( -name "*~" -o -name ".DS_Store" -o -name ".gdb_history" \) \
     -exec $RM {} ';'
-  for file in `$FIND $ROOTDIR -type f -print`; do
+  for file in `$FIND $ROOTDIR \( -name .git \) -prune -o -type f -print`; do
       $SED "s|%%NAME%%|$NAME|g; \
             s|%%MODNAME%%|$MODNAME|g; \
             s|%%VERSION%%|$VERSION|g; \
             s|%%SYNOPSIS%%|$SYNOPSIS|g; \
             s|%%DESCRIPTION%%|$DESCRIPTION |g; \
             s|%%HOMEPAGE%%|$HOMEPAGE|g; \
+            s|%%MAINTAINER%%|$MAINTAINER|g; \
             s|%%AUTHORS%%|$AUTHORS|g; \
             s|%%OCAMLVERSION%%|$OCAMLVERSION|g; \
             s|%%DEPS%%|$DEPS|g; \

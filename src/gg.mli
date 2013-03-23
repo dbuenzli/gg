@@ -15,7 +15,7 @@
     Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope. 
 
-    {e Version %%VERSION%% - %%AUTHORS%% } *)
+    {e Version %%VERSION%% - %%MAINTAINER%% } *)
 
 (**    {1:float Floats} *)
 
