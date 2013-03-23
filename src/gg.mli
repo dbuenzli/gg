@@ -402,7 +402,8 @@ module type V = sig
   (** [unit v] is the unit vector [v/|v|]. *)
 
   val homogene : t -> t 
-  (** [homogene v] is the vector [v/(coord (dim - 1) v)]. *)
+  (** [homogene v] is the vector [v/(comp (dim - 1) v)] if 
+      [comp (dim - 1) v <> 0] and [v] otherwise. *)
 
   val mix : t -> t -> float -> t
   (** [mix u v t] is the linear interpolation [u + t(v - u)]. *)
@@ -530,7 +531,7 @@ module V2 : sig
       @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : float * float -> v2
-  (** [of_tuple (x,y)] is [v x y]. *)
+  (** [of_tuple (x, y)] is [v x y]. *)
 
   val to_tuple : v2 -> float * float
   (** [of_tuple v] is [(x v, y v]). *)
@@ -578,7 +579,8 @@ module V2 : sig
   (** [unit v] is the unit vector [v/|v|]. *)
 
   val homogene : v2 -> v2
-  (** [homogene v] is the vector [v/v]{_y}. *)
+  (** [homogene v] is the vector [v/v]{_y} if [v]{_y}[ <> 0] and [v] 
+      otherwise. *)
 
   val polar_unit : float -> v2 
   (** [polar_unit a] is the unit vector whose angular
@@ -733,7 +735,7 @@ module V3 : sig
       @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : (float * float * float) -> v3
-  (** [of_tuple (x,y,z)] is [v x y z]. *)
+  (** [of_tuple (x, y, z)] is [v x y z]. *)
 
   val to_tuple : v3 -> (float * float * float)
   (** [to_tuple v] is [(x v, y v, z v)]. *)
@@ -786,7 +788,8 @@ module V3 : sig
   (** [unit v] is the unit vector [v/|v|]. *)
 
   val homogene : v3 -> v3
-  (** [homogene v] is the vector [v/v]{_z}. *)
+  (** [homogene v] is the vector [v/v]{_z} if [v]{_z}[ <> 0] and
+      [v] otherwise. *)
 
   val sphere_unit : float -> float -> v3 
   (** [sphere_unit theta phi] is the unit vector whose azimuth
@@ -944,7 +947,7 @@ module V4 : sig
       @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : (float * float * float * float) -> v4
-  (** [of_tuple (x,y,z,w)] is [v x y z w]. *)
+  (** [of_tuple (x, y, z, w)] is [v x y z w]. *)
 
   val to_tuple : v4 -> (float * float * float * float)
   (** [to_tuple v] is [(x v, y v, z v, w v)]. *)
@@ -992,7 +995,8 @@ module V4 : sig
   (** [unit v] is the unit vector [v/|v|]. *)
 
   val homogene : v4 -> v4
-  (** [homogene v] is the vector [v/v]{_w}. *)
+  (** [homogene v] is the vector [v/v]{_w} if [v]{_w}[ <> 0] and [v] 
+      otherwise. *)
 
   val mix : v4 -> v4 -> float -> v4
   (** [mix u v t] is the linear interpolation [u + t(v - u)]. *)

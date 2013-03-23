@@ -33,6 +33,8 @@ let to_string_of_formatter pp v =                        (* NOT thread safe. *)
   Format.fprintf Format.str_formatter "%a" pp v; 
   Format.flush_str_formatter ()
 
+let gg_eps = 1e-9
+
 (* Floating point utilities. *)
 
 module Float = struct
@@ -391,7 +393,7 @@ module V2 = struct
   let norm a = sqrt (a.x *. a.x +. a.y *. a.y)
   let norm2 a = a.x *. a.x +. a.y *. a.y       
   let unit a = smul (1.0 /. (norm a)) a
-  let homogene a = v (a.x /. a.y) 1.0
+  let homogene a = if a.y <> 0. then v (a.x /. a.y) 1.0 else a
   let polar_unit theta = v (cos theta) (sin theta)
   let ortho a = v (-. a.y) a.x
   let mix a b t = v (a.x +. t *. (b.x -. a.x)) (a.y +. t *. (b.y -. a.y))
@@ -481,7 +483,7 @@ module V3 = struct
   let norm a = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z)
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z 
   let unit a = smul (1. /. (norm a)) a
-  let homogene a = v (a.x /. a.z) (a.y /. a.z) 1.0
+  let homogene a = if a.z <> 0. then v (a.x /. a.z) (a.y /. a.z) 1.0 else a 
   let sphere_unit theta phi =
     let tc = cos theta in let ts = sin theta in
     let pc = cos phi in let ps = sin phi in 
@@ -581,7 +583,9 @@ module V4 = struct
   let norm a = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z +. a.w *. a.w)
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z +. a.w *. a.w  
   let unit a = smul (1. /. (norm a)) a
-  let homogene a = v (a.x /. a.w) (a.y /. a.w) (a.z /. a.w) 1.0
+  let homogene a = 
+    if a.w <> 0. then v (a.x /. a.w) (a.y /. a.w) (a.z /. a.w) 1.0 else a
+
   let mix a b t = v
       (a.x +. t *. (b.x -. a.x))
       (a.y +. t *. (b.y -. a.y))
@@ -1579,7 +1583,6 @@ type quat = v4
 module Quat = struct
   open V4t
   type t = quat
-  let quat_eps = 1e-9
       
   (* Constructors, accessors and constants *)
       
@@ -1604,7 +1607,7 @@ module Quat = struct
   let slerp q r t = 
     let cosv = V4.dot q r in
     let a = acos cosv in
-    if a < quat_eps then q else
+    if a < gg_eps then q else
     let sinv = sin a in
     let c = (sin ((1.0 -. t) *. a)) /. sinv in
     let c' = (sin (t *. a)) /. sinv in 
@@ -1718,7 +1721,7 @@ module Quat = struct
       
   let to_axis q = 
     let a_2 = acos q.w in
-    if a_2 < quat_eps then (V3.v 1.0 0.0 0.0), 0.0  else
+    if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
     let d = 1.0 /. (sin a_2) in
     (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
 
