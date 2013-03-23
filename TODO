@@ -1,16 +1,8 @@
 * General
-** Review with M.() notation in mind. 
 ** M4, remove 3 in rot_map etc.
 ** grep TODO
-** review gg_init.ml
 
 * Float module 
-** add clamp_angle 
-   let clamp_angle a = 
-     let a = mod_float a (6.28) in 
-     if a > 3.14 then 6.28 +. a else
-     if a < -3.14 then 6.28 +. a else
-     a
 ** Remove copysign, it's part of pervasives now.
 ** Use hypot
 

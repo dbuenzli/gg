@@ -415,17 +415,16 @@ module type V = sig
       {{:http://mathworld.wolfram.com/LinearTransformation.html}linear 
       transform} [mv]. *)
 
-  (** Overridden [Pervasives] operators. *)
-  module Ops : sig
-    val ( + ) : t -> t -> t 
-    (** See {!add}. *)
+  (** {1:ops Overridden [Pervasives] operators} *)
 
-    val ( - ) : t -> t -> t
-    (** See {!sub}. *)
+  val ( + ) : t -> t -> t 
+  (** See {!add}. *)
 
-    val ( * ) : float -> t -> t 
-    (** See {!smul}. *)
-  end
+  val ( - ) : t -> t -> t
+  (** See {!sub}. *)
+
+  val ( * ) : float -> t -> t 
+  (** See {!smul}. *)
 
   (** {1:traversal Traversal} *)
 
@@ -612,17 +611,16 @@ module V2 : sig
       and is thus translationally invariant. Use {!P2.tr} to
       transform finite points. *)
 
-  (** Overridden [Pervasives] operators. *)
-  module Ops : sig
-    val ( + ) : v2 -> v2 -> v2 
-    (** See {!add}. *)
+  (** {1:ops Overridden [Pervasives] operators} *)
 
-    val ( - ) : v2 -> v2 -> v2
-    (** See {!sub}. *)
+  val ( + ) : v2 -> v2 -> v2 
+  (** See {!add}. *)
 
-    val ( * ) : float -> v2 -> v2 
-    (** See {!smul}. *)
-  end
+  val ( - ) : v2 -> v2 -> v2
+  (** See {!sub}. *)
+
+  val ( * ) : float -> v2 -> v2 
+  (** See {!smul}. *)
 
   (** {1:traversal Traversal} *)
 
@@ -818,17 +816,16 @@ module V3 : sig
       and is thus translationally invariant. Use {!P3.tr} to
       transform finite points. *)
 
-  (** Overridden [Pervasives] operators. *)
-  module Ops : sig
-    val ( + ) : v3 -> v3 -> v3 
-    (** See {!add}. *)
+  (** {1:ops Overridden [Pervasives] operators} *)
 
-    val ( - ) : v3 -> v3 -> v3
-    (** See {!sub}. *)
+  val ( + ) : v3 -> v3 -> v3 
+  (** See {!add}. *)
 
-    val ( * ) : float -> v3 -> v3 
-    (** See {!smul}. *)
-  end
+  val ( - ) : v3 -> v3 -> v3
+  (** See {!sub}. *)
+
+  val ( * ) : float -> v3 -> v3 
+  (** See {!smul}. *)
 
   (** {1:traversal Traversal} *)
 
@@ -1008,17 +1005,16 @@ module V4 : sig
       {{:http://mathworld.wolfram.com/LinearTransformation.html}linear 
       transform} [mv]. *)
 
-  (** Overridden [Pervasives] operators. *)
-  module Ops : sig
-    val ( + ) : v4 -> v4 -> v4 
-    (** See {!add}. *)
+  (** {1 Overridden [Pervasives] operators} *)
 
-    val ( - ) : v4 -> v4 -> v4
-    (** See {!sub}. *)
+  val ( + ) : v4 -> v4 -> v4 
+  (** See {!add}. *)
 
-    val ( * ) : float -> v4 -> v4 
-    (** See {!smul}. *)
-  end
+  val ( - ) : v4 -> v4 -> v4
+  (** See {!sub}. *)
+
+  val ( * ) : float -> v4 -> v4 
+  (** See {!smul}. *)
 
   (** {1:traversal Traversal} *)
 

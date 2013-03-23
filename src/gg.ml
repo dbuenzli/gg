@@ -328,11 +328,9 @@ module type V = sig
 
   (* Overridden Pervasives operators. *)
 
-  module Ops : sig
-    val ( + ) : t -> t -> t 
-    val ( - ) : t -> t -> t
-    val ( * ) : float -> t -> t 
-  end
+  val ( + ) : t -> t -> t 
+  val ( - ) : t -> t -> t
+  val ( * ) : float -> t -> t 
 
   (* Traversal *)
 
@@ -410,11 +408,9 @@ module V2 = struct
 
   (* Overridden Pervasives operators. *)
 
-  module Ops = struct
-    let ( + ) = add
-    let ( - ) = sub
-    let ( * ) = smul
-  end
+  let ( + ) = add
+  let ( - ) = sub
+  let ( * ) = smul
 
   (* Traversal *)
 
@@ -514,11 +510,9 @@ module V3 = struct
 
   (* Overridden Pervasives operators. *)
 
-  module Ops = struct
-    let ( + ) = add
-    let ( - ) = sub
-    let ( * ) = smul 
-  end
+  let ( + ) = add
+  let ( - ) = sub
+  let ( * ) = smul 
 
   (* Traversal *)
 
@@ -607,11 +601,9 @@ module V4 = struct
 
   (* Overridden Pervasives operators. *)
 
-  module Ops = struct
-    let ( + ) = add
-    let ( - ) = sub
-    let ( * ) = smul
-  end
+  let ( + ) = add
+  let ( - ) = sub
+  let ( * ) = smul
 
   (* Traversal *)
 
