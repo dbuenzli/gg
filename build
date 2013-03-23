@@ -47,7 +47,7 @@ action ()
 
 project_info ()
 {
-  VERSION=`$GIT describe`
+  VERSION=`$ECHO "\`$GIT describe --dirty\`" | $SED "s/^.\(.*\)/\1/"`
   NAME=`$OASISQ Name`
   MODNAME=`$OASISQ Library\("$NAME"\).Modules`
   SYNOPSIS=`$OASISQ Synopsis`
