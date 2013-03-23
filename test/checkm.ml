@@ -525,7 +525,7 @@ module C = struct
       
   module type Testable = sig 
     type t
-    val print : Format.formatter -> t -> unit
+    val pp : Format.formatter -> t -> unit
     val compare : t -> t -> int
   end
 	
@@ -563,22 +563,22 @@ module C = struct
 	
   module Make (T : Testable) = struct
     type t = T.t 
-    let holds = holds ~pr:T.print
-    let for_all = for_all ~pr:T.print
-    let no_raise = no_raise ~pr:T.print 
-    let raises = raises ~pr:T.print 
-    let raises_failure = raises_failure ~pr:T.print
-    let raises_invalid_arg = raises_invalid_arg ~pr:T.print
-    let log = log T.print
+    let holds = holds ~pr:T.pp
+    let for_all = for_all ~pr:T.pp
+    let no_raise = no_raise ~pr:T.pp 
+    let raises = raises ~pr:T.pp 
+    let raises_failure = raises_failure ~pr:T.pp
+    let raises_invalid_arg = raises_invalid_arg ~pr:T.pp
+    let log = log T.pp
     module Order = struct
-      let (=) ?id x y = Order.(=) ~cmp:T.compare ?id ~pr:T.print x y 
-      let (<>) ?id x y = Order.(<>) ~cmp:T.compare ?id ~pr:T.print x y
-      let (<) ?id x y = Order.(<) ~cmp:T.compare ?id ~pr:T.print x y 
-      let (<=) ?id x y = Order.(<=) ~cmp:T.compare ?id ~pr:T.print x y
-      let (>) ?id x y = Order.(>) ~cmp:T.compare ?id ~pr:T.print x y 
-      let (>=) ?id x y = Order.(>=) ~cmp:T.compare ?id ~pr:T.print x y
-      let (==) ?id x y = Order.(==) ?id ~pr:T.print x y 
-      let (!=) ?id x y = Order.(!=) ?id ~pr:T.print x y
+      let (=) ?id x y = Order.(=) ~cmp:T.compare ?id ~pr:T.pp x y 
+      let (<>) ?id x y = Order.(<>) ~cmp:T.compare ?id ~pr:T.pp x y
+      let (<) ?id x y = Order.(<) ~cmp:T.compare ?id ~pr:T.pp x y 
+      let (<=) ?id x y = Order.(<=) ~cmp:T.compare ?id ~pr:T.pp x y
+      let (>) ?id x y = Order.(>) ~cmp:T.compare ?id ~pr:T.pp x y 
+      let (>=) ?id x y = Order.(>=) ~cmp:T.compare ?id ~pr:T.pp x y
+      let (==) ?id x y = Order.(==) ?id ~pr:T.pp x y 
+      let (!=) ?id x y = Order.(!=) ?id ~pr:T.pp x y
     end
   end
 
@@ -586,31 +586,31 @@ module C = struct
 
     module Bool = struct
       type t = bool 
-      let print = Format.pp_print_bool
+      let pp = Format.pp_print_bool
       let compare = Pervasives.compare
     end
 
     module Char = struct
       type t = char 
-      let print ppf c = Format.fprintf ppf "%C" c
+      let pp ppf c = Format.fprintf ppf "%C" c
       let compare = Pervasives.compare 
     end
 
     module Int = struct
       type t = int
-      let print = Format.pp_print_int
+      let pp = Format.pp_print_int
       let compare = Pervasives.compare
     end
 
     module Float = struct
       type t = float
-      let print = Format.pp_print_float
+      let pp = Format.pp_print_float
       let compare = Pervasives.compare
     end
 
     module String = struct
       type t = string
-      let print ppf s = Format.fprintf ppf "%S" s
+      let pp ppf s = Format.fprintf ppf "%S" s
       let compare = Pervasives.compare 
     end
 

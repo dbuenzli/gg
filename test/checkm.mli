@@ -329,7 +329,7 @@ module C : sig
 
   module type Testable = sig 
     type t 
-    val print : Format.formatter -> t -> unit
+    val pp : Format.formatter -> t -> unit
     val compare : t -> t -> int
   end
 

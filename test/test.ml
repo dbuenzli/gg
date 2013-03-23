@@ -32,7 +32,7 @@ module Float_tests = struct
 
   (* Float generators. *)
 
-  let pp_bfloat pp f = Format.fprintf pp "%F@ (%a)" f Float.print f
+  let pp_bfloat pp f = Format.fprintf pp "%F@ (%a)" f Float.pp f
   let any_float = 
     let g _ rs = 
       let r2 = Int64.shift_left (Int64.of_int (Random.State.bits rs)) 34 in
@@ -439,7 +439,7 @@ module Float_tests = struct
       >> C.success
       
   let float_trip x r = 
-    let pr ppf x = Float.print ppf (Int64.float_of_bits x) in
+    let pr ppf x = Float.pp ppf (Int64.float_of_bits x) in
     let x' = float_of_string (Float.to_string x) in
     r >> C.Order.(=) ~pr (Int64.bits_of_float x) (Int64.bits_of_float x')
       >> C.success
@@ -664,7 +664,7 @@ module V2_tests = struct
 	let r = Float.srandom rs ~min ~len in 
 	V2.v (r ()) (r ())
       in
-      g, print
+      g, pp
   end
 
   include V_tests (V2)
@@ -733,7 +733,7 @@ module V3_tests = struct
 	let r = Float.srandom rs ~min ~len in 
 	V3.v (r ()) (r ()) (r ())
       in
-      g, print
+      g, pp
   end
 
   include V_tests (V3)
@@ -810,7 +810,7 @@ module V4_tests = struct
 	let r = Float.srandom rs ~min ~len in 
 	V4.v (r ()) (r ()) (r ()) (r ())
       in
-      g, print
+      g, pp
   end
 
   include V_tests (V4)
@@ -857,7 +857,7 @@ end
 module type P  = sig
   include Gg.P
   val compare : t -> t -> int
-  val print : Format.formatter -> t -> unit
+  val pp : Format.formatter -> t -> unit
   val gen : min:float -> len:float -> t Checkm.gen           (* random point. *)
 end
 
@@ -884,7 +884,7 @@ module P2_tests = struct
   module P2 = struct
     include P2
     let compare = V2.compare 
-    let print = V2.print
+    let pp = V2.pp
     let gen = V2_tests.V2.gen
   end
 
@@ -912,7 +912,7 @@ module P3_tests = struct
   module P3 = struct
     include P3
     let compare = V3.compare 
-    let print = V3.print
+    let pp = V3.pp
     let gen = V3_tests.V3.gen
   end
 
@@ -1137,7 +1137,7 @@ module M2_tests = struct
 	  (r ()) (r ())
 	  (r ()) (r ())
       in
-      g, print
+      g, pp
   end
 
   include M_tests (M2)
@@ -1186,7 +1186,7 @@ module M3_tests = struct
 	  (r ()) (r ()) (r ())
 	  (r ()) (r ()) (r ())
       in
-      g, print
+      g, pp
   end
       
   include M_tests (M3)
@@ -1263,7 +1263,7 @@ module M3_tests = struct
     let ri = M3.mul (M3.move2 (V2.v 2. 3.)) (M3.rot2 Float.pi_div_4) in
     let m' = M3.mul ri (M3.scale2 (V2.v 2. 3.)) in 
     let cmp = M3.compare_f (Float.compare_tol ~eps) in 
-    r >> C.Order.(=) ~cmp ~pr:M3.print m m'
+    r >> C.Order.(=) ~cmp ~pr:M3.pp m m'
       >> C.success
 
   (* 3D space transformations *)
@@ -1303,7 +1303,7 @@ module M4_tests = struct
 	  (r ()) (r ()) (r ()) (r ())
 	  (r ()) (r ()) (r ()) (r ())
       in
-      g, print
+      g, pp
   end
 
   include M_tests (M4)      
@@ -1403,7 +1403,7 @@ module M4_tests = struct
     let ri = M4.mul (M4.move3 v) (M4.rot_axis3 V3.ox Float.pi_div_4) in
     let m' = M4.mul ri (M4.scale3 v) in 
     let cmp = M4.compare_f (Float.compare_tol ~eps) in 
-    r >> C.Order.(=) ~cmp ~pr:M4.print m m'
+    r >> C.Order.(=) ~cmp ~pr:M4.pp m m'
       >> C.success
 
   (* 4D space transformations *)
@@ -1438,8 +1438,8 @@ module Quat_tests = struct
     let fcmp = Float.compare_tol ~eps in 
     let mcmp = M3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    r >> (C.Order.(=) ~cmp:mcmp ~pr:M3.print m (Quat.to_m3 q))
-      >> (C.Order.(=) ~cmp:qcmp ~pr:V4.print q (Quat.of_m3 m))
+    r >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (Quat.to_m3 q))
+      >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m3 m))
       >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.ox)) V3.oz) 
       >> (V4_tests.Cv.Order.(=) (chop4 (Quat.apply4 q V4.ox)) V4.oz) 
       >> C.success
@@ -1453,9 +1453,9 @@ module Quat_tests = struct
     let mcmp = M4.compare_f fcmp in 
     let vcmp = V3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    r >> (C.Order.(=) ~cmp:mcmp ~pr:M4.print m (Quat.to_m4 q))
-      >> (C.Order.(=) ~cmp:qcmp ~pr:V4.print q (Quat.of_m4 m))
-      >> (C.Order.(=) ~cmp:vcmp ~pr:V3.print axis V3.ox)
+    r >> (C.Order.(=) ~cmp:mcmp ~pr:M4.pp m (Quat.to_m4 q))
+      >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m4 m))
+      >> (C.Order.(=) ~cmp:vcmp ~pr:V3.pp axis V3.ox)
       >> (C.Order.(=) ~cmp:fcmp ~pr:Format.pp_print_float theta' theta)
       >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.oy)) V3.oz)
       >> C.success
@@ -1470,9 +1470,9 @@ module Quat_tests = struct
     let mcmp = M3.compare_f fcmp in 
     let vcmp = V3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    ru >> (C.Order.(=) ~cmp:mcmp ~pr:M3.print m (Quat.to_m3 q))
-       >> (C.Order.(=) ~cmp:qcmp ~pr:V4.print q (Quat.of_m3 m))
-       >> (C.Order.(=) ~cmp:vcmp ~pr:V3.print r r')
+    ru >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (Quat.to_m3 q))
+       >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m3 m))
+       >> (C.Order.(=) ~cmp:vcmp ~pr:V3.pp r r')
        >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.oy)) (V3.neg V3.oy))
        >> C.success
 end
@@ -1482,7 +1482,7 @@ end
 module type Size  = sig
   include Gg.Size
   val compare : t -> t -> int
-  val print : Format.formatter -> t -> unit
+  val pp : Format.formatter -> t -> unit
   val gen : min:float -> len:float -> t Checkm.gen         (* random size. *) 
 end
 
@@ -1505,7 +1505,7 @@ module Size2_tests = struct
   module Size2 = struct
     include Size2
     let compare = V2.compare 
-    let print = V2.print
+    let pp = V2.pp
     let gen = V2_tests.V2.gen
   end
 
@@ -1523,7 +1523,7 @@ module Size3_tests = struct
   module Size3 = struct
     include Size3
     let compare = V3.compare 
-    let print = V3.print
+    let pp = V3.pp
     let gen = V3_tests.V3.gen
   end
 
@@ -1585,9 +1585,9 @@ module Box_tests
     let maxbt = Box.max bt in
     r >> (minbt = vt)
       >> (maxbt = max)
-      >> C.Order.(=) ~pr:V.print ~cmp:vcmp (Box.mid bt) mid
-      >> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.of_pts minbt maxbt) bt
-      >> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.of_pts maxbt minbt) bt
+      >> C.Order.(=) ~pr:V.pp ~cmp:vcmp (Box.mid bt) mid
+      >> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.of_pts minbt maxbt) bt
+      >> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.of_pts maxbt minbt) bt
       >> Cbox.raises_invalid_arg Box.min Box.empty
       >> Cbox.raises_invalid_arg Box.max Box.empty
       >> Cbox.raises_invalid_arg Box.mid Box.empty
@@ -1604,8 +1604,8 @@ module Box_tests
   let () = test "inter, isects" & fun r -> 
     let isects (b, b') = Box.isects b b' in
     let check a b c r =
-      r >> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.inter a b) c
-	>> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.inter b a) c
+      r >> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.inter a b) c
+	>> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.inter b a) c
 	>> C.holds isects (a, b)
 	>> C.holds isects (b, a)
 	>> C.success
@@ -1634,8 +1634,8 @@ module Box_tests
   let () = test "union, subset" & fun r ->
     let subset (b, b') = Box.subset b b' in
     let check a b c r = 
-      r >> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.union a b) c
-	>> C.Order.(=) ~pr:Box.print ~cmp:bcmp (Box.union b a) c
+      r >> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.union a b) c
+	>> C.Order.(=) ~pr:Box.pp ~cmp:bcmp (Box.union b a) c
 	>> C.holds subset (a, c) 
 	>> C.holds subset (b, c) 
 	>> C.success
@@ -1740,7 +1740,7 @@ module Box2_tests = struct
 	let size = Size2.v (abs_float (r ())) (abs_float (r ())) in 
 	Box2.v o size 
       in
-      g, print
+      g, pp
   end
 
   include Box_tests (V2_tests.V2) (P2_tests.P2) (Size2_tests.Size2) 
@@ -1775,8 +1775,8 @@ module Box2_tests = struct
     let mh = M3.rigid2 (V2.v (4.) (-1.)) Float.pi_div_2 in 
     let lb = Box2.v (P2.v  (-4.) 1.) (Size2.v 2. 1.) in
     let hb = Box2.v P2.o (Size2.v 2. 1.) in 
-    r >> C.Order.(=) ~pr:Box2.print ~cmp:bcmp (Box2.ltr ml bt) lb
-      >> C.Order.(=) ~pr:Box2.print ~cmp:bcmp (Box2.tr mh bt) hb
+    r >> C.Order.(=) ~pr:Box2.pp ~cmp:bcmp (Box2.ltr ml bt) lb
+      >> C.Order.(=) ~pr:Box2.pp ~cmp:bcmp (Box2.tr mh bt) hb
       >> (Box2.ltr ml Box2.empty = Box2.empty)      
       >> (Box2.tr mh Box2.empty = Box2.empty)
       >> C.success
@@ -1797,7 +1797,7 @@ module Box3_tests = struct
 	in
 	Box3.v o size
       in
-      g, print
+      g, pp
   end
 
   include Box_tests (V3_tests.V3) (P3_tests.P3) (Size3_tests.Size3) 
@@ -1834,8 +1834,8 @@ module Box3_tests = struct
     let mh = M4.rigid3 (V3.v 0. (-1.) 0.) (V3.oy, -. Float.pi) in
     let lb = Box3.v (P3.v  (0.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
     let hb = Box3.v (P3.v (-1.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
-    r >> C.Order.(=) ~pr:Box3.print ~cmp:bcmp (Box3.ltr ml Box3.unit) lb
-      >> C.Order.(=) ~pr:Box3.print ~cmp:bcmp (Box3.tr mh Box3.unit) hb
+    r >> C.Order.(=) ~pr:Box3.pp ~cmp:bcmp (Box3.ltr ml Box3.unit) lb
+      >> C.Order.(=) ~pr:Box3.pp ~cmp:bcmp (Box3.tr mh Box3.unit) hb
       >> (Box3.ltr ml Box3.empty = Box3.empty)      
       >> (Box3.tr mh Box3.empty = Box3.empty)
       >> C.success
@@ -1881,7 +1881,7 @@ module Color_tests = struct
       let eps = 2. ** (float (-P.bits))
       let print_float fmt v =
         Format.fprintf fmt "%.*f" digits v
-      let print fmt (_,_,v) = V4.print_f print_float fmt v
+      let pp fmt (_,_,v) = V4.pp_f print_float fmt v
       let compare (conv,r,a) (_,_,b) =
         let cmp = V4.compare_f (Float.compare_tol ~eps) a b in
         if cmp = 0 then 0

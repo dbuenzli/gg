@@ -217,10 +217,9 @@ module Float : sig
   val equal_tol : eps:float -> float -> float -> bool 
   (** [equal_tol eps x y] is [true] iff |[x - y]| <= [eps] * max
       (1,|[x]|,|[y]|). On special values the function behaves like
-      [compare x y = 0].  
-
-      The condition turns into an absolute tolerance test for small
-      magnitudes and a relative tolerance test for large magnitudes. *)
+      [compare x y = 0].  The condition turns into an absolute tolerance 
+      test for small magnitudes and a relative tolerance test for 
+      large magnitudes. *)
 
   val compare : float -> float -> int
   (** [compare x y] is [Pervasives.compare x y]. *)
@@ -248,8 +247,8 @@ module Float : sig
       strtod} and hence with [float_of_string] (but negative NaNs seem to 
       be problematic to get back) . *)
 
-  val print : Format.formatter -> float -> unit
-  (** [print ppf x] prints [x] on [ppf] according to the lossless
+  val pp : Format.formatter -> float -> unit
+  (** [pp ppf x] prints [x] on [ppf] according to the lossless
       representation of {!to_string}. *) 
 
   (** {1:floatrecall Quick recall on OCaml's [float]s} 
@@ -475,12 +474,12 @@ module type V = sig
   val to_string : t -> string
   (** [to_string v] is a textual representation of [v]. *)
 
-  val print : Format.formatter -> t -> unit
-  (** [print ppf v] prints a textual representation of [v] on [ppf]. *)
+  val pp : Format.formatter -> t -> unit
+  (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
-  (** [print_f pp_comp ppf v] prints [v] like {!print} but uses 
+  (** [pp_f pp_comp ppf v] prints [v] like {!pp} but uses 
       [pp_comp] to print floating point values. *)
 end
 
@@ -672,12 +671,12 @@ module V2 : sig
   val to_string : v2 -> string
   (** [to_string v] is a textual representation of [v]. *)
 
-  val print : Format.formatter -> v2 -> unit
-  (** [print ppf v] prints a textual representation of [v] on [ppf]. *)
+  val pp : Format.formatter -> v2 -> unit
+  (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     v2 -> unit
-  (** [print_f pp_comp ppf v] prints [v] like {!print} but uses 
+  (** [pp_f pp_comp ppf v] prints [v] like {!pp} but uses 
       [pp_comp] to print floating point values. *)
 end
 
@@ -878,12 +877,12 @@ module V3 : sig
   val to_string : v3 -> string
   (** [to_string v] is a textual representation of [v]. *)
 
-  val print : Format.formatter -> v3 -> unit
-  (** [print ppf v] prints a textual representation of [v] on [ppf]. *)
+  val pp : Format.formatter -> v3 -> unit
+  (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     v3 -> unit
-  (** [print_f pp_comp ppf v] prints [v] like {!print} but uses 
+  (** [pp_f pp_comp ppf v] prints [v] like {!pp} but uses 
       [pp_comp] to print floating point values. *)
 end
 
@@ -1068,12 +1067,12 @@ module V4 : sig
   val to_string : v4 -> string
   (** [to_string v] is a textual representation of [v]. *)
 
-  val print : Format.formatter -> v4 -> unit
-  (** [print ppf v] prints a textual representation of [v] on [ppf]. *)
+  val pp : Format.formatter -> v4 -> unit
+  (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     v4 -> unit
-  (** [print_f pp_comp ppf v] prints [v] like {!print} but uses 
+  (** [pp_f pp_comp ppf v] prints [v] like {!pp} but uses 
       [pp_comp] to print floating point values. *)
 end
 
@@ -1354,12 +1353,12 @@ module type M = sig
   val to_string : t -> string
   (** [to_string a] is a textual representation of [a]. *)
 
-  val print : Format.formatter -> t -> unit
-  (** [print ppf a] prints a textual representation of [a] on [ppf]. *)
+  val pp : Format.formatter -> t -> unit
+  (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
-  (** [print_f pp_e ppf a] prints [a] like {!print} but uses 
+  (** [pp_f pp_e ppf a] prints [a] like {!pp} but uses 
       [pp_e] to print floating point values. *)
 end
 
@@ -1516,12 +1515,12 @@ module M2 : sig
   val to_string : m2 -> string
   (** [to_string a] is a textual representation of [a]. *)
 
-  val print : Format.formatter -> m2 -> unit
-  (** [print ppf a] prints a textual representation of [a] on [ppf]. *)
+  val pp : Format.formatter -> m2 -> unit
+  (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     m2 -> unit
-  (** [print_f pp_e ppf a] prints [a] like {!print} but uses 
+  (** [pp_f pp_e ppf a] prints [a] like {!pp} but uses 
       [pp_e] to print floating point values. *)
 
   (** {1:accessors Element accessors} *)
@@ -1717,12 +1716,12 @@ module M3 : sig
   val to_string : m3 -> string
   (** [to_string a] is a textual representation of [a]. *)
 
-  val print : Format.formatter -> m3 -> unit
-  (** [print ppf a] prints a textual representation of [a] on [ppf]. *)
+  val pp : Format.formatter -> m3 -> unit
+  (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     m3 -> unit
-  (** [print_f pp_e ppf a] prints [a] like {!print} but uses 
+  (** [pp_f pp_e ppf a] prints [a] like {!pp} but uses 
       [pp_e] to print floating point values. *)
 
   (** {1:accessors Element accessors} *)
@@ -1951,12 +1950,12 @@ module M4 : sig
   val to_string : m4 -> string
   (** [to_string a] is a textual representation of [a]. *)
 
-  val print : Format.formatter -> m4 -> unit
-  (** [print ppf a] prints a textual representation of [a] on [ppf]. *)
+  val pp : Format.formatter -> m4 -> unit
+  (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     m4 -> unit
-  (** [print_f pp_e ppf a] prints [a] like {!print} but uses 
+  (** [pp_f pp_e ppf a] prints [a] like {!pp} but uses 
       [pp_e] to print floating point values. *)
 
   (** {1:accessors Element accessors} *)
@@ -2319,12 +2318,12 @@ module type Box = sig
   val to_string : t -> string
   (** [to_string b] is a textual representation of [b]. *)
 
-  val print : Format.formatter -> t -> unit
-  (** [print ppf b] prints a textual representation of [b] on [ppf]. *)
+  val pp : Format.formatter -> t -> unit
+  (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
-  (** [print_f pp_fl ppf b] prints [b] like {!print} but uses 
+  (** [pp_f pp_fl ppf b] prints [b] like {!pp} but uses 
       [pp_fl] to print floating point values. *)
 end
 
@@ -2522,12 +2521,12 @@ module Box2 : sig
   val to_string : box2 -> string
   (** [to_string b] is a textual representation of [b]. *)
 
-  val print : Format.formatter -> box2 -> unit
-  (** [print ppf b] prints a textual representation of [b] on [ppf]. *)
+  val pp : Format.formatter -> box2 -> unit
+  (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     box2 -> unit
-  (** [print_f pp_fl ppf b] prints [b] like {!print} but uses 
+  (** [pp_f pp_fl ppf b] prints [b] like {!pp} but uses 
       [pp_fl] to print floating point values. *)
 end
 
@@ -2728,12 +2727,12 @@ module Box3 : sig
   val to_string : box3 -> string
   (** [to_string b] is a textual representation of [b]. *)
 
-  val print : Format.formatter -> box3 -> unit
-  (** [print ppf b] prints a textual representation of [b] on [ppf]. *)
+  val pp : Format.formatter -> box3 -> unit
+  (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     box3 -> unit
-  (** [print_f pp_fl ppf b] prints [b] like {!print} but uses 
+  (** [pp_f pp_fl ppf b] prints [b] like {!pp} but uses 
       [pp_fl] to print floating point values. *)
 end
 
@@ -3205,7 +3204,7 @@ end
 
     [Gg] is designed to be opened in your module. This defines only
     types and modules in your scope, no values. Thus to use [Gg] start
-    with : {[open Gg;;]} 
+    with : {[open Gg]} 
 
 
     For the toplevel, the file [gg_init.ml] opens [Gg] and installs
@@ -3219,17 +3218,17 @@ end
 
     Most types and their functions are defined with the following
     conventions. The type is first defined in [Gg], like {!v2} for 2D
-    vectors.  A module for the type is is defined in [Gg]. Its name is
-    the type name capitalized, e.g. {!V2} for 2D vectors. This module
-    has the following definitions :
+    vectors, a module for it follows. The name of the module is
+    the type name capitalized, e.g. {!V2} for 2D vectors and it has 
+    the following definitions:
     {ul
     {- a type [t] equal to the original toplevel type ({!V2.t}).}    
     {- [dim], an [int] value that indicates the dimensionality 
        of the type ({!V2.dim}).}
     {- [v], a constructor for the type ({!V2.v}).}
-    {- [to_string] and [print] to convert values to a textual 
+    {- [to_string] and [pp] to convert values to a textual 
        representation for debugging purposes and toplevel interaction
-       ({!V2.to_string}, {!V2.print}).}
+       ({!V2.to_string}, {!V2.pp}).}
     {- [equal] and [compare] the standard functions that make a module 
        a good functor argument ({!V2.equal}, {!V2.compare}).}
     {- [equal_f] and [compare_f] which compare
@@ -3263,7 +3262,7 @@ end
     {ul
     {- Numbers in names indicate dimensionality. For example {!M4.move3} 
        indicates translation in 3D space.}
-    {- Most functions take the "object" they act upon first.
+    {- Most functions take the value they act upon first.
        But exceptions abound, to match caml conventions, to have your 
        curry or to match mathematical notation (e.g. {!V2.tr}).}
     {- Conversion functions follow the [of_] conventions. Thus to convert
@@ -3281,7 +3280,7 @@ end
     {{:http://mathworld.wolfram.com/Right-HandedCoordinateSystem.html}
     right-handed} coordinate system.}
     {- Angles are always given in radians (except in 
-      {{:Gg.Float.html#VALrad_of_deg}this} function...).} 
+      {{!Float.rad_of_deg}this} function...).} 
     {- In 2D space positive angles determine counter clockwise rotations.}
     {- In 3D space positive angles determine rotations directed according to 
        the right hand rule.}}
@@ -3290,30 +3289,25 @@ end
     {ul
     {- Everything is tail-recursive.}
     {- [to_string] functions are not thread-safe. Thread-safety can
-       be achieved with [print] functions.} 
+       be achieved with [pp] functions.} 
     {- Do not rely on the output of printer functions, they are
-       subject to change. 
-
-       One exception is the {{:Gg.Float.html#printers}printers} in the
-       {!Float} module that output a lossless textual representation
-       of floats.  While the actual format is subject to change it
-       will remain compatible with [float_of_string].}
+       subject to change. However one exception is the {!Float} module
+       {{!Float.printers}printers} that output a lossless textual 
+       representation of floats.  While the actual format is subject to 
+       change it will remain compatible with [float_of_string].}
     {- All modules can be directly given as arguments to [Set.Make]
        and [Map.Make]. However this will use [Pervasives.compare] and
        thus binary comparison between floats. Depending on the intended
-       use this may be sensible or not. 
-
-       Comparisons with alternate functions to compare floats can 
-       be defined by using the functions named [compare_f] 
-       (e.g. {!V2.compare_f}). 
-
-       {!Float.compare_tol} is a comparison function between floats
+       use this may be sensible or not. Comparisons with alternate functions 
+       to compare floats can be defined by using the functions named 
+       [compare_f] (e.g. {!V2.compare_f}).  An alternate float comparison
+       function is {!Float.compare_tol}
        that combines relative and absolute float comparison in a single
-       test. See {!Float.equal_tol} for the details.}
+       test, see {!Float.equal_tol} for the details.}
     {- For performance reasons some functions of the {!Float} module 
        are undefined on certain arguments but do not raise [Invalid_argument]
        on those. As usual do not rely on the behaviour of functions on undefined
-       argument, these are subject to change.}}
+       arguments, these are subject to change.}}
 *)
 
 (*---------------------------------------------------------------------------

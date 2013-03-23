@@ -2,7 +2,7 @@
 ** Review with M.() notation in mind. 
 ** M4, remove 3 in rot_map etc.
 ** grep TODO
-** s/print/pp, review pretty print formats and gg_init.ml
+** review gg_init.ml
 
 * Float module 
 ** add clamp_angle 

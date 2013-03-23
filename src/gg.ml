@@ -173,7 +173,7 @@ module Float = struct
 
   (* Printers *)
 
-  let print ppf x =                                  (* too slow, ∃ better ? *)
+  let pp ppf x =                                     (* too slow, ∃ better ? *)
     let pr_neg ppf neg = if neg then Format.fprintf ppf "-" else () in
     match classify_float x with      
     | FP_normal ->
@@ -200,7 +200,7 @@ module Float = struct
         let p = Int64.logand x bfloat_nanp in
         Format.fprintf ppf "%anan(0x%LX)" pr_neg neg p
       
-  let to_string x = to_string_of_formatter print x
+  let to_string x = to_string_of_formatter pp x
 end
 
 (* Vector and matrix types are defined here so that they can be seen
@@ -345,8 +345,8 @@ module type V = sig
   (* Printers *)
   
   val to_string : t -> string
-  val print : Format.formatter -> t -> unit
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp : Format.formatter -> t -> unit
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
 end
 
@@ -428,11 +428,11 @@ module V2 = struct
       
  (* Printers *)
  
-  let print ppf a = Format.fprintf ppf "@[<1>(%g@ %g)@]" a.x a.y
-  let print_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a)@]" 
+  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g)@]" a.x a.y
+  let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a)@]" 
       pp_c a.x pp_c a.y
 
-  let to_string a = to_string_of_formatter print a
+  let to_string a = to_string_of_formatter pp a
 end
 
 module V3 = struct
@@ -533,11 +533,11 @@ module V3 = struct
 
   (* Printers *)
 
-  let print ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g)@]" a.x a.y a.z 
-  let print_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a)@]" 
+  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g)@]" a.x a.y a.z 
+  let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z
 
-  let to_string a = to_string_of_formatter print a
+  let to_string a = to_string_of_formatter pp a
 end
 
 module V4 = struct
@@ -629,11 +629,11 @@ module V4 = struct
 
   (* Printers *)
 
-  let print ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g@ %g)@]" a.x a.y a.z a.w
-  let print_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a@ %a)@]" 
+  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g@ %g)@]" a.x a.y a.z a.w
+  let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z pp_c a.w
 
-  let to_string a = to_string_of_formatter print a
+  let to_string a = to_string_of_formatter pp a
 end
 
 (* Points *)
@@ -757,8 +757,8 @@ module type M = sig
   (* Printers *)
   
   val to_string : t -> string
-  val print : Format.formatter -> t -> unit
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp : Format.formatter -> t -> unit
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
 end
 
@@ -875,15 +875,15 @@ module M2 = struct
     
   (* Printers *)
   	
-  let print ppf a = 
+  let pp ppf a = 
     Format.fprintf ppf "@[<v1>(@[<1>(% g@ % g )@]@,@[<1>(% g@ % g )@])@]"
       a.e00 a.e01 a.e10 a.e11
 
-  let print_f pp_e ppf a = 
+  let pp_f pp_e ppf a = 
     Format.fprintf ppf "@[<v1>(@[<1>(%a@ %a)@]@,@[<1>(%a@ %a)@])@]"
       pp_e a.e00 pp_e a.e01 pp_e a.e10 pp_e a.e11
 
-  let to_string p = to_string_of_formatter print p
+  let to_string p = to_string_of_formatter pp p
 end
 
 module M3 = struct
@@ -1134,20 +1134,20 @@ module M3 = struct
 
   (* Printers *)
 
-  let print ppf a = 
+  let pp ppf a = 
     Format.fprintf ppf 
       "@[<v1>(@[<1>(% g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g )@]@,\
        @[<1>(% g@ % g@ % g )@])@]"
       a.e00 a.e01 a.e02 a.e10 a.e11 a.e12 a.e20 a.e21 a.e22
       
-  let print_f pp_e ppf a = 
+  let pp_f pp_e ppf a = 
     Format.fprintf ppf
       "@[<v1>(@[<1>(%a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a)@])@]"
       pp_e a.e00 pp_e a.e01 pp_e a.e02 
       pp_e a.e10 pp_e a.e11 pp_e a.e12 
       pp_e a.e20 pp_e a.e21 pp_e a.e22
 
-  let to_string p = to_string_of_formatter print p 
+  let to_string p = to_string_of_formatter pp p 
 end
 
 module M4 = struct
@@ -1501,7 +1501,7 @@ module M4 = struct
 
   (* Printers *)
 
-  let print ppf a = 
+  let pp ppf a = 
     Format.fprintf ppf 
       "@[<v1>(@[<1>(% g@ % g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g@ % g )@]@,\
        @[<1>(% g@ % g@ % g@ % g )@]@,@[<1>(% g@ % g@ % g@ % g )@])@]"
@@ -1510,7 +1510,7 @@ module M4 = struct
       a.e20 a.e21 a.e22 a.e23
       a.e30 a.e31 a.e32 a.e33
       
-  let print_f pp_e ppf a = 
+  let pp_f pp_e ppf a = 
     Format.fprintf ppf 
       "@[<v1>(@[<1>(%a@ %a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a@ %a)@]@,\
        @[<1>(%a@ %a@ %a@ %a)@]@,@[<1>(%a@ %a@ %a@ %a)@])@]"
@@ -1519,7 +1519,7 @@ module M4 = struct
       pp_e a.e20 pp_e a.e21 pp_e a.e22 pp_e a.e23
       pp_e a.e30 pp_e a.e31 pp_e a.e32 pp_e a.e33
 
-  let to_string p = to_string_of_formatter print p 
+  let to_string p = to_string_of_formatter pp p 
 end    
 
 (* Quaternions *)
@@ -1790,8 +1790,8 @@ module type Box = sig
   (* Printers *)
   
   val to_string : t -> string
-  val print : Format.formatter -> t -> unit
-  val print_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+  val pp : Format.formatter -> t -> unit
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
 end
 
@@ -1969,9 +1969,9 @@ module Box2 = struct
   | R (o, s) ->
       Format.fprintf ppf "@[<1><box2 o =@ %a@ size =@ %a>@]" pp_v2 o pp_v2 s
 
-  let print ppf b = _print V2.print ppf b 
-  let print_f pp_f ppf b = _print (V2.print_f pp_f) ppf b 
-  let to_string p = to_string_of_formatter print p 
+  let pp ppf b = _print V2.pp ppf b 
+  let pp_f pp_f ppf b = _print (V2.pp_f pp_f) ppf b 
+  let to_string p = to_string_of_formatter pp p 
 end
 
 module Box3 = struct
@@ -2208,9 +2208,9 @@ module Box3 = struct
   | R (o, s) ->
       Format.fprintf ppf "@[<1><box3 o =@ %a@ size =@ %a>@]" pp_v3 o pp_v3 s
 
-  let print ppf b = _print V3.print ppf b 
-  let print_f pp_f ppf b = _print (V3.print_f pp_f) ppf b 
-  let to_string p = to_string_of_formatter print p 
+  let pp ppf b = _print V3.pp ppf b 
+  let pp_f pp_f ppf b = _print (V3.pp_f pp_f) ppf b 
+  let to_string p = to_string_of_formatter pp p 
 end
 
 type box2 = Box2.t
