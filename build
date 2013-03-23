@@ -22,6 +22,7 @@ OCAMLDOCFLAGS=${OCAMLDOCFLAGS:="-docflags -colorize-code,-charset,utf-8"}
 OASIS=${OASIS:="oasis -quiet"}
 OASISQ=${OASISQ:="$OASIS query"}
 OPAMMKREPO=${OPAMMKREPO:="opam-mk-repo"}
+GIT=${GIT:=git}
 
 ocb () { $OCAMLBUILD "$@" ; }
 action () 
@@ -45,9 +46,9 @@ action ()
 
 project_info ()
 {
+  VERSION=`$GIT describe`
   NAME=`$OASISQ Name`
   MODNAME=`$OASISQ Library\("$NAME"\).Modules`
-  VERSION=`$OASISQ Version`
   SYNOPSIS=`$OASISQ Synopsis`
   DESCRIPTION=`$OASISQ Description | $SED "s|$|\\\\\|"`
   HOMEPAGE=`$OASISQ Homepage`

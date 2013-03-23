@@ -1,6 +1,6 @@
 OASISFormat: 0.3
 Name: gg
-Version: 0.9.0
+Version: %%VERSION%%
 Synopsis: Basic types for computer graphics in OCaml
 Maintainers: Daniel Bünzli <daniel.buenzli at erratique.ch>
 Authors: Daniel Bünzli <daniel.buenzli at erratique.ch>, Edwin Török <edwin at etorok.net>
