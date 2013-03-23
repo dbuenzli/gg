@@ -1,17 +1,4 @@
 * General
 ** M4, remove 3 in rot_map etc.
+** Add M4.{rigidq, srigidq} => quat needs to be defined before.
 ** grep TODO
-
-* Float module 
-** Remove copysign, it's part of pervasives now.
-** Use hypot
-
-* Color module
-** ? add porter duff blending + semantics, or pdf blending ? 
-
-* ANN
-  P.S. Take into account the following points. 
-
-  * Gg is not a linear algebra package. It's a module to give you
-    basic mathematical tools and data structures for coding 2D & 3D
-    graphics.
