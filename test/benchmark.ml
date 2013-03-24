@@ -1,7 +1,7 @@
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Edwin Török. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
-   %%PROJECTNAME%% version %%VERSION%%
+   %%PROJECTNAME%% release %%VERSION%%
   --------------------------------------------------------------------------*)
 
 open Gg

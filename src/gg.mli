@@ -1,7 +1,7 @@
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Daniel C. Bünzli. All rights reserved.
    Distributed under a BSD license, see license at the end of the file.
-   %%PROJECTNAME%% version %%VERSION%%
+   %%PROJECTNAME%% release %%VERSION%%
   --------------------------------------------------------------------------*)
 
 (** Basic types for computer graphics.  
@@ -15,7 +15,7 @@
     Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope. 
 
-    {e Version %%VERSION%% - %%MAINTAINER%% } *)
+    {e Release %%VERSION%% - %%MAINTAINER%% } *)
 
 (**    {1:float Floats} *)
 
@@ -1135,7 +1135,7 @@ module P2 : sig
   (** {1:cons Constructors, accessors and constants} *)
 
   val v : float -> float -> p2
-  (** [v x y] is the point [(x,y)]. *)
+  (** [v x y] is the point [(x y)]. *)
 
   val x : p2 -> float 
   (** [x p] is the x coordinate of [p].*)
@@ -1144,7 +1144,7 @@ module P2 : sig
   (** [y p] is the y coordinate of [p].*)
 
   val o : p2
-  (** [o] is the point [(0,0)]. *)
+  (** [o] is the point [(0 0)]. *)
 
   (** {1:functions Functions} *)
   
@@ -1178,7 +1178,7 @@ module P3 : sig
   (** {1:cons Constructors, accessors and constants} *)
 
   val v : float -> float -> float -> p3
-  (** [v x y z] is the point [(x,y,z)]. *)
+  (** [v x y z] is the point [(x y z)]. *)
 
   val x : p3 -> float 
   (** [x p] is the x coordinate of [p].*)
@@ -1190,7 +1190,7 @@ module P3 : sig
   (** [y p] is the z coordinate of [p].*)
 
   val o : p3
-  (** [o] is the point [(0,0,0)]. *)
+  (** [o] is the point [(0 0 0)]. *)
 
   (** {1:functions Functions} *)
   
