@@ -121,7 +121,7 @@ module Float = struct
     let m = 10. ** (floor (log10 (abs_float x))) in       (* to normalize x. *)
     (round_dfrac d (x /. m)) *. m
 
-  let chop_z ~eps x = if abs_float x < eps then 0. else x
+  let round_zero ~eps x = if abs_float x < eps then 0. else x
   let chop ~eps x = 
     if abs_float x > max_frac_float then x else
     let xi = floor (x +. 0.5) in 
@@ -155,6 +155,7 @@ module Float = struct
   
   (* Predicates and comparisons *)
 
+  let is_zero ~eps x = abs_float x < eps
   let is_nan x = x <> x
   let is_inf x = classify_float x = FP_infinite
   let is_int x = x -. (floor x) = 0.

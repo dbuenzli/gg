@@ -245,6 +245,19 @@ module Float_tests = struct
       >> Cf.holds Float.is_nan (Float.round_dsig 16 nan)
       >> C.success
       
+  let () = test "round_zero" & fun r ->
+    let eps = 0.005 in
+    r >> (Float.round_zero eps (-0.0051) = -0.0051)
+      >> (Float.round_zero eps (-0.0050) = -0.0050)
+      >> (Float.round_zero eps (-0.0049) = -0.)
+      >> (Float.round_zero eps 0. = 0.)
+      >> (Float.round_zero eps 0.0049 = 0.)
+      >> (Float.round_zero eps 0.0050 = 0.0050)
+      >> (Float.round_zero eps 0.0051 = 0.0051)
+      >> (Float.round_zero eps infinity = infinity)
+      >> (Float.round_zero eps neg_infinity = neg_infinity)
+      >> Cf.holds Float.is_nan (Float.round_zero eps nan)
+      >> C.success
       
   let () = test "chop" & fun r ->
     let eps = 0.0005 in
@@ -262,21 +275,7 @@ module Float_tests = struct
       >> (Float.chop eps neg_infinity = neg_infinity)
       >> Cf.holds Float.is_nan (Float.chop eps nan)
       >> C.success
-      
-  let () = test "chop_z" & fun r ->
-    let eps = 0.005 in
-    r >> (Float.chop_z eps (-0.0051) = -0.0051)
-      >> (Float.chop_z eps (-0.0050) = -0.0050)
-      >> (Float.chop_z eps (-0.0049) = -0.)
-      >> (Float.chop_z eps 0. = 0.)
-      >> (Float.chop_z eps 0.0049 = 0.)
-      >> (Float.chop_z eps 0.0050 = 0.0050)
-      >> (Float.chop_z eps 0.0051 = 0.0051)
-      >> (Float.chop_z eps infinity = infinity)
-      >> (Float.chop_z eps neg_infinity = neg_infinity)
-      >> Cf.holds Float.is_nan (Float.chop_z eps nan)
-      >> C.success
-      
+            
   let () = test "sign" & fun r -> 
     r >> (Float.sign 0. = 0.)
       >> (Float.sign (-0.) = 0.)
@@ -336,6 +335,17 @@ module Float_tests = struct
       >> C.success
       
   open Cf.Order
+
+  let () = test "is_zero" & fun r -> 
+    r >> Cf.holds (C.neg (Float.is_zero ~eps)) infinity
+      >> Cf.holds (C.neg (Float.is_zero ~eps)) Pervasives.nan
+      >> Cf.holds (C.neg (Float.is_zero ~eps)) (Float.nan magic_payload)
+      >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-8
+      >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-9
+      >> Cf.holds (Float.is_zero ~eps) 1e-10
+      >> Cf.holds (Float.is_zero ~eps) 1e-11
+      >> C.success
+
   let () = test "is_inf" & fun r -> 
     r >> Cf.holds Float.is_inf infinity
       >> Cf.holds Float.is_inf neg_infinity
@@ -1018,14 +1028,15 @@ module M_tests (M : M) = struct                            (* generic tests. *)
     r >> (M.det M.id = 1.0)
       >> Cm.for_all g_m 
       begin fun m r -> 
-	r >> (Float.chop_z ~eps:1e-6 ((M.det (M.transpose m)) -. M.det m) = 0.)
+        let eps = 1e-6 in
+	r >> (Float.round_zero eps ((M.det (M.transpose m)) -. M.det m) = 0.)
 	  >> C.success
       end
       >> C.success
   
   open Cm.Order
   let () = test "inv" & fun r ->
-    let invertible m = Pervasives.(<>) (Float.chop_z ~eps (M.det m)) 0. in
+    let invertible m = Pervasives.(<>) (Float.round_zero ~eps (M.det m)) 0. in
     r >> (M.inv M.id = M.id)
       >> Cm.for_all ~cond:invertible g_m
       begin fun m r -> 

@@ -159,13 +159,13 @@ module Float : sig
       {b Warning.} The current implementation overflows on large [x]
       and [d]. *)
 
+  val round_zero : eps:float -> float -> float 
+  (** [round_zero eps x] is [0.] if [abs_float x < eps] and [x] otherwise. 
+      The result is undefined if [eps] is NaN. *)
+
   val chop : eps:float -> float -> float
   (**  [chop eps x] is [round x] if [abs_float (x -. round x) < eps] and [x] 
        otherwise. The result is undefined if [eps] is NaN. *)
-
-  val chop_z : eps:float -> float -> float 
-  (** [chop_z eps x] is [0.] if [abs_float x < eps] and [x] otherwise. 
-      [eps] defaults to [1e-10]. The result is undefined if [eps] is NaN. *)
 
   val sign : float -> float 
   (** [sign x] is [1.] if [x > 0.], [0.] if [x = 0.], [-1.] if [x < 0.] *)
@@ -198,6 +198,10 @@ module Float : sig
       @raise Invalid_argument if [x] is not a NaN. *)
 
   (** {1:comparisons Predicates and comparisons} *)
+
+  val is_zero : eps:float -> float -> bool
+  (** [is_zero eps x] is [true] if [abs_float x < eps] 
+      and [false] otherwise. The result is undefined if [eps] is NaN. *)
 
   val is_nan : float -> bool 
   (** [is_nan x] is [true] iff [x] is a NaN. *)
