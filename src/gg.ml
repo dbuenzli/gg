@@ -2021,7 +2021,7 @@ module Box2 = struct
   let _print pp_v2 ppf b = match b with 
   | E -> Format.fprintf ppf "@[<1><box2@ empty>@]"
   | R (o, s) ->
-      Format.fprintf ppf "@[<1><box2 o =@ %a@ size =@ %a>@]" pp_v2 o pp_v2 s
+      Format.fprintf ppf "@[<1><box2 %a@ %a>@]" pp_v2 o pp_v2 s
 
   let pp ppf b = _print V2.pp ppf b 
   let pp_f pp_f ppf b = _print (V2.pp_f pp_f) ppf b 
@@ -2260,7 +2260,7 @@ module Box3 = struct
   let _print pp_v3 ppf b = match b with 
   | E -> Format.fprintf ppf "@[<1><box3@ empty>@]"
   | R (o, s) ->
-      Format.fprintf ppf "@[<1><box3 o =@ %a@ size =@ %a>@]" pp_v3 o pp_v3 s
+      Format.fprintf ppf "@[<1><box3 %a@ %a>@]" pp_v3 o pp_v3 s
 
   let pp ppf b = _print V3.pp ppf b 
   let pp_f pp_f ppf b = _print (V3.pp_f pp_f) ppf b 
@@ -2491,11 +2491,38 @@ module Raster = struct
   | `B_Float16 _ -> `Float16
   | `B_Float32 _ -> `Float32
   | `B_Float64 _ | `A_Float64 _ -> `Float64
+
+(*
+  let buffer_length (b : buffer) = match b with
+  | `S_Uint8 s -> String.length s
+  | `A_Float64 a -> Array.length a 
+  | `B_Int8 b -> Bigarray.Array1.dim b
+  | `B_Int16 b -> Bigarray.Array1.dim b 
+  | `B_Int32 b -> Bigarray.Array1.dim b
+  | `B_Int64 b -> Bigarray.Array1.dim b 
+  | `B_Uint8 b -> Bigarray.Array1.dim b
+  | `B_Uint16 b -> Bigarray.Array1.dim b
+  | `B_Uint32 b -> Bigarray.Array1.dim b
+  | `B_Uint64 b -> Bigarray.Array1.dim b
+  | `B_Float16 b -> Bigarray.Array1.dim b
+  | `B_Float32 b -> Bigarray.Array1.dim b
+  | `B_Float64 b -> Bigarray.Array1.dim b
+*)
+
+  let pp_buffer ppf b = 
+    let pp_info b = function 
+    | `S_Uint8 _ -> Format.fprintf ppf "@ (string)"
+    | `A_Float64 _ -> Format.fprintf ppf "@ (float@ array)"
+    | _ -> ()
+    in
+    Format.fprintf ppf "@[<1><buffer@ %a%a>@]" 
+      (* (buffer_length b) *) pp_scalar_type (buffer_scalar_type b) pp_info b
     
+
   (* Semantics *)
 
   type sample_semantics = 
-    [ `Color of Color.profile * bool | `Other of int * string ]
+    [ `Color of Color.profile * bool | `Other of string * int ]
 
   let lrgb = `Color (Color.p_lrgb, false)
   let lrgba = `Color (Color.p_lrgb, true)
@@ -2503,22 +2530,20 @@ module Raster = struct
   let lgraya = `Color (Color.p_lgray, true)
   let pp_sample_semantics ppf = function 
   | `Color (p, a) -> 
-      let a = if a then " alpha" else "" in
-      Format.fprintf ppf "Color(%a%s)" Color.pp_space (Color.profile_space p) a
-  | `Other (d, label) -> 
-      Format.fprintf ppf "Other(%d %s)" d label
+      let a = if a then "A" else "" in
+      Format.fprintf ppf "%a%s" Color.pp_space (Color.profile_space p) a
+  | `Other (label, d) -> 
+      Format.fprintf ppf "%s(%dD)" label d
     
   type sample_pack =
     [ `PU8888 | `FourCC of string * scalar_type option
     | `Other of string * scalar_type option ]
 
-  let sample_pack_str p = 
-    let restr = function None -> "" | Some t -> ", " ^ scalar_type_str t in
-    match p with
-    | `PU8888 -> "P8888"
-    | `FourCC (c, r) -> str "FourCC(%s%s)" c (restr r)
-    | `Other (s, r) -> str "Other(%s%s)" s (restr r)
-
+  let sample_pack_str p = match p with
+  | `PU8888 -> "P8888"
+  | `FourCC (c, _) -> str "'%s'" c
+  | `Other (s, _) -> str "%s" s
+                       
   let pp_sample_pack ppf p = Format.fprintf ppf "%s" (sample_pack_str p)
 
   (* Sample format *)
@@ -2542,13 +2567,13 @@ module Raster = struct
       | Some st -> 
           if st = scalar_type then { semantics; scalar_type; pack } else 
           invalid_arg 
-            (err_sample_pack (sample_pack_str p) (scalar_type_str st))
+            (err_sample_pack (sample_pack_str p) (scalar_type_str scalar_type))
   
   let sf_semantics sf = sf.semantics 
   let sf_scalar_type sf = sf.scalar_type 
   let sf_pack sf = sf.pack 
   let sf_dim sf = match sf.semantics with 
-  | `Other (dim, _) -> dim 
+  | `Other (label, dim) -> dim 
   | `Color (profile, alpha) -> 
       Color.profile_dim profile + (if alpha then 1 else 0)
 
@@ -2561,7 +2586,14 @@ module Raster = struct
     let size = z_pitch * d - h_skip (* last plane *) in 
     first + size
 
-  let pp_sample_format ppf sf = failwith "TODO"  
+  let pp_sample_format ppf sf =
+    let pp_opt_sample_pack ppf op = match op with 
+    | None -> () | Some pack -> Format.fprintf ppf "@ %a" pp_sample_pack pack 
+    in
+    Format.fprintf ppf 
+      "@[<1><sample_format@ %a@ %a%a>@]" 
+      pp_sample_semantics sf.semantics pp_scalar_type sf.scalar_type 
+      pp_opt_sample_pack sf.pack
      
   (* Raster data *)
   
@@ -2623,8 +2655,15 @@ module Raster = struct
 
   let equal r r' = r = r' 
   let compare r r' = Pervasives.compare r r'
-  let pp ppf r = failwith "TODO"
-  let to_string r = failwith "TODO"
+  let pp ppf r =
+    let pp_size ppf r = 
+      if (r.d = 1) then Format.fprintf ppf "@[<1>(%d@ %d)@]" r.w r.h else 
+      Format.fprintf ppf "@[<1>(%d@ %d@ %d)@]" r.w r.h r.d
+    in
+    Format.fprintf ppf "@[<1><raster@ %a@ %a@ %a>@]" 
+      pp_size r pp_sample_format r.sf pp_buffer r.buf
+
+  let to_string r = to_string_of_formatter pp r
 end
 
 type raster = Raster.t

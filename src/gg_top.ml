@@ -21,7 +21,10 @@ let setup () =
   exec "#install_printer M3.pp;;";
   exec "#install_printer M4.pp;;";
   exec "#install_printer Box2.pp;;";
-  exec "#install_printer Box3.pp;;"
+  exec "#install_printer Box3.pp;;";
+  exec "#install_printer Raster.pp_buffer;;";
+  exec "#install_printer Raster.pp_sample_format;;";
+  exec "#install_printer Raster.pp;;"
 
 let () = setup ()
 

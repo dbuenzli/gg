@@ -2989,19 +2989,28 @@ module Raster : sig
 
   val buffer_scalar_type : buffer -> scalar_type 
   (** [buffer_scalar_type b] is [b]'s buffer scalar type. *)
-  
+
+(*  
+  val buffer_length : buffer -> int 
+  (** [buffer_length b] is [b]'s buffer scalar length. *)
+*)
+
+  val pp_buffer : Format.formatter -> buffer -> unit
+  (** [pp_buffer b] prints a textual representation of [b] on 
+      [ppf]. Does not print the buffer's data. *)
+
   (** {1:semantics Sample semantics} *)
 
   type sample_semantics = 
-    [ `Other of int * string
+    [ `Other of string * int
     | `Color of Color.profile * bool]
   (** The type for sample semantics. 
       {ul 
       {- [`Color (p, alpha)] is for color samples from the
          color profile [p]. [alpha] indicates if there's an alpha
          component on the {e right} of the color components.}
-      {- [`Other(dim, label)] is for samples of [dim] dimensions. [label]
-         can be used to identify the sample semantics.}} *)
+      {- [`Other(label, dim)] is for samples of [dim] dimension 
+      identified by [label].}} *)
   
   val lrgb : sample_semantics 
   (** [lrgb] is for linear RGB samples from the {!Color.p_lrgb}
