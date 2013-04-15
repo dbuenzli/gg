@@ -2621,6 +2621,8 @@ module Raster = struct
     { res = r.res; first = first'; w_skip = w_skip'; h_skip = h_skip';
       w; h; d; sf = r.sf; buf = r.buf }
 
+  let equal r r' = r = r' 
+  let compare r r' = Pervasives.compare r r'
   let pp ppf r = failwith "TODO"
   let to_string r = failwith "TODO"
 end

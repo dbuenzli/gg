@@ -3190,6 +3190,14 @@ module Raster : sig
       packed.
   *)
 
+  (** {2 Predicates and comparisons} *)
+
+  val equal : t -> t -> bool
+  (** [equal r r'] is [r = r']. *)
+
+  val compare : t -> t -> int
+  (** [compare r r'] is [Pervasives.compare r r']. *)
+
   (** {2 Printers} *)
 
   val to_string : t -> string 
