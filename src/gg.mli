@@ -2210,6 +2210,10 @@ module type Box = sig
   val v : p -> size -> t
   (** [v o size] is a box whose origin is [o] and size is [size]. *)
 
+  val v_mid : p -> size -> t
+  (** [v_mid mid size] is a box whose {!mid} point is [mid] and 
+      size is [size]. *)
+
   val empty : t
   (** [empty] is {e the} empty box. *)
 
@@ -2352,8 +2356,12 @@ module Box2 : sig
 
   (** {1:cons Constructors, accessors and constants} *)
 
-  val v : p2 -> size -> box2
+  val v : p2 -> size2 -> box2
   (** [v o size] is a box whose origin is [o] and size is [size]. *)
+
+  val v_mid : p2 -> size2 -> t
+  (** [v_mid mid size] is a box whose {!mid} point is [mid] and 
+      size is [size]. *)
 
   val empty : box2
   (** [empty] is {e the} empty box. *)
@@ -2558,6 +2566,10 @@ module Box3 : sig
 
   val v : p3 -> size3 -> box3
   (** [v o size] is a box whose origin is [o] and size is [size]. *)
+
+  val v_mid : p3 -> size3 -> t
+  (** [v_mid mid size] is a box whose {!mid} point is [mid] and 
+      size is [size]. *)
 
   val empty : box3
   (** [empty] is {e the} empty box. *)

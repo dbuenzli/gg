@@ -1551,19 +1551,21 @@ module Box_tests
   let vt = V.mapi (fun i _ -> float (i + 1)) V.zero
   let usize = V.mapi (fun i _ -> 1.) V.zero
   let bt = Box.v vt vt
-      
+  let bt_mid = Box.v_mid V.zero V.(2. * vt)
   module Cbox = C.Make (Box)       
   module Cv = C.Make (V)
 
   open Cv.Order
-  let () = test "o, size, zero, unit" & fun r -> 
+  let () = test "v_mid, o, size, zero, unit" & fun r -> 
     r >> (Box.o Box.zero = P.o) 
       >> (Box.o Box.unit = P.o) 
       >> (Box.o bt = vt) 
+      >> (Box.o bt_mid = V.neg vt)
       >> Cbox.raises_invalid_arg Box.o Box.empty 
       >> (Box.size Box.zero = V.zero)
       >> (Box.size Box.unit = usize) 
       >> (Box.size bt = vt)
+      >> (Box.size bt_mid = V.(2. * vt))
       >> Cbox.raises_invalid_arg Box.size Box.empty 
       >> C.success
 

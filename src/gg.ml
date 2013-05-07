@@ -1808,6 +1808,7 @@ module type Box = sig
   (* Constructors, accessors and constants *)
 
   val v : p -> size -> t
+  val v_mid : p -> size -> t
   val empty : t
   val o : t -> p
   val size : t -> size
@@ -1863,6 +1864,10 @@ module Box2 = struct
   (* Constructors, accessors and constants *)
 
   let v o s = R (o, s)
+  let v_mid m s = 
+    let o = P2.v (P2.x m -. 0.5 *. Size2.w s) (P2.y m -. 0.5 *. Size2.h s) in
+    R (o, s)
+
   let empty = E
   let o = function E -> err_e () | R (o, _) -> o 
   let ox = function E -> err_e () | R (o, _) -> o.x 
@@ -2041,6 +2046,13 @@ module Box3 = struct
   (* Constructors, accessors and constants *)
 
   let v o s = R (o, s)
+  let v_mid m s = 
+    let o = P3.v (P3.x m -. 0.5 *. Size3.w s) 
+                 (P3.y m -. 0.5 *. Size3.h s) 
+                 (P3.z m -. 0.5 *. Size3.d s)
+    in
+    R (o, s)
+
   let empty = E
   let o = function E -> err_e () | R (o, _) -> o 
   let ox = function E -> err_e () | R (o, _) -> o.x 
