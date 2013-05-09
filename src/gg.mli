@@ -3237,12 +3237,12 @@ end
     with : {[open Gg]} 
 
 
-    For the toplevel, the file [gg_init.ml] opens [Gg] and installs
-    printers for the types. It can be used automatically by adding the
-    following lines to an [.ocamlinit] file :
-{[#directory "/path/to/gg/install";;
-#load "gg.cmo";;
-#use "gg_init.ml";;]} 
+    In the toplevel, if you installed [Gg] with ocamlfind, requiring
+    [Gg]:
+{[
+> #require "gg";;
+]}
+    automatically opens [Gg] and installs printers for the types. 
 
     {2:conventions Conventions}
 
