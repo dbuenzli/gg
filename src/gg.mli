@@ -2759,7 +2759,7 @@ type color = v4
     [Color] provides some function to operate on {{!t}color} values
     and basic support for ICC based {{!profile}color profiles} to 
     precisely specify how to interpret raw color samples. Thorough color 
-    profile support and conversion is provided byte the {!Gcolor} module.
+    profile support and conversion is provided by the {!Gcolor} module.
 
     {3 References.}
     {ul
@@ -2797,40 +2797,50 @@ module Color : sig
   (** The type for color stops. A piecewise linear color curve. *)  
 
   val v : float -> float -> float -> float -> color
-  (** [v r g b a] is the color [(r, g, b, a)]. *)
+  (** [v r g b a] is the sRGBA color [(r, g, b, a)] converted to a color 
+      value. *)
+
+  val v_l : float -> float -> float -> float -> color
+  (** [v_l r g b a] is the {e linear} sRGBA color [(r, g, b, a)] as 
+      a color value. *)
 
   val r : color -> float 
-  (** [r c] is the [r] component of [c]. *)
+  (** [r c] is the red component of [c]. *)
 
   val g : color -> float
-  (** [g c] is the [g] component of [c]. *)
+  (** [g c] is the green component of [c]. *)
 
   val b : color -> float
-  (** [b c] is the [b] component of [c]. *)
+  (** [b c] is the blue component of [c]. *)
 
   val a : color -> float
-  (** [a c] is the [a] component of [c]. *)
+  (** [a c] is the alpha component of [c]. *)
 
   val void : color
-  (** [void] is [(color 0. 0. 0. 0.)] an invisible color. *)
+  (** [void] is [(v 0. 0. 0. 0.)] an invisible color. *)
 
   val black : color
-  (** [black] is [(color 0. 0. 0. 1.)] *)
+  (** [black] is [(v 0. 0. 0. 1.)] *)
 
   val gray : ?a:float -> float -> color 
-  (** [gray a g] is ([color g g g a]) *)
+  (** [gray a g] is the sRGBA color [(g, g, g, a)] converted to color a 
+      value. *)
+
+  val gray_l : ?a:float -> float -> color 
+  (** [gray_l a g] is the {e linear} sRGBA color [(g, g, g, a)] as
+      a color value. *)
 
   val white : color
-  (** [white] is [(color 1. 1. 1. 1.)] *)
+  (** [white] is [(v 1. 1. 1. 1.)] *)
 
   val red : color
-  (** [red] is [(color 1. 0. 0. 1.)] *)
+  (** [red] is [(v 1. 0. 0. 1.)] *)
 
   val green : color
-  (** [green] is [(color 0. 1. 0. 1.)] *)
+  (** [green] is [(v 0. 1. 0. 1.)] *)
 
   val blue : color
-  (** [blue] is [(color 0. 0. 1. 1.)] *)
+  (** [blue] is [(v 0. 0. 1. 1.)] *)
 
   (** {1 Basic color conversions} *)
   
@@ -3314,6 +3324,26 @@ end
     {- In 2D space positive angles determine counter clockwise rotations.}
     {- In 3D space positive angles determine rotations directed according to 
        the right hand rule.}}
+
+    {2:colornote Note on colors} 
+
+    Values of type {!color} are in a {e linear} sRGBA space as this is
+    the space to work in if you want to process colors correctly (e.g.
+    for blending). The default constructor {!Color.v} does however take
+    its parameters from a {e non-linear} sRGBA as this is most likely
+    your intention when you specify color constants. 
+    So don't be suprised by this behaviour:
+{[
+# let c = Color.v 0.5 0.5 0.5 1.0;;
+- : Gg.color = (0.214041 0.214041 0.214041 1)
+]}
+    what you see here is conversion from sRGBA space to {e linear} sRGBA
+    space. If you need an sRGBA color back from a {!color} value
+    (e.g. to specify a CSS color) use {!Color.to_srgba}: 
+{[
+# Color.to_srgba c;;
+- : Gg.Color.srgba = (0.5 0.5 0.5 1)
+]}
 
     {2:tipsremarks Remarks and Tips}
     {ul

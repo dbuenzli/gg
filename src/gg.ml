@@ -2293,18 +2293,18 @@ module Color = struct
   type t = color 
   type stops = (float * t) list
 
-  let v = V4.v
+  let v_l = V4.v
   let r = V4.x 
   let g = V4.y
   let b = V4.z 
   let a = V4.w
-  let void = v 0. 0. 0. 0. 
-  let black = v 0. 0. 0. 1. 
-  let gray ?(a = 1.) g = v g g g a
-  let white = v 1. 1. 1. 1. 
-  let red = v 1. 0. 0. 1.
-  let green = v 0. 1. 0. 1. 
-  let blue = v 0. 0. 1. 1. 
+  let void = v_l 0. 0. 0. 0. 
+  let black = v_l 0. 0. 0. 1. 
+  let gray_l ?(a = 1.) g = v_l g g g a
+  let white = v_l 1. 1. 1. 1. 
+  let red = v_l 1. 0. 0. 1.
+  let green = v_l 0. 1. 0. 1. 
+  let blue = v_l 0. 0. 1. 1. 
 
   (* Basic color conversions *)
 
@@ -2318,11 +2318,21 @@ module Color = struct
   let c2 = 0.055
   let c3 = 1. /. 1.055
   let c4 = 2.4
-  let of_srgba c = 
+  let of_srgba c =                      (* N.B. code duplication with gray. *)
     let r = V4t.(if c.x <= c0 then c1 *. c.x else (c3 *. (c.x +. c2)) ** c4) in
     let g = V4t.(if c.y <= c0 then c1 *. c.y else (c3 *. (c.y +. c2)) ** c4) in
     let b = V4t.(if c.z <= c0 then c1 *. c.z else (c3 *. (c.z +. c2)) ** c4) in
-    v r g b c.V4t.w
+    v_l r g b c.V4t.w
+
+  let v r' g' b' a =                (* N.B. code duplication with of_srgba. *)
+    let r = V4t.(if r' <= c0 then c1 *. r' else (c3 *. (r' +. c2)) ** c4) in
+    let g = V4t.(if g' <= c0 then c1 *. g' else (c3 *. (g' +. c2)) ** c4) in
+    let b = V4t.(if b' <= c0 then c1 *. b' else (c3 *. (b' +. c2)) ** c4) in
+    v_l r g b a
+
+  let gray ?a l' =                         (* N.B. code duplication with v. *)
+    let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
+    gray_l ?a l
 
   let c0 = 0.0031308
   let c1 = 12.92
@@ -2333,7 +2343,7 @@ module Color = struct
     let r = V4t.(if c.x <= c0 then c1 *. c.x else c2 *. (c.x ** c3) -. c4) in 
     let g = V4t.(if c.y <= c0 then c1 *. c.y else c2 *. (c.y ** c3) -. c4) in 
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
-    v r g b c.V4t.w
+    v_l r g b c.V4t.w
 
   (* The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
      Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
