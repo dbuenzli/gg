@@ -2936,11 +2936,11 @@ module Color : sig
   val profile_dim : profile -> int
   (** [profile_space p] is [space_dim (profile_space d)]. *)
 
-  val p_lgray : profile 
-  (** [p_lgray] is a linear gray color profile *)
+  val p_gray_l : profile 
+  (** [p_gray_l] is a linear gray color profile *)
 
-  val p_lrgb : profile
-  (** [p_lrgb] is the color profile of {{!t}color} values. *)
+  val p_rgb_l : profile
+  (** [p_rgb_l] is the color profile of {{!t}color} values. *)
 end
 
 (** {1:raster Raster data} *)
@@ -3034,20 +3034,20 @@ module Raster : sig
       {- [`Other(label, dim)] is for samples of [dim] dimension 
       identified by [label].}} *)
   
-  val lrgb : sample_semantics 
-  (** [lrgb] is for linear RGB samples from the {!Color.p_lrgb}
+  val rgb_l : sample_semantics 
+  (** [rgb_l] is for linear RGB samples from the {!Color.p_rgb_l}
       profile. *)
   
-  val lrgba : sample_semantics
-  (** [lrgba] is for linear RGB samples from the  {!Color.p_lrgb} 
+  val rgba_l : sample_semantics
+  (** [rgba_l] is for linear RGB samples from the  {!Color.p_rgb_l} 
       profile with an alpha component. *)
 
-  val lgray : sample_semantics
-  (** [lgray] is for linear Gray samples from the {!Color.p_lgray} 
+  val gray_l : sample_semantics
+  (** [gray_l] is for linear Gray samples from the {!Color.p_gray_l} 
       profile. *)
 
-  val lgraya : sample_semantics
-  (** [lgraya] is for linear Gray samples from the {!Color.p_lgray} 
+  val graya_l : sample_semantics
+  (** [graya_l] is for linear Gray samples from the {!Color.p_gray_l} 
       luminance with an alpha component. *)
 
   val pp_sample_semantics : Format.formatter -> sample_semantics -> unit 
