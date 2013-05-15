@@ -41,6 +41,9 @@ module Float : sig
   val pi : float
   (** The constant {{:http://mathworld.wolfram.com/Pi.html}pi}. *)
 
+  val two_pi : float
+  (** [2 *. pi] *)
+
   val pi_div_2 : float
   (** [pi /. 2]. *)
 
