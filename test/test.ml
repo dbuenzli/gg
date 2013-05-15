@@ -664,6 +664,15 @@ module V2_tests = struct
       >> (V2.y index = 1.)
       >> C.success
 
+  let () = test "angle" & fun r -> 
+    let chop v = Float.chop ~eps v in
+    r >> (chop (V2.angle V2.ox) = 0.)
+      >> (chop (V2.angle V2.oy) = Float.pi_div_2)
+      >> (chop (V2.angle (V2.v (- 1.) 0.)) = Float.pi)
+      >> (chop (V2.angle (V2.neg V2.ox)) = (-. Float.pi))
+      >> (chop (V2.angle (V2.smul 2. (V2.neg V2.oy))) = -. Float.pi_div_2)
+      >> C.success
+
   open Cv.Order
   let () = test "ox, oy, basis" & fun r -> 
     r >> (V2.basis 0 = V2.ox)
@@ -673,6 +682,25 @@ module V2_tests = struct
   let () = test "of_tuple, to_tuple" & fun r -> 
     r >> (V2.of_tuple (0., 1.) = index)
       >> (V2.of_tuple (V2.to_tuple index) = index)
+      >> C.success
+
+  let () = test "of_polar" & fun r -> 
+    let chop v = V2.map (Float.chop ~eps) v in
+    r >> (chop (V2.of_polar (V2.v 1. 0.)) = V2.ox)
+      >> (chop (V2.of_polar (V2.v 1. Float.pi_div_2)) = V2.oy)
+      >> (chop (V2.of_polar (V2.v 1. Float.pi)) = (V2.neg V2.ox))
+      >> (chop (V2.of_polar (V2.v 2. (-. Float.pi_div_2))) = 
+               (V2.smul 2. (V2.neg V2.oy)))
+      >> C.success
+
+  let () = test "to_polar" & fun r -> 
+    let chop v = V2.map (Float.chop ~eps) v in
+    r >> (chop (V2.to_polar V2.ox) = (V2.v 1. 0.))
+      >> (chop (V2.to_polar V2.oy) = (V2.v 1. Float.pi_div_2))
+      >> (chop (V2.to_polar (V2.v (- 1.) 0.)) = (V2.v 1. Float.pi))
+      >> (chop (V2.to_polar (V2.neg V2.ox)) = (V2.v 1. (-. Float.pi))) 
+      >> (chop (V2.to_polar (V2.smul 2. (V2.neg V2.oy))) = 
+          (V2.v 2. (-. Float.pi_div_2)))
       >> C.success
 
   let () = test "of_v3, of_v4" & fun r -> 

@@ -379,6 +379,8 @@ module V2 = struct
   let basis i = _basis.(i)
   let of_tuple (x, y) = v x y 
   let to_tuple a = (a.x, a.y)
+  let of_polar pv = v (pv.x *. (cos pv.y)) (pv.x *. (sin pv.y))
+  let to_polar a = v (sqrt (a.x *. a.x +. a.y *. a.y)) (atan2 a.y a.x)
   let of_v3 a = v a.V3t.x a.V3t.y
   let of_v4 a = v a.V4t.x a.V4t.y
       
@@ -395,8 +397,9 @@ module V2 = struct
   let norm a = sqrt (a.x *. a.x +. a.y *. a.y)
   let norm2 a = a.x *. a.x +. a.y *. a.y       
   let unit a = smul (1.0 /. (norm a)) a
-  let homogene a = if a.y <> 0. then v (a.x /. a.y) 1.0 else a
   let polar r theta = v (r *. (cos theta)) ( r *. (sin theta))
+  let angle a = atan2 a.y a.x 
+  let homogene a = if a.y <> 0. then v (a.x /. a.y) 1.0 else a
   let ortho a = v (-. a.y) a.x
   let mix a b t = v (a.x +. t *. (b.x -. a.x)) (a.y +. t *. (b.y -. a.y))
 

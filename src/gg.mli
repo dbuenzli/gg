@@ -538,10 +538,22 @@ module V2 : sig
       @raise Invalid_argument if [i] is not in \[[0;]{!dim}\[.*)
 
   val of_tuple : float * float -> v2
-  (** [of_tuple (x, y)] is [v x y]. *)
+  (** [of_tuple (x, y)] is [V2.v x y]. *)
 
   val to_tuple : v2 -> float * float
-  (** [of_tuple v] is [(x v, y v]). *)
+  (** [of_tuple v] is [(V2.x v, V2.y v]). *)
+
+  val of_polar : v2 -> v2 
+  (** [of_polar pv] is a vector [(x, y)] with cartesian coordinates
+      whose radial and angular
+      {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
+      coordinates} [(r, theta)] are given by [(V2.x pv, V2.y pv)]. *)
+
+  val to_polar : v2 -> v2 
+  (** [to_polar v] is the vector [(r, theta)] where [(r, theta)] are the 
+      radial and angular 
+      {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
+      coordinates} of [v]. [theta] is guaranteed to be in \[[-pi;pi]\].*)
 
   val of_v3 : v3 -> v2
   (** [of_v3 u] is [v (V3.x u) (V3.y u)]. *)
@@ -585,17 +597,18 @@ module V2 : sig
   val unit : v2 -> v2
   (** [unit v] is the unit vector [v/|v|]. *)
 
-  val homogene : v2 -> v2
-  (** [homogene v] is the vector [v/v]{_y} if [v]{_y}[ <> 0] and [v] 
-      otherwise. *)
-
   val polar : float -> float -> v2 
-  (** [polar r theta] is a vector whose radial and angular 
-      {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
-      coordinates} are [(r, theta)]. *)
+  (** [polar r theta] is [V2.of_polar (V2.v r theta)]. *)
+
+  val angle : v2 -> float 
+  (** [angle v] is [V2.y (V2.to_polar v)]. *)
 
   val ortho : v2 -> v2 
   (** [ortho v] is [v] rotated by [pi] / 2. *)
+
+  val homogene : v2 -> v2
+  (** [homogene v] is the vector [v/v]{_y} if [v]{_y}[ <> 0] and [v] 
+      otherwise. *)
 
   val mix : v2 -> v2 -> float -> v2
   (** [mix u v t] is the linear interpolation [u + t(v - u)]. *)
