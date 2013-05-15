@@ -589,10 +589,10 @@ module V2 : sig
   (** [homogene v] is the vector [v/v]{_y} if [v]{_y}[ <> 0] and [v] 
       otherwise. *)
 
-  val polar_unit : float -> v2 
-  (** [polar_unit a] is the unit vector whose angular
+  val polar : float -> float -> v2 
+  (** [polar r theta] is a vector whose radial and angular 
       {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
-      coordinate} is given by [a]. *)
+      coordinates} are [(r, theta)]. *)
 
   val ortho : v2 -> v2 
   (** [ortho v] is [v] rotated by [pi] / 2. *)

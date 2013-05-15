@@ -680,12 +680,12 @@ module V2_tests = struct
       >> (V2.of_v4 (V4.v 0. 1. 2. 3.) = index)
       >> C.success
 
-  let () = test "polar_unit" & fun r -> 
+  let () = test "polar" & fun r -> 
     let chop v = V2.map (Float.chop ~eps) v in
-    r >> (chop (V2.polar_unit 0.) = V2.ox)
-      >> (chop (V2.polar_unit Float.pi_div_2) = V2.oy)
-      >> (chop (V2.polar_unit Float.pi) = (V2.neg V2.ox))
-      >> (chop (V2.polar_unit (-. Float.pi_div_2)) = (V2.neg V2.oy))
+    r >> (chop (V2.polar 1. 0.) = V2.ox)
+      >> (chop (V2.polar 1. Float.pi_div_2) = V2.oy)
+      >> (chop (V2.polar 1. Float.pi) = (V2.neg V2.ox))
+      >> (chop (V2.polar 2. (-. Float.pi_div_2)) = (V2.smul 2. (V2.neg V2.oy)))
       >> C.success
 
   let () = test "ortho" & fun r -> 

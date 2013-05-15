@@ -396,7 +396,7 @@ module V2 = struct
   let norm2 a = a.x *. a.x +. a.y *. a.y       
   let unit a = smul (1.0 /. (norm a)) a
   let homogene a = if a.y <> 0. then v (a.x /. a.y) 1.0 else a
-  let polar_unit theta = v (cos theta) (sin theta)
+  let polar r theta = v (r *. (cos theta)) ( r *. (sin theta))
   let ortho a = v (-. a.y) a.x
   let mix a b t = v (a.x +. t *. (b.x -. a.x)) (a.y +. t *. (b.y -. a.y))
 
