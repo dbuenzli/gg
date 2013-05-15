@@ -798,10 +798,11 @@ module V3 : sig
   (** [homogene v] is the vector [v/v]{_z} if [v]{_z}[ <> 0] and
       [v] otherwise. *)
 
-  val sphere_unit : float -> float -> v3 
-  (** [sphere_unit theta phi] is the unit vector whose azimuth
+  val spherical : float -> float -> float -> v3 
+  (** [spherical r theta phi] is the vector whose radial, azimuth
+      angle and zenith angle
       {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
-      coordinate} is [theta] and zenith is [phi]. *)
+      coordinate} are [(r, theta, phi)]. *)
 
   val mix : v3 -> v3 -> float -> v3
   (** [mix u v t] is the linear interpolation [u + t(v - u)]. *)

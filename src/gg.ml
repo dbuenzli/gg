@@ -486,10 +486,10 @@ module V3 = struct
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z 
   let unit a = smul (1. /. (norm a)) a
   let homogene a = if a.z <> 0. then v (a.x /. a.z) (a.y /. a.z) 1.0 else a 
-  let sphere_unit theta phi =
+  let spherical r theta phi =
     let tc = cos theta in let ts = sin theta in
     let pc = cos phi in let ps = sin phi in 
-    v (tc *. ps) (ts *. ps) pc
+    v (r *. tc *. ps) (r *. ts *. ps) (r *. pc)
       
   let mix a b t = v
       (a.x +. t *. (b.x -. a.x))
