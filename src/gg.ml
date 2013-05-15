@@ -79,7 +79,7 @@ module Float = struct
     let t2 = (float (Random.bits ()) +. t1) /. 1073741824. in
     min +. (t2 *. len)
 
-  let srandom ?(min = 0.) ~len s () = 
+  let srandom s ?(min = 0.) ~len () = 
     let t0 = float (Random.State.bits s) /. 1073741823. in     (* see above. *)
     let t1 = (float (Random.State.bits s) +. t0) /. 1073741824. in
     let t2 = (float (Random.State.bits s) +. t1) /. 1073741824. in
