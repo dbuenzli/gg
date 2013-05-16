@@ -762,6 +762,27 @@ module V3_tests = struct
       >> (V3.z index = 2.)
       >> C.success
 
+  let () = test "azimuth" & fun r -> 
+    let chop v = Float.chop ~eps v in
+    r >> (chop 0. = V3.azimuth V3.oz)
+      >> (chop (-. Float.pi) = V3.azimuth (V3.neg V3.oz))
+      >> (chop 0. = V3.azimuth V3.ox)
+      >> (chop (-. Float.pi) = V3.azimuth (V3.neg V3.ox))
+      >> (chop Float.pi_div_2 = V3.azimuth V3.oy)
+      >> (chop (-. Float.pi_div_2) = V3.azimuth (V3.neg V3.oy))
+      >> C.success
+
+  let () = test "zenith" & fun r -> 
+    let chop v = Float.chop ~eps v in
+    r >> (chop 0. = V3.zenith V3.oz)
+      >> (chop Float.pi_div_2 = V3.zenith V3.ox)
+      >> (chop Float.pi = V3.zenith (V3.neg V3.oz))
+      >> (chop Float.pi_div_2 = V3.zenith V3.oy)
+      >> (chop 0. = V3.zenith (V3.smul 2. V3.oz))
+      >> (chop Float.pi_div_2 = V3.zenith (V3.neg V3.ox))
+      >> (chop Float.pi_div_2 = V3.zenith (V3.neg V3.oy))
+      >> C.success
+
   open Cv.Order
   let () = test "ox, oy, oz, basis" & fun r -> 
     r >> (V3.basis 0 = V3.ox)
@@ -772,6 +793,43 @@ module V3_tests = struct
   let () = test "of_tuple, to_tuple" & fun r -> 
     r >> (V3.of_tuple (0., 1., 2.) = index)
       >> (V3.of_tuple (V3.to_tuple index) = index)
+      >> C.success
+
+  let () = test "of_spherical" & fun r -> 
+    let chop v = V3.map (Float.chop ~eps) v in
+    r >> (chop (V3.of_spherical (V3.v 1. 0. 0.)) = V3.oz) 
+      >> (chop (V3.of_spherical (V3.v 1. 0. Float.pi_div_2)) = V3.ox)
+      >> (chop (V3.of_spherical (V3.v 1. 0. Float.pi)) = V3.neg V3.oz)
+      >> (chop (V3.of_spherical (V3.v 1. Float.pi_div_2 0.)) = V3.oz)
+      >> (chop (V3.of_spherical (V3.v 1. Float.pi_div_2 Float.pi_div_2)) = 
+          V3.oy)
+      >> (chop (V3.of_spherical (V3.v 1. Float.pi_div_2 Float.pi)) = 
+          V3.neg V3.oz)
+      >> (chop (V3.of_spherical (V3.v 2. Float.pi 0.)) = (V3.smul 2. V3.oz))
+      >> (chop (V3.of_spherical (V3.v 1. Float.pi Float.pi_div_2)) = 
+          V3.neg V3.ox)
+      >> (chop (V3.of_spherical (V3.v 1. Float.pi Float.pi)) = V3.neg V3.oz)
+      >> (chop (V3.of_spherical (V3.v 1. (-. Float.pi_div_2) 0.)) = V3.oz)
+      >> (chop (V3.of_spherical (V3.v 1. (-. Float.pi_div_2) Float.pi_div_2)) = 
+          (V3.neg V3.oy))
+      >> (chop (V3.of_spherical (V3.v 1. (-. Float.pi_div_2) Float.pi)) = 
+          V3.neg V3.oz)
+      >> C.success
+
+  let () = test "to_spherical" & fun r -> 
+    let chop v = V3.map (Float.chop ~eps) v in
+    r >> (chop (V3.v 1. 0. 0.) = V3.to_spherical V3.oz) 
+      >> (chop (V3.v 1. 0. Float.pi_div_2) = V3.to_spherical V3.ox)
+      >> (chop (V3.v 1. (-. Float.pi) Float.pi) = 
+          V3.to_spherical (V3.neg V3.oz))
+      >> (chop (V3.v 1. Float.pi_div_2 Float.pi_div_2) = V3.to_spherical V3.oy)
+      >> (chop (V3.v 1. (-. Float.pi) Float.pi) = 
+          V3.to_spherical (V3.neg V3.oz))
+      >> (chop (V3.v 2. 0. 0.) = V3.to_spherical (V3.smul 2. V3.oz))
+      >> (chop (V3.v 1. (-. Float.pi) Float.pi_div_2) = 
+          V3.to_spherical (V3.neg V3.ox))
+      >> (chop (V3.v 1. (-. Float.pi_div_2) Float.pi_div_2) = 
+          V3.to_spherical (V3.neg V3.oy))
       >> C.success
 
   let () = test "of_v2, of_v4" & fun r -> 
@@ -796,6 +854,10 @@ module V3_tests = struct
       >> (chop (V3.spherical 2. Float.pi 0.) = (V3.smul 2. V3.oz))
       >> (chop (V3.spherical 1. Float.pi Float.pi_div_2) = V3.neg V3.ox)
       >> (chop (V3.spherical 1. Float.pi Float.pi) = V3.neg V3.oz)
+      >> (chop (V3.spherical 1. (-. Float.pi_div_2) 0.) = V3.oz)
+      >> (chop (V3.spherical 1. (-. Float.pi_div_2) Float.pi_div_2) = 
+          (V3.neg V3.oy))
+      >> (chop (V3.spherical 1. (-. Float.pi_div_2) Float.pi) = V3.neg V3.oz)
       >> C.success
 
   let () = test "ltr" & fun r -> 

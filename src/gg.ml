@@ -467,6 +467,16 @@ module V3 = struct
   let basis i = _basis.(i)
   let of_tuple (x, y, z) = v x y z 
   let to_tuple a = (a.x, a.y, a.z)
+
+  let of_spherical sv =
+    let tc = cos sv.y in let ts = sin sv.y in
+    let pc = cos sv.z in let ps = sin sv.z in 
+    v (sv.x *. tc *. ps) (sv.x *. ts *. ps) (sv.x *. pc)
+
+  let to_spherical a = 
+    let r = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z) in
+    v r (atan2 a.y a.x) (acos (a.z /. r))
+
   let of_v2 a ~z = v a.V2t.x a.V2t.y z
   let of_v4 a = v a.V4t.x a.V4t.y a.V4t.z
  
@@ -488,12 +498,17 @@ module V3 = struct
   let norm a = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z)
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z 
   let unit a = smul (1. /. (norm a)) a
-  let homogene a = if a.z <> 0. then v (a.x /. a.z) (a.y /. a.z) 1.0 else a 
   let spherical r theta phi =
     let tc = cos theta in let ts = sin theta in
     let pc = cos phi in let ps = sin phi in 
     v (r *. tc *. ps) (r *. ts *. ps) (r *. pc)
-      
+
+  let azimuth a = atan2 a.y a.x 
+  let zenith a = 
+    let r = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z) in 
+    acos (a.z /. r)
+
+  let homogene a = if a.z <> 0. then v (a.x /. a.z) (a.y /. a.z) 1.0 else a
   let mix a b t = v
       (a.x +. t *. (b.x -. a.x))
       (a.y +. t *. (b.y -. a.y))

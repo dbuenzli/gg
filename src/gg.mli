@@ -544,16 +544,16 @@ module V2 : sig
   (** [of_tuple v] is [(V2.x v, V2.y v]). *)
 
   val of_polar : v2 -> v2 
-  (** [of_polar pv] is a vector [(x, y)] with cartesian coordinates
-      whose radial and angular
+  (** [of_polar pv] is a vector whose cartesian coordinates [(x, y)]
+      correspond to the radial and angular
       {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
-      coordinates} [(r, theta)] are given by [(V2.x pv, V2.y pv)]. *)
+      coordinates} [(r, theta)] given by [(V2.x pv, V2.y pv)]. *)
 
   val to_polar : v2 -> v2 
-  (** [to_polar v] is the vector [(r, theta)] where [(r, theta)] are the 
+  (** [to_polar v] is a vector whose coordinates [(r, theta)] are the 
       radial and angular 
       {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
-      coordinates} of [v]. [theta] is guaranteed to be in \[[-pi;pi]\].*)
+      coordinates} of [v]. [theta] is in \[[-pi;pi]\].*)
 
   val of_v3 : v3 -> v2
   (** [of_v3 u] is [v (V3.x u) (V3.y u)]. *)
@@ -601,7 +601,9 @@ module V2 : sig
   (** [polar r theta] is [V2.of_polar (V2.v r theta)]. *)
 
   val angle : v2 -> float 
-  (** [angle v] is [V2.y (V2.to_polar v)]. *)
+  (** [angle v] is the angular 
+      {{:http://mathworld.wolfram.com/PolarCoordinates.html}polar
+      coordinates} of [v]. The result is in \[[-pi;pi]\]. *)
 
   val ortho : v2 -> v2 
   (** [ortho v] is [v] rotated by [pi] / 2. *)
@@ -760,6 +762,20 @@ module V3 : sig
   val to_tuple : v3 -> (float * float * float)
   (** [to_tuple v] is [(x v, y v, z v)]. *)
 
+  val of_spherical : v3 -> v3 
+  (** [of_spherical sv] is the vector whose cartesian coordinates 
+      [(x, y, z)] correspond to the radial, azimuth
+      angle and zenith angle
+      {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
+      coordinates} [(r, theta, phi)] given by [(V3.x sv, V2.y sv, V3.z sv)]. *)
+
+  val to_spherical : v3 -> v3 
+  (** [to_spherical v] is the vector whose coordinate [(r, theta,
+      phi)] are the radial, azimuth angle and zenith angle
+      {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
+      coordinates} of [v]. [theta] is in \[[-pi;pi]\] and [phi] in
+      \[[0;pi]\]. *)
+
   val of_v2 : v2 -> z:float -> v3
   (** [of_v2 u z] is [v (V2.x u) (V2.y u) z]. *)
 
@@ -807,15 +823,22 @@ module V3 : sig
   val unit : v3 -> v3
   (** [unit v] is the unit vector [v/|v|]. *)
 
+  val spherical : float -> float -> float -> v3 
+  (** [spherical r theta phi] is [of_spherical (V3.v r theta phi)]. *)
+
+  val azimuth : v3 -> float 
+  (** [azimuth v] is the azimuth angle
+      {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
+      coordinates} of [v]. The result is in \[[-pi;pi]\]. *)
+
+  val zenith : v3 -> float 
+  (** [zenith v] is the zenith angle
+      {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
+      coordinates} of [v]. The result is in \[[0;pi]\]. *)
+
   val homogene : v3 -> v3
   (** [homogene v] is the vector [v/v]{_z} if [v]{_z}[ <> 0] and
       [v] otherwise. *)
-
-  val spherical : float -> float -> float -> v3 
-  (** [spherical r theta phi] is the vector whose radial, azimuth
-      angle and zenith angle
-      {{:http://mathworld.wolfram.com/SphericalCoordinates.html}spherical
-      coordinate} are [(r, theta, phi)]. *)
 
   val mix : v3 -> v3 -> float -> v3
   (** [mix u v t] is the linear interpolation [u + t(v - u)]. *)
