@@ -2897,10 +2897,9 @@ module Color : sig
   (** {1 Functions} *)
 
   val blend : color -> color -> color 
-  (** [blend c c'] is the color resulting from alpha blending the
-      color [c] over the color [c'] with the source over destination 
-      Porter and Duff operator. See the following reference for more 
-      information.
+  (** [blend src dst] is [src] blended over [dst] using
+      source over destination alpha blending. See the following
+      reference for more information.
 
       Alvy Ray Smith. {e
       {{:http://alvyray.com/Memos/MemosCG.htm#ImageCompositing}Image 
