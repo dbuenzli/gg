@@ -2329,6 +2329,19 @@ module Color = struct
   let green = v_l 0. 1. 0. 1. 
   let blue = v_l 0. 0. 1. 1. 
 
+  (* Functions *) 
+
+  let blend c c' =
+    let a = c.V4t.w in 
+    let a' = c'.V4t.w in 
+    let mul = (1. -. a) *. a' in
+    let a'' = a +. mul in 
+    if a'' < gg_eps then void else 
+    v_l ((a *. c.V4t.x +. mul *. c'.V4t.x) /. a'')
+        ((a *. c.V4t.y +. mul *. c'.V4t.y) /. a'')
+        ((a *. c.V4t.z +. mul *. c'.V4t.z) /. a'')
+        a''
+      
   (* Basic color conversions *)
 
   (* N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 

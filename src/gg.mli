@@ -2894,6 +2894,18 @@ module Color : sig
   val blue : color
   (** [blue] is [(v 0. 0. 1. 1.)] *)
 
+  (** {1 Functions} *)
+
+  val blend : color -> color -> color 
+  (** [blend c c'] is the color resulting from alpha blending the
+      color [c] over the color [c'] with the source over destination 
+      Porter and Duff operator. See the following reference for more 
+      information.
+
+      Alvy Ray Smith. {e
+      {{:http://alvyray.com/Memos/MemosCG.htm#ImageCompositing}Image 
+       compositing fundamentals}}. 1995. *)
+      
   (** {1 Basic color conversions} *)
   
   type srgba = v4
