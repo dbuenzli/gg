@@ -331,6 +331,7 @@ module type V = sig
   val ( + ) : t -> t -> t 
   val ( - ) : t -> t -> t
   val ( * ) : float -> t -> t 
+  val ( / ) : t -> float -> t 
 
   (* Traversal *)
 
@@ -414,6 +415,7 @@ module V2 = struct
   let ( + ) = add
   let ( - ) = sub
   let ( * ) = smul
+  let ( / ) v t = smul (1. /. t) v
 
   (* Traversal *)
 
@@ -531,6 +533,7 @@ module V3 = struct
   let ( + ) = add
   let ( - ) = sub
   let ( * ) = smul 
+  let ( / ) v t = smul (1. /. t) v
 
   (* Traversal *)
 
@@ -624,6 +627,7 @@ module V4 = struct
   let ( + ) = add
   let ( - ) = sub
   let ( * ) = smul
+  let ( / ) v t = smul (1. /. t) v
 
   (* Traversal *)
 

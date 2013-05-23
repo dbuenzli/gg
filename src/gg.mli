@@ -423,13 +423,16 @@ module type V = sig
   (** {1:ops Overridden [Pervasives] operators} *)
 
   val ( + ) : t -> t -> t 
-  (** See {!add}. *)
+  (** [u + v] is [add u v]. *)
 
   val ( - ) : t -> t -> t
-  (** See {!sub}. *)
+  (** [u - v] is [sub u v]. *)
 
   val ( * ) : float -> t -> t 
-  (** See {!smul}. *)
+  (** [t * v] is [smul t v]. *)
+
+  val ( / ) : t -> float -> t 
+  (** [v / t] is [smul (1. /. t) v]. *)
 
   (** {1:traversal Traversal} *)
 
@@ -635,13 +638,16 @@ module V2 : sig
   (** {1:ops Overridden [Pervasives] operators} *)
 
   val ( + ) : v2 -> v2 -> v2 
-  (** See {!add}. *)
+  (** [u + v] is [add u v]. *)
 
   val ( - ) : v2 -> v2 -> v2
-  (** See {!sub}. *)
+  (** [u - v] is [sub u v]. *)
 
   val ( * ) : float -> v2 -> v2 
-  (** See {!smul}. *)
+  (** [t * v] is [smul t v]. *)
+
+  val ( / ) : v2 -> float -> v2 
+  (** [v / t] is [smul (1. /. t) v]. *)
 
   (** {1:traversal Traversal} *)
 
@@ -863,13 +869,16 @@ module V3 : sig
   (** {1:ops Overridden [Pervasives] operators} *)
 
   val ( + ) : v3 -> v3 -> v3 
-  (** See {!add}. *)
+  (** [u + v] is [add u v]. *)
 
   val ( - ) : v3 -> v3 -> v3
-  (** See {!sub}. *)
+  (** [u - v] is [sub u v]. *)
 
   val ( * ) : float -> v3 -> v3 
-  (** See {!smul}. *)
+  (** [t * v] is [smul t v]. *)
+
+  val ( / ) : v3 -> float -> v3 
+  (** [v / t] is [smul (1. /. t) v]. *)
 
   (** {1:traversal Traversal} *)
 
@@ -1053,13 +1062,16 @@ module V4 : sig
   (** {1 Overridden [Pervasives] operators} *)
 
   val ( + ) : v4 -> v4 -> v4 
-  (** See {!add}. *)
+  (** [u + v] is [add u v]. *)
 
   val ( - ) : v4 -> v4 -> v4
-  (** See {!sub}. *)
+  (** [u - v] is [sub u v]. *)
 
   val ( * ) : float -> v4 -> v4 
-  (** See {!smul}. *)
+  (** [t * v] is [smul t v]. *)
+
+  val ( / ) : v4 -> float -> v4 
+  (** [v / t] is [smul (1. /. t) v]. *)
 
   (** {1:traversal Traversal} *)
 
