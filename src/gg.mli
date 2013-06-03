@@ -2933,7 +2933,7 @@ module Color : sig
       space is CIE L*a*b* with polar coordinates, the meaning and range 
       of the components is:
      {ul
-     {- L* is the lightness in the range [0.] to [100.].}
+     {- L* is the lightness in the range [0.] to [100.]}
      {- C* represents chroma, in the range [0.] to 
         [181.02], but less in practice.}
      {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
@@ -2947,7 +2947,36 @@ module Color : sig
   (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. 
       If [lch] is [true] (defaults to [false]) the result is expressed in
       {{!lcha_ab}LCh{_ab}A}. *)
-  
+
+  type luva = v4
+  (** The type for colors in the CIE L*u*v* color space with a D50 reference
+      white point and an alpha component. The meaning and range of the 
+      components is:
+      {ul
+      {- L* is lightness in the range [0.] to [100.]}
+      {- u*'s practical range is [-134.] to [220.]} 
+      {- v*'s practical range is [-140.] to [122.]}} *)
+
+  type lcha_uv = v4
+  (** The type for colors in the CIE L*C*h*{_uv}A color space with a 
+      D50 reference white point and an alpha component. This color 
+      space is CIE L*u*v* with polar coordinates, the meaning and range 
+      of the components is:
+     {ul
+     {- L* is the lightness in the range [0.] to [100.]}
+     {- C* represents chroma, in the range [0.] to [260.77] in practice.}
+     {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
+
+  val of_luva : ?lch:bool -> laba -> color 
+  (** [of_luva c] is the {{!luva}LuvA} color [c] as a {{!t}color} value. 
+      If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
+      {{!lcha_uv}LCh{_uv}A}. *)
+
+  val to_luva : ?lch:bool -> color -> laba
+  (** [to_luva c] is the {{!t}color} value [c] as a {{!luva}LuvA} color. 
+      If [lch] is [true] (defaults to [false]) the result is expressed in
+      {{!lCh_uv}LCh{_uv}A}. *)
+
   (** {1 Color spaces} *)
 
   type space = [ 

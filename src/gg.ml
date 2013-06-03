@@ -2431,6 +2431,13 @@ module Color = struct
       ( 0.0694234 *.fx' -. 0.2291418*.fy' +. 1.1597184 *. fz')
       c.V4t.w
 
+  (* CIE Luv *)
+
+  type luva = v4
+  type lcha_uv = v4
+  let to_luva ?(lch = false) c = failwith "TODO"
+  let of_luva ?(lch = false) c = failwith "TODO"
+
   (* Color spaces *)
 
   type space = [ 
