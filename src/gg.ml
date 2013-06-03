@@ -2370,6 +2370,11 @@ module Color = struct
     let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
     gray_l ?a l
 
+  (* CIE Lab *)
+
+  type laba = v4
+  type lcha_ab = v4
+
   let c0 = 0.0031308
   let c1 = 12.92
   let c2 = 1.055
@@ -2393,7 +2398,7 @@ module Color = struct
   let c0 = 1. /. 3.
   let c1 = 841. /. 108.
   let c2 = 4. /. 29.
-  let to_lab ~to_lch c = 
+  let to_laba ?(lch = false) c = 
     let xr = V4t.(0.4520417 *. c.x +.0.3996304 *. c.y +. 0.1483279 *. c.z) in
     let yr = V4t.(0.2223801 *. c.x +.0.7170343 *. c.y +. 0.0605856 *. c.z) in
     let zr = V4t.(0.0168785 *. c.x +.0.1177517 *. c.y +. 0.8653698 *. c.z) in
@@ -2403,17 +2408,17 @@ module Color = struct
     let l = 116. *. fy -. 16. in
     let a = 500. *. (fx -. fy) in
     let b = 200. *. (fy -. fz) in
-    if to_lch then V4.v l (sqrt (a *. a +. b *. b)) (atan2 b a) c.V4t.w else
+    if lch then V4.v l (sqrt (a *. a +. b *. b)) (atan2 b a) c.V4t.w else
     V4.v l a b c.V4t.w
 
   (* Matrix below is the inverse of the one above *)
   let eps' = 6. /. 29.
   let c0 = 108. /. 841.
   let c1 = 4. /. 29.
-  let of_lab ~of_lch c = 
+  let of_laba ?(lch = false) c = 
     let l = c.V4t.x in 
-    let a = if of_lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
-    let b = if of_lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in 
+    let a = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
+    let b = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in 
     let fy = (l +. 16.) /. 116. in
     let fx = a /. 500. +. fy in
     let fz = fy -. b /. 200. in
@@ -2425,14 +2430,6 @@ module Color = struct
       (-0.9436024 *.fx' +. 1.9160071*.fy' +. 0.0275953 *. fz')
       ( 0.0694234 *.fx' -. 0.2291418*.fy' +. 1.1597184 *. fz')
       c.V4t.w
-
-  type lcha = v4 
-  let of_lcha c = of_lab ~of_lch:true c 
-  let to_lcha c = to_lab ~to_lch:true c
-
-  type laba = v4
-  let of_laba c = of_lab ~of_lch:false c
-  let to_laba c = to_lab ~to_lch:false c
 
   (* Color spaces *)
 

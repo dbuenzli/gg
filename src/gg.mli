@@ -2906,7 +2906,7 @@ module Color : sig
        compositing fundamentals}}. 1995. *)
       
   (** {1 Basic color conversions} *)
-  
+
   type srgba = v4
   (** The type for colors in the 
      {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} color space 
@@ -2919,37 +2919,34 @@ module Color : sig
   val to_srgba : color -> srgba
   (** [to_srgba c] is the {{!t}color} value [c] as a {{!srgba}sRGBA} color. *)
 
-  type lcha = v4
-  (** The type for colors in the CIE L*C*h* color space with a D50 reference 
-      white point and an alpha component. This color space is CIE L*a*b* with 
-      polar coordinates, the meaning and range of the components is:
-     {ul
-     {- L* is the lightness in the range [0.] to [100.].}
-     {- C* represents chroma, in the range [0.] to 
-        [181.02], but less in practice.}
-     {- h* represents hue in degrees in the range [0.] to [2pi].}}
-   *)
-
-  val of_lcha : lcha -> color 
-  (** [of_lcha c] is the {{!lcha}LChA} color [c] as a {{!t}color} value. *)
-
-  val to_lcha : color -> lcha
-  (** [to_lcha c] is the {{!t}color} value [c] as a {{!lcha}LChA} color. *)
-
   type laba = v4
   (** The type for colors in the CIE L*a*b* color space with a D50 reference
       white point and an alpha component. The meaning and range of the 
       components is:
       {ul
       {- L* is lightness in the range [0.] to [100.]}
-      {- a* and b*'s practical range is [-128.] to [127.]}}
-   *)
+      {- a* and b*'s practical range is [-128.] to [127.]}} *)
 
-  val of_laba : laba -> color 
-  (** [of_laba c] is the {{!laba}LabA} color [c] as a {{!t}color} value. *)
+  type lcha_ab = v4
+  (** The type for colors in the CIE L*C*h*{_ab}A color space with a 
+      D50 reference white point and an alpha component. This color 
+      space is CIE L*a*b* with polar coordinates, the meaning and range 
+      of the components is:
+     {ul
+     {- L* is the lightness in the range [0.] to [100.].}
+     {- C* represents chroma, in the range [0.] to 
+        [181.02], but less in practice.}
+     {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val to_laba : color -> laba
-  (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. *)
+  val of_laba : ?lch:bool -> laba -> color 
+  (** [of_laba c] is the {{!laba}LabA} color [c] as a {{!t}color} value. 
+      If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
+      {{!lcha_ab}LCh{_ab}A}. *)
+
+  val to_laba : ?lch:bool -> color -> laba
+  (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. 
+      If [lch] is [true] (defaults to [false]) the result is expressed in
+      {{!lcha_ab}LCh{_ab}A}. *)
   
   (** {1 Color spaces} *)
 

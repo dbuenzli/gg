@@ -2042,8 +2042,8 @@ module Color_tests = struct
 
   let lch_dEmax = ref V2.zero
   let lch_roundtrip color r =
-    let lch = to_lcha color in
-    let color' = of_lcha lch in
+    let lch = to_laba ~lch:true color in
+    let color' = of_laba ~lch:true lch in
     r >> Color24.compare_rgb lch_dEmax "LCh roundtrip" color' color
 
   let lab_roundtrip color r =
