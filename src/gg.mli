@@ -2938,12 +2938,12 @@ module Color : sig
         [181.02], but less in practice.}
      {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val of_laba : ?lch:bool -> laba -> color 
+  val of_laba : ?lch:bool -> v4 -> color 
   (** [of_laba c] is the {{!laba}LabA} color [c] as a {{!t}color} value. 
       If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
       {{!lcha_ab}LCh{_ab}A}. *)
 
-  val to_laba : ?lch:bool -> color -> laba
+  val to_laba : ?lch:bool -> color -> v4
   (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. 
       If [lch] is [true] (defaults to [false]) the result is expressed in
       {{!lcha_ab}LCh{_ab}A}. *)
@@ -2967,12 +2967,12 @@ module Color : sig
      {- C* represents chroma, in the range [0.] to [260.77] in practice.}
      {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val of_luva : ?lch:bool -> laba -> color 
+  val of_luva : ?lch:bool -> v4 -> color 
   (** [of_luva c] is the {{!luva}LuvA} color [c] as a {{!t}color} value. 
       If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
       {{!lcha_uv}LCh{_uv}A}. *)
 
-  val to_luva : ?lch:bool -> color -> laba
+  val to_luva : ?lch:bool -> color -> v4
   (** [to_luva c] is the {{!t}color} value [c] as a {{!luva}LuvA} color. 
       If [lch] is [true] (defaults to [false]) the result is expressed in
       {{!lCh_uv}LCh{_uv}A}. *)
