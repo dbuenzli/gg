@@ -2408,8 +2408,12 @@ module Color = struct
     let l = 116. *. fy -. 16. in
     let a = 500. *. (fx -. fy) in
     let b = 200. *. (fy -. fz) in
-    if lch then V4.v l (sqrt (a *. a +. b *. b)) (atan2 b a) c.V4t.w else
-    V4.v l a b c.V4t.w
+    if not lch then V4.v l a b c.V4t.w else 
+    let h = 
+      let h = atan2 b a in 
+      if h < 0. then h +. Float.two_pi else h
+    in
+    V4.v l (sqrt (a *. a +. b *. b)) h c.V4t.w
 
   (* Matrix below is the inverse of the one above *)
   let eps' = 6. /. 29.
@@ -2449,9 +2453,13 @@ module Color = struct
     let l = if y > eps then 116. *. (y ** c0) -. 16. else 8. *. eps_inv *. y in
     let l13 = 13. *. l in
     let u = l13 *. (u' -. u'n) and v = l13 *. (v' -. v'n) in
-    if lch then V4.v l (sqrt (u *. u +. v *. v)) (atan2 v u) c.V4t.w else
-    V4.v l u v c.V4t.w
-
+    if not lch then V4.v l u v c.V4t.w else
+    let h = 
+      let h = (atan2 v u) in 
+      if h < 0. then h +. Float.two_pi else h
+    in
+    V4.v l (sqrt (u *. u +. v *. v)) h c.V4t.w
+    
   let of_luva ?(lch = false) c =
     let l = c.V4t.x in
     let u = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
