@@ -76,8 +76,10 @@ static void errlog(cmsContext id, cmsUInt32Number code, const char *text)
 
 static void init(void)
 {
+   cmsCIEXYZ D65_XYZ = {0.95047, 1.0, 1.08883 };
    cmsCIExyY D65;
-   cmsWhitePointFromTemp(&D65, 6504);
+   cmsXYZ2xyY(&D65, &D65_XYZ);
+
    cmsToneCurve *linear = cmsBuildGamma(NULL, 1.0);
    cmsToneCurve *linrgb[3] = {linear,linear,linear};
    cmsCIExyYTRIPLE primaries = {
@@ -86,7 +88,10 @@ static void init(void)
        {0.15, 0.06, 1.0}
    };
 
-   cmsHPROFILE hsRGB = cmsCreate_sRGBProfile();
+   cmsFloat64Number P[5] = { 2.4, 1. / 1.055, 0.055 / 1.055, 1. / 12.92, 0.04045 };
+   cmsToneCurve *srgb = cmsBuildParametricToneCurve(NULL, 4, P);
+   cmsToneCurve *srgbcurve[3] = {srgb,srgb,srgb};
+   cmsHPROFILE hsRGB = cmsCreateRGBProfile(&D65, &primaries, srgbcurve);
    cmsHPROFILE hLab = cmsCreateLab4Profile(NULL);
    cmsHPROFILE hlRGB = cmsCreateRGBProfile(&D65, &primaries, linrgb);
    cmsHPROFILE hlGray = cmsCreateGrayProfile(cmsD50_xyY(), linear);
@@ -112,6 +117,7 @@ static void init(void)
    cmsCloseProfile(hLab);
    cmsCloseProfile(hlGray);
    cmsFreeToneCurve(linear);
+   cmsFreeToneCurve(srgb);
    cmsSetLogErrorHandler(errlog);
    /* sRGB, RGB, Lab, Gray */
    printf("R',G',B',R,G,B,L,a,b,Gray\n");
