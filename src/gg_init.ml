@@ -17,7 +17,8 @@ open Gg;;
 #install_printer Box2.print;;
 #install_printer Box3.print;;
 
-open Gcolor;;
+(*open Gcolor;;*)
+open Gcolorspace;;
 
 (*---------------------------------------------------------------------------
    Copyright (c) %%COPYRIGHTYEAR%%, Daniel C. Bünzli

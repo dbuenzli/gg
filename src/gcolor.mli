@@ -74,45 +74,6 @@ module Convert : sig
       raster, like [read1D] but for 3D rasters. *)
 end
 
-(* Colorspaces *)
-
-type whitepoint = [`Whitepoint of v3]
-module Whitepoint : sig
-  type t = whitepoint
-  val v : x:float -> y:float -> t
-  (** [v x y] is a function that creates a whitepoint based
-      on the specified xy chromacities. *)
-
-  val of_temperature: float -> t
-  (** [of_temperature cct] is a function that calculates the
-      whitepoint of a daylight illuminant with specified correlated color
-      temperature. *)
-
-  val d50 : t
-  (** CIE illuminant D50 with X=0.9642 Y=1.0 Z=0.8249 *)
-
-  val d55 : t
-  (** CIE illuminant D55 *)
-
-  val d65 : t
-  (** CIE illuminant D65 *)
-
-  val d93 : t
-  (** D93 illuminant, CCT of 9305 K *)
-
-  val a : t
-  (** CIE illuminant A *)
-
-  val e : t
-  (** CIE illuminant E (Equi-Power) *)
-
-  val f2 : t
-  (** CIE illuminant F2 *)
-
-  val f8 : t
-  (** CIE illuminant F8 *)
-end
-
 type space1 = [ `Gray ]
 type space3 = [ `XYZ | `Lab | `Luv | `YCbr | `Yxy | `RGB | `HSV | `HLS
               | `CMY | `CAM02Jab | `CAM02JCh | `LCh | `IPT ]

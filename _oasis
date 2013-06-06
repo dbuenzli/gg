@@ -38,7 +38,7 @@ Test test
 
 Library gcolor
  Path: src
- Modules: Gcolor
+ Modules: Gcolor, Gcolorspace
  BuildDepends: gg, bigarray
  FindlibParent: gg
 
