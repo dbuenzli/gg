@@ -2441,8 +2441,8 @@ module Color = struct
   type lcha_uv = v4
   let eps_inv = 1. /. eps
   let c0 = 1. /. 3.
-  let u'n = 0.1978238
-  let v'n = 0.4683329
+  let u'n = 0.1978398
+  let v'n = 0.4683363
   let to_luva ?(lch = false) c =
     let x = V4t.(0.4124564 *. c.x +.0.3575761 *. c.y +. 0.1804375 *. c.z) in
     let y = V4t.(0.2126729 *. c.x +.0.7151522 *. c.y +. 0.0721750 *. c.z) in
