@@ -2370,11 +2370,6 @@ module Color = struct
     let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
     gray_l ?a l
 
-  (* CIE Lab *)
-
-  type laba = v4
-  type lcha_ab = v4
-
   let c0 = 0.0031308
   let c1 = 12.92
   let c2 = 1.055
@@ -2385,6 +2380,11 @@ module Color = struct
     let g = V4t.(if c.y <= c0 then c1 *. c.y else c2 *. (c.y ** c3) -. c4) in 
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
     v_l r g b c.V4t.w
+
+  (* CIE Lab *)
+
+  type laba = v4
+  type lcha_ab = v4
 
   (* The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
      Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
