@@ -36,15 +36,17 @@ module Whitepoint = struct
   let d50 = Whitepoint (V3.v 0.9642 1.0 0.8249)
   (* CIE illuminant D50, according to ICC v4 specification and sRGB *)
 
-  let d65 = Whitepoint (V3.v 0.9504 1.0 1.0889)
+  let d65 = Whitepoint (V3.v 0.95047 1.0 1.08883)
   (** CIE illuminant D65.
    *
    * Everyone seems to define this with different truncations.
    *
+   * Bruce Lindbloom: X=0.95047, Y=1.0, Z=1.08883
+   * We use this definition.
+   *
    * x=0.31271 y=0.32902 => X=0.9504 Y=1.0 Z=1.0889
    * This is the definition used by http://www.color.org/chadtag.xalter
    * and sRGB_IEC61966-2-1*.icc
-   * We use this definition.
    *
    * Rec 709 and sRGB: x=0.3127 y=0.3290 -> 0.9505 1. 1.0891
    * This is the definition used by sRGB.icm
