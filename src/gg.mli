@@ -2949,7 +2949,7 @@ module Color : sig
       {{!lcha_ab}LCh{_ab}A}. *)
 
   type luva = v4
-  (** The type for colors in the CIE L*u*v* color space with a D50 reference
+  (** The type for colors in the CIE L*u*v* color space with a D65 reference
       white point and an alpha component. The meaning and range of the 
       components is:
       {ul
@@ -2959,7 +2959,7 @@ module Color : sig
 
   type lcha_uv = v4
   (** The type for colors in the CIE L*C*h*{_uv}A color space with a 
-      D50 reference white point and an alpha component. This color 
+      D65 reference white point and an alpha component. This color 
       space is CIE L*u*v* with polar coordinates, the meaning and range 
       of the components is:
      {ul
