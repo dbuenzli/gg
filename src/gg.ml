@@ -2435,8 +2435,37 @@ module Color = struct
 
   type luva = v4
   type lcha_uv = v4
-  let to_luva ?(lch = false) c = failwith "TODO"
-  let of_luva ?(lch = false) c = failwith "TODO"
+  let eps_inv = 1. /. eps
+  let c0 = 1. /. 3.
+  let u'n = 0.1978238
+  let v'n = 0.4683329
+  let to_luva ?(lch = false) c =
+    let x = V4t.(0.4123485 *. c.x +.0.3576014 *. c.y +. 0.1804501 *. c.z) in
+    let y = V4t.(0.2126172 *. c.x +.0.7152028 *. c.y +. 0.0721801 *. c.z) in
+    let z = V4t.(0.0193288 *. c.x +.0.1192005 *. c.y +. 0.9503707 *. c.z) in
+    let xyz = x +. 15. *. y +. 3. *. z in
+    let u' = 4. *. x /. xyz and v' = 9. *. y /. xyz in
+    (* yn = 1.0 *)
+    let l = if y > eps then 116. *. (y ** c0) -. 16. else 8. *. eps_inv *. y in
+    let l13 = 13. *. l in
+    let u = l13 *. (u' -. u'n) and v = l13 *. (v' -. v'n) in
+    if lch then V4.v l (sqrt (u *. u +. v *. v)) (atan2 v u) c.V4t.w else
+    V4.v l u v c.V4t.w
+
+  let of_luva ?(lch = false) c =
+    let l = c.V4t.x in
+    let u = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
+    let v = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in
+    let l13 = 13. *. l in
+    let u' = u /. l13 +. u'n and v' = v /. l13 +. v'n in
+    let y = if l <= 8. then l *. eps /. 8. else ((l +. 16.) /. 116.) ** 3. in
+    let x = y *. 9. *. u' /. (4. *. v')
+    and z = y *. (12. -. 3. *. u' -. 20. *. v') /. (4. *. v') in
+    V4.v
+      ( 3.2413025 *. x -. 1.5375409 *. y -. 0.4986619 *. z)
+      (-0.9691975 *. x +. 1.8758781 *. y +. 0.0415531 *. z)
+      ( 0.0556395 *. x -. 0.2040116 *. y +. 1.0571511 *. z)
+      c.V4t.w
 
   (* Color spaces *)
 
