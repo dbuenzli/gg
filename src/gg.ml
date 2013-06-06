@@ -2398,10 +2398,10 @@ module Color = struct
   let c0 = 1. /. 3.
   let c1 = 841. /. 108.
   let c2 = 4. /. 29.
-  let to_laba ?(lch = false) c = 
-    let xr = V4t.(0.4520417 *. c.x +.0.3996304 *. c.y +. 0.1483279 *. c.z) in
-    let yr = V4t.(0.2223801 *. c.x +.0.7170343 *. c.y +. 0.0605856 *. c.z) in
-    let zr = V4t.(0.0168785 *. c.x +.0.1177517 *. c.y +. 0.8653698 *. c.z) in
+  let to_laba ?(lch = false) c =
+    let xr = V4t.(0.4522795 *. c.x +.0.3993744 *. c.y +. 0.1483460 *. c.z) in
+    let yr = V4t.(0.2225105 *. c.x +.0.7168863 *. c.y +. 0.0606032 *. c.z) in
+    let zr = V4t.(0.0168820 *. c.x +.0.1176865 *. c.y +. 0.8654315 *. c.z) in
     let fx = if xr > eps then xr ** c0 else (c1 *. xr +. c2) in
     let fy = if yr > eps then yr ** c0 else (c1 *. yr +. c2) in
     let fz = if zr > eps then zr ** c0 else (c1 *. zr +. c2) in
@@ -2430,9 +2430,9 @@ module Color = struct
     let fy' = if fy > eps' then fy *. fy *. fy else c0 *. (fy -. c1) in
     let fz' = if fz > eps' then fz *. fz *. fz else c0 *. (fz -. c1) in
     V4.v
-      ( 3.0236033 *.fx' -. 1.6186705*.fy' -. 0.4049328 *. fz')
-      (-0.9436024 *.fx' +. 1.9160071*.fy' +. 0.0275953 *. fz')
-      ( 0.0694234 *.fx' -. 0.2291418*.fy' +. 1.1597184 *. fz')
+      ( 3.0215932 *.fx' -. 1.6168777*.fy' -. 0.4047152 *. fz')
+      (-0.9437222 *.fx' +. 1.9161365*.fy' +. 0.0275856 *. fz')
+      ( 0.0693906 *.fx' -. 0.2290271*.fy' +. 1.1596365 *. fz')
       c.V4t.w
 
   (* CIE Luv *)
@@ -2444,9 +2444,9 @@ module Color = struct
   let u'n = 0.1978238
   let v'n = 0.4683329
   let to_luva ?(lch = false) c =
-    let x = V4t.(0.4123485 *. c.x +.0.3576014 *. c.y +. 0.1804501 *. c.z) in
-    let y = V4t.(0.2126172 *. c.x +.0.7152028 *. c.y +. 0.0721801 *. c.z) in
-    let z = V4t.(0.0193288 *. c.x +.0.1192005 *. c.y +. 0.9503707 *. c.z) in
+    let x = V4t.(0.4124564 *. c.x +.0.3575761 *. c.y +. 0.1804375 *. c.z) in
+    let y = V4t.(0.2126729 *. c.x +.0.7151522 *. c.y +. 0.0721750 *. c.z) in
+    let z = V4t.(0.0193339 *. c.x +.0.1191920 *. c.y +. 0.9503041 *. c.z) in
     let xyz = x +. 15. *. y +. 3. *. z in
     let u' = 4. *. x /. xyz and v' = 9. *. y /. xyz in
     (* yn = 1.0 *)
@@ -2470,9 +2470,9 @@ module Color = struct
     let x = y *. 9. *. u' /. (4. *. v')
     and z = y *. (12. -. 3. *. u' -. 20. *. v') /. (4. *. v') in
     V4.v
-      ( 3.2413025 *. x -. 1.5375409 *. y -. 0.4986619 *. z)
-      (-0.9691975 *. x +. 1.8758781 *. y +. 0.0415531 *. z)
-      ( 0.0556395 *. x -. 0.2040116 *. y +. 1.0571511 *. z)
+      ( 3.2404548 *. x -. 1.5371389 *. y -. 0.4985315 *. z)
+      (-0.9692664 *. x +. 1.8760109 *. y +. 0.0415561 *. z)
+      ( 0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)
       c.V4t.w
 
   (* Color spaces *)
