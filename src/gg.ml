@@ -2468,6 +2468,7 @@ module Color = struct
     let u = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
     let v = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in
     let l13 = 13. *. l in
+    if l13 < gg_eps then V4.v 0. 0. 0. c.V4t.w else
     let u' = u /. l13 +. u'n and v' = v /. l13 +. v'n in
     let y = if l <= 8. then l *. eps /. 8. else ((l +. 16.) /. 116.) ** 3. in
     let x = y *. 9. *. u' /. (4. *. v')
