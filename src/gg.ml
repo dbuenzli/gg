@@ -1797,6 +1797,7 @@ module type Size = sig
   type t
   val dim : int
   val zero : t
+  val unit : t
 end
 
 module Size2 = struct
@@ -1806,6 +1807,7 @@ module Size2 = struct
   let w = V2.x 
   let h = V2.y 
   let zero = V2.zero
+  let unit = V2.v 1. 1.
 end
 
 module Size3 = struct
@@ -1816,6 +1818,7 @@ module Size3 = struct
   let h = V3.y 
   let d = V3.z
   let zero = V3.zero
+  let unit = V3.v 1. 1. 1.
 end
 
 (* Axis aligned boxes *)
@@ -1899,7 +1902,7 @@ module Box2 = struct
   let w = function E -> err_e () | R (_, size) -> size.x
   let h = function E -> err_e () | R (_, size) -> size.y
   let zero = v P2.o Size2.zero
-  let unit = v P2.o (Size2.v 1. 1.)
+  let unit = v P2.o Size2.unit
   let of_pts p p' = 
     let ox, w = if p.x < p'.x then p.x, p'.x -. p.x else p'.x, p.x -. p'.x in 
     let oy, h = if p.y < p'.y then p.y, p'.y -. p.y else p'.y, p.y -. p'.y in 
@@ -2086,7 +2089,7 @@ module Box3 = struct
   let h = function E -> err_e () | R (_, size) -> size.y
   let d = function E -> err_e () | R (_, size) -> size.z
   let zero = v P3.o Size3.zero
-  let unit = v P3.o (Size3.v 1. 1. 1.)
+  let unit = v P3.o Size3.unit
   let of_pts p p' = 
     let ox, w = if p.x < p'.x then p.x, p'.x -. p.x else p'.x, p.x -. p'.x in 
     let oy, h = if p.y < p'.y then p.y, p'.y -. p.y else p'.y, p.y -. p'.y in 

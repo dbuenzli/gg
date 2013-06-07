@@ -2154,6 +2154,9 @@ module type Size = sig
 
   val zero : t
   (** [zero] is the zero size, zero extent in each dimension. *)
+
+  val unit : t
+  (** [unit] is the unit size, one extent in each dimension. *)
 end
 
 module Size2 : sig
@@ -2181,6 +2184,9 @@ module Size2 : sig
 
   val zero : size2
   (** [zero] is the zero size, zero width and height. *)
+
+  val unit : size2
+  (** [unit] is the unit size, one width and height. *)
 end
 
 module Size3 : sig
@@ -2212,6 +2218,9 @@ module Size3 : sig
 
   val zero : size3
   (** [zero] is the zero size, zero width, height and depth. *)
+
+  val unit : size3
+  (** [unit] is the unit size, one width, height and depth. *)
 end
 
 (** {1:aboxes Axis-aligned boxes} 

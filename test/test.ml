@@ -1578,6 +1578,10 @@ module Size_tests (Size : Size) (V : Gg.V with type t = Size.t) = struct
   let () = test "zero" & fun r ->
     r >> Cs.holds (V.for_all (fun c -> Pervasives.(=) c 0.)) Size.zero 
       >> C.success
+
+  let () = test "unit" & fun r ->
+    r >> Cs.holds (V.for_all (fun c -> Pervasives.(=) c 1.)) Size.zero 
+      >> C.success
 end
 
 module Size2_tests = struct
