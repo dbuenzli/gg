@@ -2915,7 +2915,8 @@ module Color : sig
        compositing fundamentals}}. 1995. *)
       
   val clamp : color -> color 
-  (** [clamp c] is [c] with all components clamped to \[[0;1]\]. *)
+  (** [clamp c] is [c] with all components clamped to \[[0;1]\]. [nan] 
+      components are left untouched. *)
 
   (** {1 Basic color conversions} *)
 
