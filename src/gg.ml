@@ -2344,7 +2344,27 @@ module Color = struct
         ((a *. c.V4t.y +. mul *. c'.V4t.y) /. a'')
         ((a *. c.V4t.z +. mul *. c'.V4t.z) /. a'')
         a''
-      
+
+  let clamp c = 
+    let clamp = ref false in
+    let r = 
+      if c.V4t.x < 0. then (clamp := true; 0.) else
+      if c.V4t.x > 1. then (clamp := true; 1.) else c.V4t.x
+    in
+    let g = 
+      if c.V4t.y < 0. then (clamp := true; 0.) else
+      if c.V4t.y > 1. then (clamp := true; 1.) else c.V4t.y
+    in
+    let b = 
+      if c.V4t.z < 0. then (clamp := true; 0.) else
+      if c.V4t.z > 1. then (clamp := true; 1.) else c.V4t.z
+    in
+    let a = 
+      if c.V4t.w < 0. then (clamp := true; 0.) else
+      if c.V4t.w > 1. then (clamp := true; 1.) else c.V4t.w
+    in
+    if !clamp then v_l r g b a else c
+
   (* Basic color conversions *)
 
   (* N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 

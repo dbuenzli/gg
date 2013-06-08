@@ -2914,6 +2914,9 @@ module Color : sig
       {{:http://alvyray.com/Memos/MemosCG.htm#ImageCompositing}Image 
        compositing fundamentals}}. 1995. *)
       
+  val clamp : color -> color 
+  (** [clamp c] is [c] with all components clamped to \[[0;1]\]. *)
+
   (** {1 Basic color conversions} *)
 
   type srgba = v4
