@@ -2410,6 +2410,16 @@ module Color = struct
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
     v_l r g b c.V4t.w
 
+  let of_bytes r g b a = 
+    v (float r /. 255.) (float g /. 255.) (float b /. 255.) a
+
+  let to_bytes c = 
+    let c = to_srgb c in 
+    let r = Float.int_of_round (c.V4t.x *. 255.) in 
+    let g = Float.int_of_round (c.V4t.y *. 255.) in 
+    let b = Float.int_of_round (c.V4t.z *. 255.) in 
+    r, g, b, c.V4t.w
+
   (* CIE Luv *)
 
   type luv = v4

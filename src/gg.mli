@@ -2903,6 +2903,15 @@ module Color : sig
   val blue : color
   (** [blue] is [(v 0. 0. 1. 1.)] *)
 
+  val of_bytes : int -> int -> int -> float -> color 
+  (** [of_bytes r g b a] is the sRGB color [(r,g,b,a)] converted to 
+      a color value by [(v (float r /. 255.) (float g /. 255.) 
+      (float b /. 255.) a]) *)
+
+  val to_bytes : color -> int * int * int * float 
+  (** [to_bytes c] is the sRGB [(r, g, b, a)] where each component [u] except
+      [a] is converted by [Float.int_of_round (u *. 255.)]. *)
+
   (** {1 Functions} *)
 
   val blend : color -> color -> color 
