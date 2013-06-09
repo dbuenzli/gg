@@ -1928,7 +1928,6 @@ module Box3_tests = struct
 end
 
 module Color_tests = struct
-  open Color
   let test n f = Test.add_test ("Color." ^ n) f
 
   module type Param = sig
@@ -1950,7 +1949,7 @@ module Color_tests = struct
     let cie94 = sqrt (dL *. dL +. (dC *. dC /. sC) +. (dH2 /. sH)) in
     V2.v cie76 cie94
 
-  let to_lab v = V3.of_v4 (to_laba v)
+  let to_lab v = V3.of_v4 (Color.to_lab v)
 
   let deltaE color1 color2 =
     deltaE_lab (to_lab color1) (to_lab color2)
@@ -2008,15 +2007,15 @@ module Color_tests = struct
   module Color23 = Testable_color(struct let bits = 23 end)
 
   type testcase = {
-    srgba: srgba;
+    srgb: Color.srgb;
     color: color;
-    lab: laba;
+    lab: Color.lab;
     gray: v2;
   }
 
   let to_testcase r' g' b' lr lg lb l a b gray =
     let alpha = 0.5 in {
-    srgba = V4.v r' g' b' alpha;
+    srgb = V4.v r' g' b' alpha;
     color = V4.v lr lg lb alpha;
     lab = V4.v l a b alpha;
     gray = V2.v gray alpha
@@ -2032,39 +2031,39 @@ module Color_tests = struct
 
   let srgb_dEmax = ref V2.zero
   let srgb_check r t =
-    r >> Color16.compare_rgb srgb_dEmax "RGB" (of_srgba t.srgba) t.color
+    r >> Color16.compare_rgb srgb_dEmax "RGB" (Color.of_srgb t.srgb) t.color
 
   let srgb_roundtrip color r =
-    let srgba = to_srgba color in
-    let color' = of_srgba srgba in
+    let srgb = Color.to_srgb color in
+    let color' = Color.of_srgb srgb in
     r >> Color23.compare_rgb srgb_dEmax "sRGB roundtrip" color' color
 
   let lab_dEmax = ref V2.zero
   let lab_check r t =
-    r >> Color8.compare_rgb lab_dEmax "RGB" (of_laba t.lab) t.color
-      >> Color8.compare_lab lab_dEmax "LAB" (to_laba t.color) t.lab
+    r >> Color8.compare_rgb lab_dEmax "RGB" (Color.of_lab t.lab) t.color
+      >> Color8.compare_lab lab_dEmax "LAB" (Color.to_lab t.color) t.lab
 
   let lch_dEmax = ref V2.zero
   let lch_roundtrip color r =
-    let lch = to_laba ~lch:true color in
-    let color' = of_laba ~lch:true lch in
+    let lch = Color.to_lab ~lch:true color in
+    let color' = Color.of_lab ~lch:true lch in
     r >> Color23.compare_rgb lch_dEmax "LCh roundtrip" color' color
 
   let lab_roundtrip color r =
-    let laba = to_laba color in
-    let color' = of_laba laba in
+    let lab = Color.to_lab color in
+    let color' = Color.to_lab lab in
     r >> Color23.compare_rgb lab_dEmax "LAB roundtrip" color' color
 
   let luv_dEmax = ref V2.zero
   let luv_roundtrip color r =
-    let luva = to_luva color in
-    let color' = of_luva luva in
+    let luv = Color.to_luv color in
+    let color' = Color.of_luv luv in
     r >> Color23.compare_rgb luv_dEmax "LUV roundtrip" color' color
 
   let lchuv_dEmax = ref V2.zero
   let lchuv_roundtrip color r =
-    let lchuv = to_luva ~lch:true color in
-    let color' = of_luva ~lch:true lchuv in
+    let lchuv = Color.to_luv ~lch:true color in
+    let color' = Color.of_luv ~lch:true lchuv in
     r >> Color23.compare_rgb lchuv_dEmax "LCh_uv roundtrip" color' color
 
   let run_checks testcases f r = List.fold_left f r testcases
@@ -2087,31 +2086,31 @@ module Color_tests = struct
       C.log (print_deltaE "sRGB <-> RGB") srgb_dEmax >>
       C.success
     end;
-    begin test "of_laba, to_laba (testcases)" & fun r ->
+    begin test "of_lab, to_lab (testcases)" & fun r ->
       lab_dEmax := V2.zero;
       r >> run_checks testcases lab_check
         >> C.log (print_deltaE "LAB testcases") lab_dEmax
         >> C.success
     end;
-    begin test "of_laba, to_laba (roundtrip)" & fun r ->
+    begin test "of_lab, to_lab (roundtrip)" & fun r ->
       lab_dEmax := V2.zero;
       C.for_all color_gen lab_roundtrip r >>
       C.log (print_deltaE "LAB <-> RGB") lab_dEmax >>
       C.success
     end;
-    begin test "of_lcha, to_lcha (roundtrip)" & fun r ->
+    begin test "of_lch, to_lch (roundtrip)" & fun r ->
       lch_dEmax := V2.zero;
       r >> C.for_all color_gen lch_roundtrip
         >> C.log (print_deltaE "LCH <-> RGB") lch_dEmax
         >> C.success
     end;
-    begin test "of_luva, to_luva (roundtrip)" & fun r ->
+    begin test "of_luv, to_luv (roundtrip)" & fun r ->
       luv_dEmax := V2.zero;
       C.for_all color_gen luv_roundtrip r >>
       C.log (print_deltaE "LUV <-> RGB") luv_dEmax >>
       C.success
     end;
-    begin test "of_luva (lch), to_luva (lch) (roundtrip)" & fun r ->
+    begin test "of_luv (lch), to_luv (lch) (roundtrip)" & fun r ->
       lchuv_dEmax := V2.zero;
       C.for_all color_gen lchuv_roundtrip r >>
       C.log (print_deltaE "LCH_uv <-> RGB") lchuv_dEmax >>

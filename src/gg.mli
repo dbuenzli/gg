@@ -2858,11 +2858,11 @@ module Color : sig
   (** The type for color stops. A piecewise linear color curve. *)  
 
   val v : float -> float -> float -> float -> color
-  (** [v r g b a] is the sRGBA color [(r, g, b, a)] converted to a color 
+  (** [v r g b a] is the sRGB color [(r, g, b, a)] converted to a color 
       value. *)
 
   val v_l : float -> float -> float -> float -> color
-  (** [v_l r g b a] is the {e linear} sRGBA color [(r, g, b, a)] as 
+  (** [v_l r g b a] is the {e linear} sRGB color [(r, g, b, a)] as 
       a color value. *)
 
   val r : color -> float 
@@ -2884,11 +2884,11 @@ module Color : sig
   (** [black] is [(v 0. 0. 0. 1.)] *)
 
   val gray : ?a:float -> float -> color 
-  (** [gray a g] is the sRGBA color [(g, g, g, a)] converted to color a 
+  (** [gray a g] is the sRGB color [(g, g, g, a)] converted to color a 
       value. *)
 
   val gray_l : ?a:float -> float -> color 
-  (** [gray_l a g] is the {e linear} sRGBA color [(g, g, g, a)] as
+  (** [gray_l a g] is the {e linear} sRGB color [(g, g, g, a)] as
       a color value. *)
 
   val white : color
@@ -2918,21 +2918,24 @@ module Color : sig
   (** [clamp c] is [c] with all components clamped to \[[0;1]\]. [nan] 
       components are left untouched. *)
 
-  (** {1 Basic color conversions} *)
+  (** {1 Basic color conversions} 
 
-  type srgba = v4
+      {b Note.} In [Gg] all color spaces carry an alpha component. 
+      This color component is always left untouched by the conversions. *)
+
+  type srgb = v4
   (** The type for colors in the 
      {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} color space 
      with an alpha component. This is the color space used, for example,
      by CSS. *)
 
-  val of_srgba : srgba -> color 
-  (** [of_srgba c] is the {{!srgba}sRGBA} color [c] as a {{!t}color} value. *)
+  val of_srgb : srgb -> color 
+  (** [of_srgb c] is the {{!srgb}sRGB} color [c] as a {{!t}color} value. *)
 
-  val to_srgba : color -> srgba
-  (** [to_srgba c] is the {{!t}color} value [c] as a {{!srgba}sRGBA} color. *)
+  val to_srgb : color -> srgb
+  (** [to_srgb c] is the {{!t}color} value [c] as a {{!srgb}sRGB} color. *)
 
-  type laba = v4
+  type lab = v4
   (** The type for colors in the CIE L*a*b* color space with a D50 reference
       white point and an alpha component. The meaning and range of the 
       components is:
@@ -2940,8 +2943,8 @@ module Color : sig
       {- L* is lightness in the range [0.] to [100.]}
       {- a* and b*'s practical range is [-128.] to [127.]}} *)
 
-  type lcha_ab = v4
-  (** The type for colors in the CIE L*C*h*{_ab}A color space with a 
+  type lch_ab = v4
+  (** The type for colors in the CIE L*C*h*{_ab} color space with a 
       D50 reference white point and an alpha component. This color 
       space is CIE L*a*b* with polar coordinates, the meaning and range 
       of the components is:
@@ -2951,17 +2954,17 @@ module Color : sig
         [181.02], but less in practice.}
      {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val of_laba : ?lch:bool -> v4 -> color 
-  (** [of_laba c] is the {{!laba}LabA} color [c] as a {{!t}color} value. 
+  val of_lab : ?lch:bool -> v4 -> color 
+  (** [of_lab c] is the {{!lab}Lab} color [c] as a {{!t}color} value. 
       If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
-      {{!lcha_ab}LCh{_ab}A}. *)
+      {{!lch_ab}LCh{_ab}}. *)
 
-  val to_laba : ?lch:bool -> color -> v4
-  (** [to_laba c] is the {{!t}color} value [c] as a {{!laba}LabA} color. 
+  val to_lab : ?lch:bool -> color -> v4
+  (** [to_lab c] is the {{!t}color} value [c] as a {{!lab}Lab} color. 
       If [lch] is [true] (defaults to [false]) the result is expressed in
-      {{!lcha_ab}LCh{_ab}A}. *)
+      {{!lch_ab}LCh{_ab}}. *)
 
-  type luva = v4
+  type luv = v4
   (** The type for colors in the CIE L*u*v* color space with a D65 reference
       white point and an alpha component. The meaning and range of the 
       components is:
@@ -2970,8 +2973,8 @@ module Color : sig
       {- u*'s practical range is [-134.] to [220.]} 
       {- v*'s practical range is [-140.] to [122.]}} *)
 
-  type lcha_uv = v4
-  (** The type for colors in the CIE L*C*h*{_uv}A color space with a 
+  type lch_uv = v4
+  (** The type for colors in the CIE L*C*h*{_uv} color space with a 
       D65 reference white point and an alpha component. This color 
       space is CIE L*u*v* with polar coordinates, the meaning and range 
       of the components is:
@@ -2980,15 +2983,15 @@ module Color : sig
      {- C* represents chroma, in the range [0.] to [260.77] in practice.}
      {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val of_luva : ?lch:bool -> v4 -> color 
-  (** [of_luva c] is the {{!luva}LuvA} color [c] as a {{!t}color} value. 
+  val of_luv : ?lch:bool -> v4 -> color 
+  (** [of_luv c] is the {{!luv}Luv} color [c] as a {{!t}color} value. 
       If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
-      {{!lcha_uv}LCh{_uv}A}. *)
+      {{!lch_uv}LCh{_uv}}. *)
 
-  val to_luva : ?lch:bool -> color -> v4
-  (** [to_luva c] is the {{!t}color} value [c] as a {{!luva}LuvA} color. 
+  val to_luv : ?lch:bool -> color -> v4
+  (** [to_luv c] is the {{!t}color} value [c] as a {{!luv}Luv} color. 
       If [lch] is [true] (defaults to [false]) the result is expressed in
-      {{!lCh_uv}LCh{_uv}A}. *)
+      {{!lch_uv}LCh{_uv}}. *)
 
   (** {1 Color spaces} *)
 
@@ -3429,19 +3432,19 @@ end
 
     {2:colornote Note on colors} 
 
-    Values of type {!color} are in a {e linear} sRGBA space as this is
+    Values of type {!color} are in a {e linear} sRGB space as this is
     the space to work in if you want to process colors correctly (e.g.
     for blending). The default constructor {!Color.v} does however
-    take its parameters from a {e non-linear} sRGBA space as this is
+    take its parameters from a {e non-linear} sRGB space as this is
     most likely your intention when you specify color constants.  So
     don't be suprised by this behaviour:
 {[
 # let c = Color.v 0.5 0.5 0.5 1.0;;
 - : Gg.color = (0.214041 0.214041 0.214041 1)
 ]}
-    what you see here is conversion from sRGBA space to {e linear} sRGBA
-    space. If you need an sRGBA color back from a {!color} value
-    (e.g. to specify a CSS color) use {!Color.to_srgba}: 
+    what you see here is conversion from sRGB space to {e linear} sRGB
+    space. If you need an sRGB color back from a {!color} value
+    (e.g. to specify a CSS color) use {!Color.to_srgb}: 
 {[
 # Color.to_srgba c;;
 - : Gg.Color.srgba = (0.5 0.5 0.5 1)
