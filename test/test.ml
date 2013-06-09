@@ -2044,10 +2044,10 @@ module Color_tests = struct
       >> Color8.compare_lab lab_dEmax "LAB" (Color.to_lab t.color) t.lab
 
   let lch_dEmax = ref V2.zero
-  let lch_roundtrip color r =
-    let lch = Color.to_lab ~lch:true color in
-    let color' = Color.of_lab ~lch:true lch in
-    r >> Color23.compare_rgb lch_dEmax "LCh roundtrip" color' color
+  let lch_ab_roundtrip color r =
+    let lch = Color.to_lch_ab color in
+    let color' = Color.of_lch_ab lch in
+    r >> Color23.compare_rgb lch_dEmax "LCh_ab roundtrip" color' color
 
   let lab_roundtrip color r =
     let lab = Color.to_lab color in
@@ -2062,8 +2062,8 @@ module Color_tests = struct
 
   let lchuv_dEmax = ref V2.zero
   let lchuv_roundtrip color r =
-    let lchuv = Color.to_luv ~lch:true color in
-    let color' = Color.of_luv ~lch:true lchuv in
+    let lchuv = Color.to_lch_uv color in
+    let color' = Color.of_lch_uv lchuv in
     r >> Color23.compare_rgb lchuv_dEmax "LCh_uv roundtrip" color' color
 
   let run_checks testcases f r = List.fold_left f r testcases
@@ -2100,7 +2100,7 @@ module Color_tests = struct
     end;
     begin test "of_lch, to_lch (roundtrip)" & fun r ->
       lch_dEmax := V2.zero;
-      r >> C.for_all color_gen lch_roundtrip
+      r >> C.for_all color_gen lch_ab_roundtrip
         >> C.log (print_deltaE "LCH <-> RGB") lch_dEmax
         >> C.success
     end;

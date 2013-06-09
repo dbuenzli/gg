@@ -2847,7 +2847,7 @@ module Color : sig
   type t = color
   (** The type for colors in a device independent RGB color space with
       an alpha component. The color space is defined by a D65 white
-      point and the ITU-R BT.709 primary (corresponds to a {e
+      point and the ITU-R BT.709 primaries (corresponds to a {e
       linearized}
       {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} space).
       The {e alpha} component represent the color's opacity ranging
@@ -2907,10 +2907,7 @@ module Color : sig
 
   val blend : color -> color -> color 
   (** [blend src dst] is [src] blended over [dst] using
-      source over destination alpha blending. See the following
-      reference for more information.
-
-      Alvy Ray Smith. {e
+      source over destination alpha blending. See Alvy Ray Smith. {e
       {{:http://alvyray.com/Memos/MemosCG.htm#ImageCompositing}Image 
        compositing fundamentals}}. 1995. *)
       
@@ -2918,10 +2915,24 @@ module Color : sig
   (** [clamp c] is [c] with all components clamped to \[[0;1]\]. [nan] 
       components are left untouched. *)
 
-  (** {1 Basic color conversions} 
+  (** {1 Color conversions} 
 
-      {b Note.} In [Gg] all color spaces carry an alpha component. 
-      This color component is always left untouched by the conversions. *)
+      {b Note.} In the following conversions all color spaces carry an
+      alpha component.  The alpha component is always left untouched
+      by the conversions. *)
+
+  (** {2:xyz CIE XYZ} *)
+
+  type xyz = v4 
+  (** The type for colors in the CIE XYZ color space. *)
+  
+  val of_xyz : xyz -> color 
+  (** [of_xyz c] is the XYZ color [c] as a [Gg] color. *)
+
+  val to_xyz : color -> xyz 
+  (** [to_xyz c] is the [Gg] color [c] as a XYZ color. *)
+
+  (** {2:srgb sRGB} *)
 
   type srgb = v4
   (** The type for colors in the 
@@ -2930,39 +2941,12 @@ module Color : sig
      by CSS. *)
 
   val of_srgb : srgb -> color 
-  (** [of_srgb c] is the {{!srgb}sRGB} color [c] as a {{!t}color} value. *)
+  (** [of_srgb c] is the sRGB color [c] as a [Gg] color. *)
 
   val to_srgb : color -> srgb
-  (** [to_srgb c] is the {{!t}color} value [c] as a {{!srgb}sRGB} color. *)
+  (** [to_srgb c] is the [Gg] color [c] as a sRGB color. *)
 
-  type lab = v4
-  (** The type for colors in the CIE L*a*b* color space with a D50 reference
-      white point and an alpha component. The meaning and range of the 
-      components is:
-      {ul
-      {- L* is lightness in the range [0.] to [100.]}
-      {- a* and b*'s practical range is [-128.] to [127.]}} *)
-
-  type lch_ab = v4
-  (** The type for colors in the CIE L*C*h*{_ab} color space with a 
-      D50 reference white point and an alpha component. This color 
-      space is CIE L*a*b* with polar coordinates, the meaning and range 
-      of the components is:
-     {ul
-     {- L* is the lightness in the range [0.] to [100.]}
-     {- C* represents chroma, in the range [0.] to 
-        [181.02], but less in practice.}
-     {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
-
-  val of_lab : ?lch:bool -> v4 -> color 
-  (** [of_lab c] is the {{!lab}Lab} color [c] as a {{!t}color} value. 
-      If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
-      {{!lch_ab}LCh{_ab}}. *)
-
-  val to_lab : ?lch:bool -> color -> v4
-  (** [to_lab c] is the {{!t}color} value [c] as a {{!lab}Lab} color. 
-      If [lch] is [true] (defaults to [false]) the result is expressed in
-      {{!lch_ab}LCh{_ab}}. *)
+  (** {2:luv CIE L*u*v*} *)
 
   type luv = v4
   (** The type for colors in the CIE L*u*v* color space with a D65 reference
@@ -2973,25 +2957,64 @@ module Color : sig
       {- u*'s practical range is [-134.] to [220.]} 
       {- v*'s practical range is [-140.] to [122.]}} *)
 
+  val of_luv : luv -> color 
+  (** [of_luv c] is the L*u*v* color [c] as a [Gg] color. *)
+
+  val to_luv : color -> luv
+  (** [to_luv c] is the [Gg] color [c] as a L*u*v* color. *)
+
+  (** {2:lch_uv CIE L*C*h{_uv}} *)
+
   type lch_uv = v4
-  (** The type for colors in the CIE L*C*h*{_uv} color space with a 
+  (** The type for colors in the CIE L*C*h{_uv} color space with a 
       D65 reference white point and an alpha component. This color 
       space is CIE L*u*v* with polar coordinates, the meaning and range 
       of the components is:
      {ul
      {- L* is the lightness in the range [0.] to [100.]}
      {- C* represents chroma, in the range [0.] to [260.77] in practice.}
-     {- h* represents hue in degrees in the range [0.] to [2pi].}} *)
+     {- h represents hue in degrees in the range [0.] to [2pi].}} *)
 
-  val of_luv : ?lch:bool -> v4 -> color 
-  (** [of_luv c] is the {{!luv}Luv} color [c] as a {{!t}color} value. 
-      If [lch] is [true] (defaults to [false]) [c] is assumed to be in 
-      {{!lch_uv}LCh{_uv}}. *)
+  val of_lch_uv : lch_uv -> color
+  (** [of_lch_uv c] is the L*C*h{_uv} color [c] as a [Gg] color. *)
 
-  val to_luv : ?lch:bool -> color -> v4
-  (** [to_luv c] is the {{!t}color} value [c] as a {{!luv}Luv} color. 
-      If [lch] is [true] (defaults to [false]) the result is expressed in
-      {{!lch_uv}LCh{_uv}}. *)
+  val to_lch_uv : color -> lch_uv
+  (** [to_lch_uv c] is the [Gg] color [c] as a L*C*h{_uv}. *)
+
+  (** {2:lab CIE L*a*b*} *)
+
+  type lab = v4
+  (** The type for colors in the CIE L*a*b* color space with a D50 reference
+      white point and an alpha component. The meaning and range of the 
+      components is:
+      {ul
+      {- L* is lightness in the range [0.] to [100.]}
+      {- a* and b*'s practical range is [-128.] to [127.]}} *)
+
+  val of_lab : v4 -> color 
+  (** [of_lab c] is the L*a*b* color [c] as a [Gg] color value. *)
+
+  val to_lab : color -> v4
+  (** [to_lab c] is the [Gg] color [c] as a L*a*b* color. *)
+
+  (** {2:lch_ab CIE L*C*h{_ab}} *)
+
+  type lch_ab = v4
+  (** The type for colors in the CIE L*C*h*{_ab} color space with a 
+      D50 reference white point and an alpha component. This color 
+      space is CIE L*a*b* with polar coordinates, the meaning and range 
+      of the components is:
+     {ul
+     {- L* is the lightness in the range [0.] to [100.]}
+     {- C* represents chroma, in the range [0.] to 
+        [181.02], but less in practice.}
+     {- h represents hue in degrees in the range [0.] to [2pi].}} *)
+
+  val of_lch_ab : lch_ab -> color
+  (** [of_lch_ab c] is the L*C*h{_ab} color [c] as a [Gg] color. *)
+
+  val to_lch_ab : color -> lch_ab
+  (** [to_lch_ab c] is the [Gg] color [c] as a L*C*h{_ab}. *)
 
   (** {1 Color spaces} *)
 

@@ -2365,13 +2365,19 @@ module Color = struct
     in
     if !clamp then v_l r g b a else c
 
-  (* Basic color conversions *)
+  (* Color conversions *)
 
-  (* N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 
+  (* CIE XYZ *)
+
+  type xyz = v4
+  let of_xyz c = failwith "TODO"
+  let to_xyz c = failwith "TODO"
+
+  (* sRGB 
+     N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 
      are wrong. *)
 
   type srgb = v4 
-
   let c0 = 0.04045
   let c1 = 1. /. 12.92
   let c2 = 0.055
@@ -2404,10 +2410,59 @@ module Color = struct
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
     v_l r g b c.V4t.w
 
-  (* CIE Lab *)
+  (* CIE Luv *)
+
+  type luv = v4
+  let eps = (6. /. 29.) ** 3.
+  let eps_inv = 1. /. eps
+  let c0 = 1. /. 3.
+  let u'n = 0.1978398
+  let v'n = 0.4683363
+  let _to_luv ~lch c =
+    let x = V4t.(0.4124564 *. c.x +.0.3575761 *. c.y +. 0.1804375 *. c.z) in
+    let y = V4t.(0.2126729 *. c.x +.0.7151522 *. c.y +. 0.0721750 *. c.z) in
+    let z = V4t.(0.0193339 *. c.x +.0.1191920 *. c.y +. 0.9503041 *. c.z) in
+    let xyz = x +. 15. *. y +. 3. *. z in
+    let u' = 4. *. x /. xyz and v' = 9. *. y /. xyz in
+    (* yn = 1.0 *)
+    let l = if y > eps then 116. *. (y ** c0) -. 16. else 8. *. eps_inv *. y in
+    let l13 = 13. *. l in
+    let u = l13 *. (u' -. u'n) and v = l13 *. (v' -. v'n) in
+    if not lch then V4.v l u v c.V4t.w else
+    let h = 
+      let h = (atan2 v u) in 
+      if h < 0. then h +. Float.two_pi else h
+    in
+    V4.v l (sqrt (u *. u +. v *. v)) h c.V4t.w
+    
+  let _of_luv ~lch c =
+    let l = c.V4t.x in
+    let u = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
+    let v = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in
+    let l13 = 13. *. l in
+    if l13 < gg_eps then V4.v 0. 0. 0. c.V4t.w else
+    let u' = u /. l13 +. u'n and v' = v /. l13 +. v'n in
+    let y = if l <= 8. then l *. eps /. 8. else ((l +. 16.) /. 116.) ** 3. in
+    let x = y *. 9. *. u' /. (4. *. v')
+    and z = y *. (12. -. 3. *. u' -. 20. *. v') /. (4. *. v') in
+    V4.v
+      ( 3.2404548 *. x -. 1.5371389 *. y -. 0.4985315 *. z)
+      (-0.9692664 *. x +. 1.8760109 *. y +. 0.0415561 *. z)
+      ( 0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)
+      c.V4t.w
+
+  let of_luv c = _of_luv ~lch:false c
+  let to_luv c = _to_luv ~lch:false c
+
+  (* CIE L*C*h_uv *)
+  
+  type lch_uv = v4
+  let of_lch_uv c = _of_luv ~lch:true c
+  let to_lch_uv c = _to_luv ~lch:true c
+
+  (* CIE L*a*b* *)
 
   type lab = v4
-  type lch_ab = v4
 
   (* The matrix below is XrYrZrD50_of_RGB = scale * XYZD50_of_RGB.
      Compute the XYZD50_of_RGB matrix ourselves (using Gcolor):
@@ -2417,11 +2472,10 @@ module Color = struct
        5 fractional digits in the matrix
        scale = M3.scale (V3.div (V3.v 1. 1. 1.) d50)
      Then we match the results from LittleCMS better. *)
-  let eps = (6. /. 29.) ** 3.
   let c0 = 1. /. 3.
   let c1 = 841. /. 108.
   let c2 = 4. /. 29.
-  let to_lab ?(lch = false) c =
+  let _to_lab ?(lch = false) c =
     let xr = V4t.(0.4522795 *. c.x +.0.3993744 *. c.y +. 0.1483460 *. c.z) in
     let yr = V4t.(0.2225105 *. c.x +.0.7168863 *. c.y +. 0.0606032 *. c.z) in
     let zr = V4t.(0.0168820 *. c.x +.0.1176865 *. c.y +. 0.8654315 *. c.z) in
@@ -2442,7 +2496,7 @@ module Color = struct
   let eps' = 6. /. 29.
   let c0 = 108. /. 841.
   let c1 = 4. /. 29.
-  let of_lab ?(lch = false) c = 
+  let _of_lab ?(lch = false) c = 
     let l = c.V4t.x in 
     let a = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
     let b = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in 
@@ -2458,47 +2512,15 @@ module Color = struct
       ( 0.0693906 *.fx' -. 0.2290271*.fy' +. 1.1596365 *. fz')
       c.V4t.w
 
-  (* CIE Luv *)
+  let of_lab c = _of_lab ~lch:false c 
+  let to_lab c = _to_lab ~lch:false c
 
-  type luv = v4
-  type lch_uv = v4
-  let eps_inv = 1. /. eps
-  let c0 = 1. /. 3.
-  let u'n = 0.1978398
-  let v'n = 0.4683363
-  let to_luv ?(lch = false) c =
-    let x = V4t.(0.4124564 *. c.x +.0.3575761 *. c.y +. 0.1804375 *. c.z) in
-    let y = V4t.(0.2126729 *. c.x +.0.7151522 *. c.y +. 0.0721750 *. c.z) in
-    let z = V4t.(0.0193339 *. c.x +.0.1191920 *. c.y +. 0.9503041 *. c.z) in
-    let xyz = x +. 15. *. y +. 3. *. z in
-    let u' = 4. *. x /. xyz and v' = 9. *. y /. xyz in
-    (* yn = 1.0 *)
-    let l = if y > eps then 116. *. (y ** c0) -. 16. else 8. *. eps_inv *. y in
-    let l13 = 13. *. l in
-    let u = l13 *. (u' -. u'n) and v = l13 *. (v' -. v'n) in
-    if not lch then V4.v l u v c.V4t.w else
-    let h = 
-      let h = (atan2 v u) in 
-      if h < 0. then h +. Float.two_pi else h
-    in
-    V4.v l (sqrt (u *. u +. v *. v)) h c.V4t.w
-    
-  let of_luv ?(lch = false) c =
-    let l = c.V4t.x in
-    let u = if lch then c.V4t.y *. (cos c.V4t.z) else c.V4t.y in
-    let v = if lch then c.V4t.y *. (sin c.V4t.z) else c.V4t.z in
-    let l13 = 13. *. l in
-    if l13 < gg_eps then V4.v 0. 0. 0. c.V4t.w else
-    let u' = u /. l13 +. u'n and v' = v /. l13 +. v'n in
-    let y = if l <= 8. then l *. eps /. 8. else ((l +. 16.) /. 116.) ** 3. in
-    let x = y *. 9. *. u' /. (4. *. v')
-    and z = y *. (12. -. 3. *. u' -. 20. *. v') /. (4. *. v') in
-    V4.v
-      ( 3.2404548 *. x -. 1.5371389 *. y -. 0.4985315 *. z)
-      (-0.9692664 *. x +. 1.8760109 *. y +. 0.0415561 *. z)
-      ( 0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)
-      c.V4t.w
+  (* CIE L*C*h_ab *)
 
+  type lch_ab = v4
+  let of_lch_ab c = _of_lab ~lch:true c 
+  let to_lch_ab c = _to_lab ~lch:true c
+  
   (* Color spaces *)
 
   type space = [ 
