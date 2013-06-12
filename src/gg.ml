@@ -2367,12 +2367,6 @@ module Color = struct
 
   (* Color conversions *)
 
-  (* CIE XYZ *)
-
-  type xyz = v4
-  let of_xyz c = failwith "TODO"
-  let to_xyz c = failwith "TODO"
-
   (* sRGB 
      N.B. sRGB equations from IEC 61966-2-1:1999, those of the w3c document 
      are wrong. *)

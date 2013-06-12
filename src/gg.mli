@@ -2924,22 +2924,11 @@ module Color : sig
   (** [clamp c] is [c] with all components clamped to \[[0;1]\]. [nan] 
       components are left untouched. *)
 
-  (** {1 Color conversions} 
+  (** {1:conversions Color conversions} 
 
       {b Note.} In the following conversions all color spaces carry an
       alpha component.  The alpha component is always left untouched
       by the conversions. *)
-
-  (** {2:xyz CIE XYZ} *)
-
-  type xyz = v4 
-  (** The type for colors in the CIE XYZ color space. *)
-  
-  val of_xyz : xyz -> color 
-  (** [of_xyz c] is the XYZ color [c] as a [Gg] color. *)
-
-  val to_xyz : color -> xyz 
-  (** [to_xyz c] is the [Gg] color [c] as a XYZ color. *)
 
   (** {2:srgb sRGB} *)
 
