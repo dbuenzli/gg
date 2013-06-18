@@ -2319,18 +2319,17 @@ module Color = struct
   type t = color 
   type stops = (float * t) list
 
-  let v_l = V4.v
+  let v = V4.v
   let r = V4.x 
   let g = V4.y
   let b = V4.z 
   let a = V4.w
-  let void = v_l 0. 0. 0. 0. 
-  let black = v_l 0. 0. 0. 1. 
-  let gray_l ?(a = 1.) g = v_l g g g a
-  let white = v_l 1. 1. 1. 1. 
-  let red = v_l 1. 0. 0. 1.
-  let green = v_l 0. 1. 0. 1. 
-  let blue = v_l 0. 0. 1. 1. 
+  let void = v 0. 0. 0. 0. 
+  let black = v 0. 0. 0. 1.
+  let white = v 1. 1. 1. 1. 
+  let red = v 1. 0. 0. 1.
+  let green = v 0. 1. 0. 1. 
+  let blue = v 0. 0. 1. 1. 
 
   (* Functions *) 
 
@@ -2340,10 +2339,10 @@ module Color = struct
     let mul = (1. -. a) *. a' in
     let a'' = a +. mul in 
     if a'' < gg_eps then void else 
-    v_l ((a *. c.V4t.x +. mul *. c'.V4t.x) /. a'')
-        ((a *. c.V4t.y +. mul *. c'.V4t.y) /. a'')
-        ((a *. c.V4t.z +. mul *. c'.V4t.z) /. a'')
-        a''
+    v ((a *. c.V4t.x +. mul *. c'.V4t.x) /. a'')
+      ((a *. c.V4t.y +. mul *. c'.V4t.y) /. a'')
+      ((a *. c.V4t.z +. mul *. c'.V4t.z) /. a'')
+      a''
 
   let clamp c = 
     let clamp = ref false in
@@ -2363,7 +2362,9 @@ module Color = struct
       if c.V4t.w < 0. then (clamp := true; 0.) else
       if c.V4t.w > 1. then (clamp := true; 1.) else c.V4t.w
     in
-    if !clamp then v_l r g b a else c
+    if !clamp then v r g b a else c
+
+  let with_a c a = { c with V4t.w = a }
 
   (* Color conversions *)
 
@@ -2381,17 +2382,20 @@ module Color = struct
     let r = V4t.(if c.x <= c0 then c1 *. c.x else (c3 *. (c.x +. c2)) ** c4) in
     let g = V4t.(if c.y <= c0 then c1 *. c.y else (c3 *. (c.y +. c2)) ** c4) in
     let b = V4t.(if c.z <= c0 then c1 *. c.z else (c3 *. (c.z +. c2)) ** c4) in
-    v_l r g b c.V4t.w
+    v r g b c.V4t.w
 
-  let v r' g' b' a =                (* N.B. code duplication with of_srgba. *)
+  let v_srgb ?(a = 1.) r' g' b' =  (* N.B. code duplication with of_srgba. *)
     let r = V4t.(if r' <= c0 then c1 *. r' else (c3 *. (r' +. c2)) ** c4) in
     let g = V4t.(if g' <= c0 then c1 *. g' else (c3 *. (g' +. c2)) ** c4) in
     let b = V4t.(if b' <= c0 then c1 *. b' else (c3 *. (b' +. c2)) ** c4) in
-    v_l r g b a
+    v r g b a
 
-  let gray ?a l' =                         (* N.B. code duplication with v. *)
+  let v_srgbi ?a r g b = 
+    v_srgb ?a (float r /. 255.) (float g /. 255.) (float b /. 255.)
+
+  let gray ?(a = 1.) l' =                 (* N.B. code duplication with v. *)
     let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
-    gray_l ?a l
+    v l l l a 
 
   let c0 = 0.0031308
   let c1 = 12.92
@@ -2402,17 +2406,7 @@ module Color = struct
     let r = V4t.(if c.x <= c0 then c1 *. c.x else c2 *. (c.x ** c3) -. c4) in 
     let g = V4t.(if c.y <= c0 then c1 *. c.y else c2 *. (c.y ** c3) -. c4) in 
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in 
-    v_l r g b c.V4t.w
-
-  let of_bytes r g b a = 
-    v (float r /. 255.) (float g /. 255.) (float b /. 255.) a
-
-  let to_bytes c = 
-    let c = to_srgb c in 
-    let r = Float.int_of_round (c.V4t.x *. 255.) in 
-    let g = Float.int_of_round (c.V4t.y *. 255.) in 
-    let b = Float.int_of_round (c.V4t.z *. 255.) in 
-    r, g, b, c.V4t.w
+    v r g b c.V4t.w
 
   (* CIE Luv *)
 

@@ -2858,12 +2858,17 @@ module Color : sig
   (** The type for color stops. A piecewise linear color curve. *)  
 
   val v : float -> float -> float -> float -> color
-  (** [v r g b a] is the sRGB color [(r, g, b, a)] converted to a color 
+  (** [v r g b a] is the {e linear} sRGB color [(r, g, b, a)] as 
+      a color value. *)
+
+  val v_srgb : ?a:float -> float -> float -> float -> color
+  (** [v r g b ~a] is the sRGB color [(r, g, b, a)] converted to a color 
       value. *)
 
-  val v_l : float -> float -> float -> float -> color
-  (** [v_l r g b a] is the {e linear} sRGB color [(r, g, b, a)] as 
-      a color value. *)
+  val v_srgbi : ?a:float -> int -> int -> int -> color 
+  (** [v_srgbi r g b ~a] is the sRGB color [(r,g,b,a)] converted to 
+      a color value by [(v_srgb (float r /. 255.) (float g /. 255.) 
+      (float b /. 255.) ~a]) *)
 
   val r : color -> float 
   (** [r c] is the red component of [c]. *)
@@ -2887,10 +2892,6 @@ module Color : sig
   (** [gray a g] is the sRGB color [(g, g, g, a)] converted to color a 
       value. *)
 
-  val gray_l : ?a:float -> float -> color 
-  (** [gray_l a g] is the {e linear} sRGB color [(g, g, g, a)] as
-      a color value. *)
-
   val white : color
   (** [white] is [(v 1. 1. 1. 1.)] *)
 
@@ -2903,15 +2904,6 @@ module Color : sig
   val blue : color
   (** [blue] is [(v 0. 0. 1. 1.)] *)
 
-  val of_bytes : int -> int -> int -> float -> color 
-  (** [of_bytes r g b a] is the sRGB color [(r,g,b,a)] converted to 
-      a color value by [(v (float r /. 255.) (float g /. 255.) 
-      (float b /. 255.) a]) *)
-
-  val to_bytes : color -> int * int * int * float 
-  (** [to_bytes c] is the sRGB [(r, g, b, a)] where each component [u] except
-      [a] is converted by [Float.int_of_round (u *. 255.)]. *)
-
   (** {1 Functions} *)
 
   val blend : color -> color -> color 
@@ -2923,6 +2915,10 @@ module Color : sig
   val clamp : color -> color 
   (** [clamp c] is [c] with all components clamped to \[[0;1]\]. [nan] 
       components are left untouched. *)
+
+  val with_a : color -> float -> color
+  (** [with_a c a] is the same color as [c] but with the alpha 
+      component [a]. *)
 
   (** {1:conversions Color conversions} 
 
@@ -3455,17 +3451,16 @@ end
 
     Values of type {!color} are in a {e linear} sRGB space as this is
     the space to work in if you want to process colors correctly (e.g.
-    for blending). The default constructor {!Color.v} does however
-    take its parameters from a {e non-linear} sRGB space as this is
-    most likely your intention when you specify color constants.  So
-    don't be suprised by this behaviour:
+    for blending). The constructor {!Color.v_srgb} takes its parameters
+    from a {e non-linear} sRGB space and converts them to {e linear} 
+    sRGB. 
 {[
-# let c = Color.v 0.5 0.5 0.5 1.0;;
+# let c = Color.v_srgb 0.5 0.5 0.5 1.0;;
 - : Gg.color = (0.214041 0.214041 0.214041 1)
 ]}
-    what you see here is conversion from sRGB space to {e linear} sRGB
-    space. If you need an sRGB color back from a {!color} value
-    (e.g. to specify a CSS color) use {!Color.to_srgb}: 
+    This is the constructor you are likely to use when you specify color
+    constants (e.g. to specify a color value matching a CSS color). 
+    If you need an sRGB color back from a {!color} value use {!Color.to_srgb}: 
 {[
 # Color.to_srgba c;;
 - : Gg.Color.srgba = (0.5 0.5 0.5 1)
