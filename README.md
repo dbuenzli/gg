@@ -13,7 +13,7 @@ Gg is made of a single, independent, module and distributed under the
 BSD3 license. 
 
 Home page: http://erratique.ch/software/gg  
-Contact: Daniel Bünzli <daniel.buenzli at erratique.ch>
+Contact: Daniel Bünzli `<daniel.buenzli at erratique.ch>`
 
 ## Installation
 
