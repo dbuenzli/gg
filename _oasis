@@ -1,19 +1,22 @@
 OASISFormat: 0.3
 Name: gg
 Version: %%VERSION%%
-Synopsis: Basic types for computer graphics in OCaml
+Synopsis: Basic types for computer graphics programming in OCaml
 Maintainers: Daniel Bünzli <daniel.buenzli at erratique.ch>
 Authors: Daniel Bünzli <daniel.buenzli at erratique.ch>, Edwin Török <edwin at etorok.net>
 Copyrights: (c) 2013 Daniel C. Bünzli and Edwin Török
 License: BSD3
 Homepage: http://erratique.ch/software/gg
 Description:
- Gg provides basic support for computer graphics programming in
- OCaml. It defines types for vectors, matrices, quaternions, colors,
- color spaces, axis aligned boxes and raster data.
+ Gg is an OCaml module providing basic types for computer graphics
+ programming. 
  .
- Gg is made of a single, independent, module and distributed under
- the BSD3 license.
+ It defines types and functions for floats, vectors, points, sizes,
+ matrices, quaternions, axis-aligned boxes, colors, color spaces, and
+ raster data.
+ .
+ Gg is made of a single, independent, module and distributed under the
+ BSD3 license.
 
 OCamlVersion: >= 3.12.0
 Plugins: META (0.3)
