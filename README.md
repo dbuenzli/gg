@@ -21,7 +21,7 @@ Gg can be installed with `opam`:
 
     opam install gg
 
-Otherwise to install Vg you need at least:
+Otherwise to install Gg you need at least:
 
     OCaml %%OCAMLVERSION%% %%PPDEPS%%
 
