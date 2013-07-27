@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Usage: build has_native
+
+set -e 
+LOC=`dirname $0`
+
+. $LOC/pkg-builder
+
+NATIVE=$1
+
+add lib pkg/META		
+add lib src/gg.mli	
+add lib src/gg.cmi
+add lib src/gg.cmx
+add lib src/gg.cma
+add lib src/gg.a
+add lib src/gg.cmxa
+add lib src/gg.cmxs
+
+add lib src/gg_top.ml
+add lib src/gg_top.cmi
+add lib src/gg_top.cmx
+add lib src/gg_top.cma
+add lib src/gg_top.a
+add lib src/gg_top.cmxa
+add lib src/gg_top.cmxs
+
+add doc README.md
+add doc CHANGES.md
+
+build
+install gg

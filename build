@@ -4,19 +4,17 @@
 
 set -e
 
-OCAMLBUILD=${OCAMLBUILD:="ocamlbuild -classic-display -use-ocamlfind"}
+OCAMLBUILD=${OCAMLBUILD:="ocamlbuild -tag debug -classic-display \
+                          -use-ocamlfind"}
 
 action () 
 {
     case $1 in
-        default) $OCAMLBUILD gg.cmx gg.cmo ;;
+        default) $OCAMLBUILD gg.cmx ;;
         tests)   $OCAMLBUILD test/tests.otarget ;;
-        doc)     shift; devel/pkg-doc $* doc/api.docdir ;;
-        distrib) devel/pkg-distrib ;;
-        publish) devel/pkg-www ;;
-        publish-opam) devel/pkg-opam ;;
-        clean)        $OCAMLBUILD -clean ;;
-        *)            $OCAMLBUILD $* ;;
+        doc)     shift; pkg-doc $* doc/api.docdir ;;
+        clean)   $OCAMLBUILD -clean ;;
+        *)       $OCAMLBUILD $* ;;
     esac
 }
 

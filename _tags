@@ -1,6 +1,11 @@
-<**/*.{ml,mli}> : annot, debug
+true : package(compiler-libs.toplevel)
+
+<**/*.{ml,mli}> : annot
+
 <src> : include
 <test> : include
 <test/*> : debug
+
 <test/test.{byte,native}> : use_str
-<test/benchmark.{byte,native,ml}>: package(unix), package(bench), package(bigarray)
+<test/benchmark.{byte,native,ml}>: package(unix), package(bench), \
+                                   package(bigarray)

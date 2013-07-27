@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Usage: test
+
+set -e 
+LOC=`dirname $0`
+
+. $LOC/pkg-builder
+
+$OCAMLBUILD -tag debug test/tests.otarget
+$B/test/test.byte

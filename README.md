@@ -1,9 +1,8 @@
-Gg — Basic types for computer graphics programming in OCaml
+Gg — Basic types for computer graphics in OCaml
 -------------------------------------------------------------------------------
 Release %%VERSION%%
 
-Gg is an OCaml module providing basic types for computer graphics
-programming.
+Gg is an OCaml module providing basic types for computer graphics.
 
 It defines types and functions for floats, vectors, points, sizes,
 matrices, quaternions, axis-aligned boxes, colors, color spaces, and
@@ -21,19 +20,8 @@ Gg can be installed with `opam`:
 
     opam install gg
 
-Otherwise to install Gg you need at least:
-
-    OCaml %%OCAMLVERSION%% %%PPDEPS%%
-
-If you have `findlib`, it can be installed by typing :
-
-    ocaml setup.ml -configure
-    ocaml setup.ml -build 
-    ocaml setup.ml -install
-
-If you don't, `gg.mli` and `gg.ml` contain everything, the code, the
-documentation and the license.  Install the dependencies and use the
-sources the way you want.
+If you don't use `opam` consult the [`opam`](opam) file for build
+instructions and a complete specification of the dependencies.
 
 ## Documentation
 
@@ -53,4 +41,4 @@ distribution. They can be built with:
 
 The resulting binaries are in `_build/test` :
 
-- `test.native` tests the library, nothing should fail.
+- `test.byte` tests the library, nothing should fail.

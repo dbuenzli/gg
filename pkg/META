@@ -1,0 +1,21 @@
+version = "%%VERSION%%"
+description = "Basic types for computer graphics programming in OCaml"
+archive(byte) = "gg.cma"
+archive(byte, plugin) = "gg.cma"
+archive(native) = "gg.cmxa"
+archive(native, plugin) = "gg.cmxs"
+archive(byte,toploop) += "gg_top.cma"
+archive(native,toploop) += "gg_top.cmxa"
+exists_if = "gg.cma"
+
+package "top" (
+ version = "%%VERSION%%"
+ description = "Toplevel module for Gg."
+ requires = "compiler-libs.toplevel"
+ archive(byte) = "gg_top.cma"
+ archive(byte, plugin) = "gg_top.cma"
+ archive(native) = "gg_top.cmxa"
+ archive(native, plugin) = "gg_top.cmxs"
+ exists_if = "gg_top.cma"
+)
+
