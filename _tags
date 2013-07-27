@@ -1,10 +1,9 @@
-true : package(compiler-libs.toplevel)
-
 <**/*.{ml,mli}> : annot
-
 <src> : include
 <test> : include
 <test/*> : debug
+
+<src/gg_top*> : package(compiler-libs.toplevel)
 
 <test/test.{byte,native}> : use_str
 <test/benchmark.{byte,native,ml}>: package(unix), package(bench), \
