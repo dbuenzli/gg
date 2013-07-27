@@ -1,5 +1,5 @@
 version = "%%VERSION%%"
-description = "Basic types for computer graphics programming in OCaml"
+description = "Basic types for computer graphics in OCaml"
 archive(byte) = "gg.cma"
 archive(byte, plugin) = "gg.cma"
 archive(native) = "gg.cmxa"
