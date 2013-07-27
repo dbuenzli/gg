@@ -2051,7 +2051,7 @@ module Color_tests = struct
 
   let lab_roundtrip color r =
     let lab = Color.to_lab color in
-    let color' = Color.to_lab lab in
+    let color' = Color.of_lab lab in
     r >> Color23.compare_rgb lab_dEmax "LAB roundtrip" color' color
 
   let luv_dEmax = ref V2.zero
