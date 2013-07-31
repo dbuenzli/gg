@@ -133,7 +133,7 @@ module Float : sig
   (** [remap min max min' max' x] applies to [x] the
       {{:http://mathworld.wolfram.com/AffineTransformation.html}affine
       transformation} mapping the interval \[[min;max]\] to
-      \[[min';max']\]. The result is undefined if [min > max] or [min'
+      \[[min';max']\]. The result is undefined if [min >= max] or [min'
       > max']. *)
 
   val round : float -> float
