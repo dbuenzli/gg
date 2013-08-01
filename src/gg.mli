@@ -3100,7 +3100,7 @@ module Raster : sig
 
   type scalar_type = 
     [ `Int8 | `Int16 | `Int32 | `Int64 
-    | `Uint8 | `Uint16 | `Uint32 | `Uint64
+    | `UInt8 | `UInt16 | `UInt32 | `UInt64
     | `Float16 | `Float32 | `Float64 ]
   (** The type for scalar types. *)
 
@@ -3116,16 +3116,16 @@ module Raster : sig
   (** The type for big arrays. *)
 
   type buffer = [ 
-  | `S_Uint8 of string 
+  | `S_UInt8 of string 
   | `A_Float64 of float array
   | `B_Int8 of (int, Bigarray.int8_signed_elt) b_array
   | `B_Int16 of (int, Bigarray.int16_signed_elt) b_array
   | `B_Int32 of (int32, Bigarray.int32_elt) b_array
   | `B_Int64 of (int64, Bigarray.int64_elt) b_array
-  | `B_Uint8 of (int, Bigarray.int8_unsigned_elt) b_array
-  | `B_Uint16 of (int, Bigarray.int16_unsigned_elt) b_array
-  | `B_Uint32 of (int32, Bigarray.int32_elt) b_array
-  | `B_Uint64 of (int64, Bigarray.int64_elt) b_array
+  | `B_UInt8 of (int, Bigarray.int8_unsigned_elt) b_array
+  | `B_UInt16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_UInt32 of (int32, Bigarray.int32_elt) b_array
+  | `B_UInt64 of (int64, Bigarray.int64_elt) b_array
   | `B_Float16 of (int, Bigarray.int16_unsigned_elt) b_array
   | `B_Float32 of (float, Bigarray.float32_elt) b_array
   | `B_Float64 of (float, Bigarray.float64_elt) b_array ]

@@ -2589,35 +2589,35 @@ module Raster = struct
   (* Scalar type and buffers *)
 
   type scalar_type = 
-    [ `Int8 | `Int16 | `Int32 | `Int64 | `Uint8 | `Uint16 | `Uint32 | `Uint64
+    [ `Int8 | `Int16 | `Int32 | `Int64 | `UInt8 | `UInt16 | `UInt32 | `UInt64
     | `Float16 | `Float32 | `Float64 ]
 
   let scalar_type_byte_count = function 
-  | `Int8 | `Uint8 -> 1 
-  | `Int16 | `Uint16 | `Float16 -> 2 
-  | `Int32 | `Uint32 | `Float32 -> 3
-  | `Int64 | `Uint64 | `Float64 -> 4
+  | `Int8 | `UInt8 -> 1 
+  | `Int16 | `UInt16 | `Float16 -> 2 
+  | `Int32 | `UInt32 | `Float32 -> 3
+  | `Int64 | `UInt64 | `Float64 -> 4
     
   let scalar_type_str = function 
   | `Int8 -> "Int8" | `Int16 -> "Int16" | `Int32 -> "Int32" 
-  | `Int64 -> "Int64" | `Uint8 -> "Uint8" | `Uint16 -> "Uint16" 
-  | `Uint32 -> "Uint32" | `Uint64 -> "Uint64" | `Float16 -> "Float16" 
+  | `Int64 -> "Int64" | `UInt8 -> "UInt8" | `UInt16 -> "UInt16" 
+  | `UInt32 -> "UInt32" | `UInt64 -> "UInt64" | `Float16 -> "Float16" 
   | `Float32 -> "Float32" | `Float64 -> "Float64"
 
   let pp_scalar_type ppf st = Format.fprintf ppf "%s" (scalar_type_str st)
 
   type ('a, 'b) b_array = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
   type buffer = [ 
-  | `S_Uint8 of string 
+  | `S_UInt8 of string 
   | `A_Float64 of float array
   | `B_Int8 of (int, Bigarray.int8_signed_elt) b_array
   | `B_Int16 of (int, Bigarray.int16_signed_elt) b_array
   | `B_Int32 of (int32, Bigarray.int32_elt) b_array
   | `B_Int64 of (int64, Bigarray.int64_elt) b_array
-  | `B_Uint8 of (int, Bigarray.int8_unsigned_elt) b_array
-  | `B_Uint16 of (int, Bigarray.int16_unsigned_elt) b_array
-  | `B_Uint32 of (int32, Bigarray.int32_elt) b_array
-  | `B_Uint64 of (int64, Bigarray.int64_elt) b_array
+  | `B_UInt8 of (int, Bigarray.int8_unsigned_elt) b_array
+  | `B_UInt16 of (int, Bigarray.int16_unsigned_elt) b_array
+  | `B_UInt32 of (int32, Bigarray.int32_elt) b_array
+  | `B_UInt64 of (int64, Bigarray.int64_elt) b_array
   | `B_Float16 of (int, Bigarray.int16_unsigned_elt) b_array
   | `B_Float32 of (float, Bigarray.float32_elt) b_array
   | `B_Float64 of (float, Bigarray.float64_elt) b_array ]
@@ -2627,10 +2627,10 @@ module Raster = struct
   | `B_Int16 _ -> `Int16 
   | `B_Int32 _ -> `Int32
   | `B_Int64 _ -> `Int64
-  | `B_Uint8 _ | `S_Uint8 _ -> `Uint8
-  | `B_Uint16 _ -> `Uint16
-  | `B_Uint32 _ -> `Uint32
-  | `B_Uint64 _ -> `Uint64
+  | `B_UInt8 _ | `S_UInt8 _ -> `UInt8
+  | `B_UInt16 _ -> `UInt16
+  | `B_UInt32 _ -> `UInt32
+  | `B_UInt64 _ -> `UInt64
   | `B_Float16 _ -> `Float16
   | `B_Float32 _ -> `Float32
   | `B_Float64 _ | `A_Float64 _ -> `Float64
@@ -2643,10 +2643,10 @@ module Raster = struct
   | `B_Int16 b -> Bigarray.Array1.dim b 
   | `B_Int32 b -> Bigarray.Array1.dim b
   | `B_Int64 b -> Bigarray.Array1.dim b 
-  | `B_Uint8 b -> Bigarray.Array1.dim b
-  | `B_Uint16 b -> Bigarray.Array1.dim b
-  | `B_Uint32 b -> Bigarray.Array1.dim b
-  | `B_Uint64 b -> Bigarray.Array1.dim b
+  | `B_UInt8 b -> Bigarray.Array1.dim b
+  | `B_UInt16 b -> Bigarray.Array1.dim b
+  | `B_UInt32 b -> Bigarray.Array1.dim b
+  | `B_UInt64 b -> Bigarray.Array1.dim b
   | `B_Float16 b -> Bigarray.Array1.dim b
   | `B_Float32 b -> Bigarray.Array1.dim b
   | `B_Float64 b -> Bigarray.Array1.dim b
@@ -2654,7 +2654,7 @@ module Raster = struct
 
   let pp_buffer ppf b = 
     let pp_info b = function 
-    | `S_Uint8 _ -> Format.fprintf ppf "@ (string)"
+    | `S_UInt8 _ -> Format.fprintf ppf "@ (string)"
     | `A_Float64 _ -> Format.fprintf ppf "@ (float@ array)"
     | _ -> ()
     in
@@ -2700,7 +2700,7 @@ module Raster = struct
   | None -> { semantics; scalar_type; pack }
   | Some p -> 
       let restrict = match p with 
-      | `PU8888 -> Some `Uint64 
+      | `PU8888 -> Some `UInt64 
       | `Other (_, r) -> r
       | `FourCC (c, r) -> 
           if String.length c = 4 then r else invalid_arg (err_illegal_fourcc c)
