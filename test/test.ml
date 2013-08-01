@@ -165,13 +165,18 @@ module Float_tests = struct
       >> C.success
       
   let () = test "remap" & fun r -> 
-    r >> (Float.remap 4. 8. 2. 4. 0. = 0.)
+    r >> (Float.remap 4. 8. 2. 4. 0. = 0.) 
       >> (Float.remap 4. 8. 2. 4. 2. = 1.)
       >> (Float.remap 4. 8. 2. 4. 4. = 2.)
       >> (Float.remap 4. 8. 2. 4. 6. = 3.)
       >> (Float.remap 4. 8. 2. 4. 8. = 4.)
       >> (Float.remap 4. 8. 2. 4. 10. = 5.)
-      >> (Float.remap 4. 8. 2. 4. 12. = 6.)
+      >> (Float.remap 4. 8. 2. 4. 12. = 6.) 
+      >> (Float.remap 1. 1. 4. 5. 6. = 4.) 
+      >> (Float.remap 1. 1. 5. 4. 6. = 5.) 
+      >> (Float.remap 2. 4. 4. 2. 3. = 3.) 
+      >> (Float.remap 2. 4. 4. 2. 2. = 4.) 
+      >> (Float.remap 2. 4. 4. 2. 4. = 2.) 
       >> Cf.holds Float.is_nan (Float.remap nan 8. 2. 4. 4.)
       >> Cf.holds Float.is_nan (Float.remap 4. nan 2. 4. 4.)
       >> Cf.holds Float.is_nan (Float.remap 4. 8. nan 4. 4.)

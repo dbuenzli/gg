@@ -128,13 +128,13 @@ module Float : sig
       [x] otherwise. The result is undefined on NaNs and if [min >
       max]. *)
 
-  val remap : min:float -> max:float -> min':float -> max':float -> float -> 
+  val remap : x0:float -> x1:float -> y0:float -> y1:float -> float -> 
     float
-  (** [remap min max min' max' x] applies to [x] the
+  (** [remap x0 x1 y0 y1 v] applies to [v] the
       {{:http://mathworld.wolfram.com/AffineTransformation.html}affine
-      transformation} mapping the interval \[[min;max]\] to
-      \[[min';max']\]. The result is undefined if [min >= max] or [min'
-      > max']. *)
+      transform} that maps [x0] to [y0] and [x1] to [y1]. If the
+      transform is undefined ([x0 = x1] and [y0 <> y1]) the function
+      returns [y0] for any [v]. *)
 
   val round : float -> float
   (** [round x] is the integer nearest to [x]. Ties are rounded

@@ -106,9 +106,13 @@ module Float = struct
     if x < min then min else
     if x > max then max else x
 
-  let remap ~min ~max ~min' ~max' x = 
-    min' +. ((x -. min) /. (max -. min)) *. (max' -. min')
-
+  let remap ~x0 ~x1 ~y0 ~y1 v =
+    if x0 = x1 then y0 else
+    y0 +. ((v -. x0) /. (x1 -. x0)) *. (y1 -. y0)
+(*
+  let remap ~x0 ~x1 ~y0 ~y1 x = 
+    y0 +. ((x -. x0) /. (x1 -. x0)) *. (y1 -. y0)
+*)
   let round x = floor (x +. 0.5) 
 
   let int_of_round x = truncate (round x)
