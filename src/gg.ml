@@ -109,12 +109,8 @@ module Float = struct
   let remap ~x0 ~x1 ~y0 ~y1 v =
     if x0 = x1 then y0 else
     y0 +. ((v -. x0) /. (x1 -. x0)) *. (y1 -. y0)
-(*
-  let remap ~x0 ~x1 ~y0 ~y1 x = 
-    y0 +. ((x -. x0) /. (x1 -. x0)) *. (y1 -. y0)
-*)
-  let round x = floor (x +. 0.5) 
 
+  let round x = floor (x +. 0.5)
   let int_of_round x = truncate (round x)
   let round_dfrac d x =
     if x -. (round x) = 0. then x else                   (* x is an integer. *)
