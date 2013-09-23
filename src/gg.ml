@@ -2390,7 +2390,7 @@ module Color = struct
   let v_srgbi ?a r g b = 
     v_srgb ?a (float r /. 255.) (float g /. 255.) (float b /. 255.)
       
-  let gray ?(a = 1.) l' =                 (* N.B. code duplication with v. *)
+  let gray ?(a = 1.) l' =           (* N.B. code duplication with of_srgb. *)
     let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
     v l l l a 
       
@@ -2576,7 +2576,7 @@ module Color = struct
   }
 end
 
-(* Raster samples *)
+(* Raster data *)
 
 module Raster = struct
   
