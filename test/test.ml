@@ -1309,17 +1309,17 @@ module M3_tests = struct
   (* 2D space transformations *)
 
   open V2_tests.Cv.Order
-  let () = test "move2" & fun r -> 
+  let () = test "move" & fun r -> 
     let d = (V2.v 1. 2.) in
-    let m = M3.move2 d in 
+    let m = M3.move d in 
     r >> (V2.tr m d = d) 
       >> (P2.tr m d = V2.smul 2. d)
       >> (P2.tr m P2.o = d)
       >> C.success
 
-  let () = test "rot2" & fun r -> 
+  let () = test "rot" & fun r -> 
     let chop v = V2.map (Float.chop ~eps) v in
-    let m = M3.rot2 Float.pi_div_2 in 
+    let m = M3.rot Float.pi_div_2 in 
     r >> (chop (V2.tr m V2.ox) = V2.oy) 
       >> (chop (P2.tr m V2.ox) = V2.oy)      
       >> (chop (P2.tr m P2.o) = P2.o)
@@ -1333,19 +1333,19 @@ module M3_tests = struct
       >> (P2.tr m P2.o = P2.o) 
       >> C.success
 
-  let () = test "rigid2" & fun r -> 
+  let () = test "rigid" & fun r -> 
     let chop v = V2.map (Float.chop ~eps) v in
-    let m = (M3.rigid2 (V2.v 2. 3.) Float.pi_div_4) in 
-    let m' = (M3.mul (M3.move2 (V2.v 2. 3.)) (M3.rot2 Float.pi_div_4)) in
-    let ri = (M3.rigid2 (V2.v 1. 2.) Float.pi_div_2) in
+    let m = (M3.rigid (V2.v 2. 3.) Float.pi_div_4) in 
+    let m' = (M3.mul (M3.move (V2.v 2. 3.)) (M3.rot Float.pi_div_4)) in
+    let ri = (M3.rigid (V2.v 1. 2.) Float.pi_div_2) in
     r >> Cm.Order.(=) m m' 
       >> (chop (V2.tr ri V2.ox) = V2.oy)
       >> (chop (P2.tr ri V2.ox) = P2.v 1. 3.)
       >> C.success
 
-  let () = test "srigid2" & fun r -> 
-    let m = M3.srigid2 (V2.v 2. 3.) Float.pi_div_4 (V2.v 2. 3.) in
-    let ri = M3.mul (M3.move2 (V2.v 2. 3.)) (M3.rot2 Float.pi_div_4) in
+  let () = test "srigid" & fun r -> 
+    let m = M3.srigid (V2.v 2. 3.) Float.pi_div_4 (V2.v 2. 3.) in
+    let ri = M3.mul (M3.move (V2.v 2. 3.)) (M3.rot Float.pi_div_4) in
     let m' = M3.mul ri (M3.scale2 (V2.v 2. 3.)) in 
     let cmp = M3.compare_f (Float.compare_tol ~eps) in 
     r >> C.Order.(=) ~cmp ~pr:M3.pp m m'
@@ -1433,33 +1433,33 @@ module M4_tests = struct
   (* 3D space transformations *)
 
   open V3_tests.Cv.Order
-  let () = test "move3" & fun r -> 
+  let () = test "move" & fun r -> 
     let d = (V3.v 1. 2. 3.) in
-    let m = M4.move3 d in 
+    let m = M4.move d in 
     r >> (V3.tr m d = d) 
       >> (P3.tr m d = V3.smul 2. d)
       >> (P3.tr m P3.o = d)
       >> C.success
 
-  let () = test "rot_map3" & fun r ->
-    let m = M4.rot_map3 V3.oz V3.ox in 
+  let () = test "rot_map" & fun r ->
+    let m = M4.rot_map V3.oz V3.ox in 
     let chop = V3.map (Float.chop ~eps) in
     r >> (chop (V3.tr m V3.oz) = V3.ox)
       >> (chop (P3.tr m V3.oz) = V3.ox) 
       >> (chop (P3.tr m P3.o) = P3.o) 
       >> C.success
 
-  let () = test "rot_axis3" & fun r ->
-    let m = M4.rot_axis3 V3.oy Float.pi_div_2 in 
+  let () = test "rot_axis" & fun r ->
+    let m = M4.rot_axis V3.oy Float.pi_div_2 in 
     let chop = V3.map (Float.chop ~eps) in
     r >> (chop (V3.tr m V3.oz) = V3.ox) 
       >> (chop (P3.tr m V3.oz) = V3.ox) 
       >> (chop (P3.tr m P3.o) = P3.o) 
       >> C.success
 
-  let () = test "rot_zyx3" & fun r ->
+  let () = test "rot_zyx" & fun r ->
     let a = -. Float.pi_div_2 in 
-    let m = M4.rot_zyx3 (V3.v a a a) in
+    let m = M4.rot_zyx (V3.v a a a) in
     let chop = V3.map (Float.chop ~eps) in
     r >> (chop (V3.tr m V3.oy) = V3.neg V3.oy) 
       >> (chop (P3.tr m V3.oy) = V3.neg V3.oy) 
@@ -1474,18 +1474,18 @@ module M4_tests = struct
       >> (P3.tr m P3.o = P3.o) 
       >> C.success
 
-  let () = test "rigid3" & fun r -> 
+  let () = test "rigid" & fun r -> 
     let v = V3.v 2. 3. 4. in 
     let a = Float.pi_div_4 in 
-    let m = M4.rigid3 v (V3.ox, a) in 
-    let m' = M4.mul (M4.move3 v) (M4.rot_axis3 V3.ox Float.pi_div_4) in 
+    let m = M4.rigid v (V3.ox, a) in 
+    let m' = M4.mul (M4.move v) (M4.rot_axis V3.ox Float.pi_div_4) in 
     r >> Cm.Order.(=) m m'
 
-  let () = test "srigid3" & fun r -> 
+  let () = test "srigid" & fun r -> 
     let v = V3.v 2. 3. 4. in 
     let a = Float.pi_div_4 in 
-    let m = M4.srigid3 v (V3.ox, a) v in
-    let ri = M4.mul (M4.move3 v) (M4.rot_axis3 V3.ox Float.pi_div_4) in
+    let m = M4.srigid v (V3.ox, a) v in
+    let ri = M4.mul (M4.move v) (M4.rot_axis V3.ox Float.pi_div_4) in
     let m' = M4.mul ri (M4.scale3 v) in 
     let cmp = M4.compare_f (Float.compare_tol ~eps) in 
     r >> C.Order.(=) ~cmp ~pr:M4.pp m m'
@@ -1531,7 +1531,7 @@ module Quat_tests = struct
 
   let () = test "rot_axis, to_rot, to_m4, of_m4" & fun r ->
     let theta = Float.pi_div_2 in
-    let m = M4.rot_axis3 V3.ox theta in 
+    let m = M4.rot_axis V3.ox theta in 
     let q = Quat.rot_axis V3.ox theta in
     let axis, theta' = Quat.to_axis q in
     let fcmp = Float.compare_tol ~eps in 
@@ -1863,7 +1863,7 @@ module Box2_tests = struct
   open Cbox.Order 
   let () = test "ltr, tr" & fun r ->
     let ml = M2.rot Float.pi_div_2 in 
-    let mh = M3.rigid2 (V2.v (4.) (-1.)) Float.pi_div_2 in 
+    let mh = M3.rigid (V2.v (4.) (-1.)) Float.pi_div_2 in 
     let lb = Box2.v (P2.v  (-4.) 1.) (Size2.v 2. 1.) in
     let hb = Box2.v P2.o (Size2.v 2. 1.) in 
     r >> C.Order.(=) ~pr:Box2.pp ~cmp:bcmp (Box2.ltr ml bt) lb
@@ -1922,7 +1922,7 @@ module Box3_tests = struct
   let () = test "ltr, tr" & fun r ->
     let theta = Float.pi_div_2 in
     let ml = M3.rot_zyx (V3.v theta theta 0.) in
-    let mh = M4.rigid3 (V3.v 0. (-1.) 0.) (V3.oy, -. Float.pi) in
+    let mh = M4.rigid (V3.v 0. (-1.) 0.) (V3.oy, -. Float.pi) in
     let lb = Box3.v (P3.v  (0.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
     let hb = Box3.v (P3.v (-1.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
     r >> C.Order.(=) ~pr:Box3.pp ~cmp:bcmp (Box3.ltr ml Box3.unit) lb

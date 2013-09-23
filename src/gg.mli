@@ -1683,22 +1683,22 @@ module M3 : sig
 
   (** {1:transformations2d 2D space transformations} *) 
 
-  val move2 : v2 -> m3
-  (** [move2 d] translates 2D space in the x and y dimensions according 
+  val move : v2 -> m3
+  (** [move d] translates 2D space in the x and y dimensions according 
       to [d]. *)
 
-  val rot2 : float -> m3
+  val rot : float -> m3
   (** See {!M2.rot}. *)
 
   val scale2 : v2 -> m3
   (** See {!M2.scale}. *)
 
-  val rigid2 : move:v2 -> rot:float -> m3 
-  (** [rigid2 move theta] is the rigid body transformation of 
+  val rigid : move:v2 -> rot:float -> m3 
+  (** [rigid move theta] is the rigid body transformation of 
       2D space that rotates by [theta] and then translates by [move]. *)
 
-  val srigid2 : move:v2 -> rot:float -> scale:v2 -> m3 
-  (** [srigid2 move theta scale] is like {!rigid2} but starts by
+  val srigid : move:v2 -> rot:float -> scale:v2 -> m3 
+  (** [srigid move theta scale] is like {!rigid} but starts by
       scaling according to [scale]. *)
       
   (** {1:transformations3d 3D space transformations} *) 
@@ -1709,7 +1709,7 @@ module M3 : sig
 
   val rot_axis : v3 -> float -> m3
   (** [rot_axis v theta] rotates 3D space by [theta] around 
-      the unit vector [v]. *)
+      the {e unit} vector [v]. *)
 
   val rot_zyx : v3 -> m3 
   (** [rot_zyx r] rotates 3D space first by [V3.x r] around the
@@ -1889,29 +1889,29 @@ module M4 : sig
 
   (** {1:transformations3d 3D space transformations} *)
 
-  val move3 : v3 -> m4
-  (** [move3 d] translates 3D space in the x, y and z dimensions according
+  val move : v3 -> m4
+  (** [move d] translates 3D space in the x, y and z dimensions according
       to [d]. *)
 
-  val rot_map3 : v3 -> v3 -> m4
+  val rot_map : v3 -> v3 -> m4
   (** See {!M3.rot_map}. *)
 
-  val rot_axis3 : v3 -> float -> m4
+  val rot_axis : v3 -> float -> m4
   (** See {!M3.rot_axis}. *)
 
-  val rot_zyx3 : v3 -> m4
+  val rot_zyx : v3 -> m4
   (** See {!M3.rot_zyx}. *)
 
   val scale3 : v3 -> m4
   (** See {!M3.scale}. *)
 
-  val rigid3 : move:v3 -> rot:v3 * float -> m4
-  (** [rigid3 move rot] is the rigid body transformation
+  val rigid : move:v3 -> rot:v3 * float -> m4
+  (** [rigid move rot] is the rigid body transformation
       of 3D space that rotates by the axis/angle [rot]
       and then translates by [move]. *)
 
-  val srigid3 : move:v3 -> rot:v3 * float -> scale:v3 -> m4
-  (** [rigid3 scale move rot scale] is lik {!rigid3} but starts
+  val srigid : move:v3 -> rot:v3 * float -> scale:v3 -> m4
+  (** [rigid scale move rot scale] is lik {!rigid} but starts
       by scaling according to [scale]. *)
 
 (*
@@ -3417,8 +3417,9 @@ end
 
     Here are a few other conventions : 
     {ul
-    {- Numbers in names indicate dimensionality. For example {!M4.move3} 
-       indicates translation in 3D space.}
+    {- Numbers in names indicate dimensionality when ambiguity can arise. 
+       For example {!M4.scale3} indicates scale in 3D space wihle {!M4.scale}
+       scale in 4D space.}
     {- Most functions take the value they act upon first.
        But exceptions abound, to match caml conventions, to have your 
        curry or to match mathematical notation (e.g. {!V2.tr}).}

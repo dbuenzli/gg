@@ -1034,12 +1034,12 @@ module M3 = struct
       
   (* 2D space transforms *)
       
-  let move2 d =
+  let move d =
     v 1. 0. d.V2t.x
       0. 1. d.V2t.y
       0. 0. 1.
       
-  let rot2 theta = 
+  let rot theta = 
     let c = cos theta in
     let s = sin theta in
     v c  (-. s) 0.
@@ -1051,14 +1051,14 @@ module M3 = struct
       0.      s.V2t.y 0.
       0.      0.      1.
       
-  let rigid2 ~move ~rot = 
+  let rigid ~move ~rot = 
     let c = cos rot in
     let s = sin rot in
     v c  (-. s) move.V2t.x
       s  c      move.V2t.y
       0. 0.     1.
       
-  let srigid2 ~move ~rot ~scale = 
+  let srigid ~move ~rot ~scale = 
     let c = cos rot in
     let s = sin rot in
     v (c *. scale.V2t.x) ((-. s) *. scale.V2t.y) move.V2t.x
@@ -1371,13 +1371,13 @@ module M4 = struct
       
   (* 3D space transforms *)      
       
-  let move3 d = 
+  let move d = 
     v 1. 0. 0. d.V3t.x
       0. 1. 0. d.V3t.y
       0. 0. 1. d.V3t.z
       0. 0. 0. 1.
       
-  let rot_map3 u u' = 
+  let rot_map u u' = 
     let n = V3.cross u u' in
     let e = V3.dot u u' in
     let h = 1. /. (1. +. e) in
@@ -1392,7 +1392,7 @@ module M4 = struct
       (h *. xz -. y)     (h *. yz +. x)       (e +. h *. z *. z) 0.
       0.                 0.                   0.                 1.
       
-  let rot_axis3 u theta = 
+  let rot_axis u theta = 
     let xy = u.V3t.x *. u.V3t.y in
     let xz = u.V3t.x *. u.V3t.z in
     let yz = u.V3t.y *. u.V3t.z in
@@ -1413,7 +1413,7 @@ module M4 = struct
       0.
       0. 0. 0. 1.
       
-  let rot_zyx3 r = 
+  let rot_zyx r = 
     let cz = cos r.V3t.z in let sz = sin r.V3t.z in
     let cy = cos r.V3t.y in let sy = sin r.V3t.y in
     let cx = cos r.V3t.x in let sx = sin r.V3t.x in
@@ -1428,11 +1428,11 @@ module M4 = struct
       0.      0.      s.V3t.z 0.
       0.      0.      0.      1.
       
-  let rigid3 ~move:d ~rot:(u, theta) =
-    { (rot_axis3 u theta) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
+  let rigid ~move:d ~rot:(u, theta) =
+    { (rot_axis u theta) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
     
-  let srigid3 ~move:d ~rot:(u, theta) ~scale:s =
-    let m = rot_axis3 u theta in
+  let srigid ~move:d ~rot:(u, theta) ~scale:s =
+    let m = rot_axis u theta in
     v (m.e00 *. s.V3t.x) (m.e01 *. s.V3t.y) (m.e02 *. s.V3t.z) d.V3t.x
       (m.e10 *. s.V3t.x) (m.e11 *. s.V3t.y) (m.e12 *. s.V3t.z) d.V3t.y
       (m.e20 *. s.V3t.x) (m.e21 *. s.V3t.y) (m.e22 *. s.V3t.z) d.V3t.z
