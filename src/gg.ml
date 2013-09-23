@@ -403,12 +403,13 @@ module V2 = struct
   let homogene a = if a.y <> 0. then v (a.x /. a.y) 1.0 else a
   let ortho a = v (-. a.y) a.x
   let mix a b t = v (a.x +. t *. (b.x -. a.x)) (a.y +. t *. (b.y -. a.y))
+  let ltr m a = 
+    let open M2t in
+    v (m.e00 *. a.x +. m.e01 *. a.y) (m.e10 *. a.x +. m.e11 *. a.y) 
       
-  open M2t
-  let ltr m a = v (m.e00 *. a.x +. m.e01 *. a.y) (m.e10 *. a.x +. m.e11 *. a.y) 
-      
-  open M3t
-  let tr m a = v (m.e00 *. a.x +. m.e01 *. a.y) (m.e10 *. a.x +. m.e11 *. a.y) 
+  let tr m a = 
+    let open M3t in 
+    v (m.e00 *. a.x +. m.e01 *. a.y) (m.e10 *. a.x +. m.e11 *. a.y) 
       
   (* Overridden Pervasives operators. *)
       
@@ -516,14 +517,14 @@ module V3 = struct
       (a.y +. t *. (b.y -. a.y))
       (a.z +. t *. (b.z -. a.z))
       
-  open M3t
   let ltr m a = 
+    let open M3t in
     v (m.e00 *. a.x +. m.e01 *. a.y +. m.e02 *. a.z) 
       (m.e10 *. a.x +. m.e11 *. a.y +. m.e12 *. a.z) 
       (m.e20 *. a.x +. m.e21 *. a.y +. m.e22 *. a.z) 
       
-  open M4t
   let tr m a = 
+    let open M4t in
     v (m.e00 *. a.x +. m.e01 *. a.y +. m.e02 *. a.z) 
       (m.e10 *. a.x +. m.e11 *. a.y +. m.e12 *. a.z) 
       (m.e20 *. a.x +. m.e21 *. a.y +. m.e22 *. a.z) 
@@ -615,8 +616,8 @@ module V4 = struct
       (a.z +. t *. (b.z -. a.z))
       (a.w +. t *. (b.w -. a.w))
       
-  open M4t
   let ltr m a = 
+    let open M4t in
     v (m.e00 *. a.x +. m.e01 *. a.y +. m.e02 *. a.z +. m.e03 *. a.w) 
       (m.e10 *. a.x +. m.e11 *. a.y +. m.e12 *. a.z +. m.e13 *. a.w) 
       (m.e20 *. a.x +. m.e21 *. a.y +. m.e22 *. a.z +. m.e23 *. a.w) 
@@ -699,8 +700,8 @@ module P2 = struct
 
   let mid p q = v (0.5 *. (p.x +. q.x)) (0.5 *. (p.y +. q.y))
       
-  open M3t
   let tr m p = 
+    let open M3t in
     v (m.e00 *. p.x +. m.e01 *. p.y +. m.e02)
       (m.e10 *. p.x +. m.e11 *. p.y +. m.e12)
 end
@@ -726,8 +727,8 @@ module P3 = struct
       (0.5 *. (p.y +. q.y))
       (0.5 *. (p.z +. q.z))
       
-  open M4t
   let tr m p = 
+    let open M4t in
     v (m.e00 *. p.x +. m.e01 *. p.y +. m.e02 *. p.z +. m.e03)
       (m.e10 *. p.x +. m.e11 *. p.y +. m.e12 *. p.z +. m.e13)
       (m.e20 *. p.x +. m.e21 *. p.y +. m.e22 *. p.z +. m.e23)
@@ -1671,8 +1672,8 @@ module Quat = struct
       (cysz *. cx -. sycz *. sx) 
       (cycz *. cx +. sysz *. sx) 
       
-  open M3t    
   let of_m3 m =                           (* NOTE code duplicate with of_m4. *)
+    let open M3t in
     let v x y z w = unit (v x y z w) in
     let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
     if (tr > 0.0) then
@@ -1681,29 +1682,27 @@ module Quat = struct
         ((m.e02 -. m.e20) /. s)
         ((m.e10 -. m.e01) /. s)
         (0.25 *. s)
-    else
-    if (m.e00 > m.e11 && m.e00 > m.e22) then
+    else if (m.e00 > m.e11 && m.e00 > m.e22) then
       let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
       v (0.25 *. s)
         ((m.e10 +. m.e01) /. s)
         ((m.e02 +. m.e20) /. s)
         ((m.e21 -. m.e12) /. s)
-    else 
-    if (m.e11 > m.e22) then
+    else if (m.e11 > m.e22) then
       let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
       v ((m.e10 +. m.e01) /. s)
         (0.25 *. s)
         ((m.e21 +. m.e12) /. s)
         ((m.e02 -. m.e20) /. s)
     else
-    let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
-    v ((m.e02 +. m.e20) /. s)
-      ((m.e21 +. m.e12) /. s)
-      (0.25 *. s)
-      ((m.e10 -. m.e01) /. s)
+      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
+      v ((m.e02 +. m.e20) /. s)
+        ((m.e21 +. m.e12) /. s)
+        (0.25 *. s)
+        ((m.e10 -. m.e01) /. s)
       
-  open M4t;;
   let of_m4 m =                           (* NOTE code duplicate with of_m3. *)
+    let open M4t in
     let v x y z w = unit (v x y z w) in
     let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
     if (tr > 0.0) then
@@ -1712,26 +1711,24 @@ module Quat = struct
         ((m.e02 -. m.e20) /. s)
         ((m.e10 -. m.e01) /. s)
         (0.25 *. s)
-    else
-    if (m.e00 > m.e11 && m.e00 > m.e22) then
+    else if (m.e00 > m.e11 && m.e00 > m.e22) then
       let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
       v (0.25 *. s)
         ((m.e10 +. m.e01) /. s)
         ((m.e02 +. m.e20) /. s)
         ((m.e21 -. m.e12) /. s)
-    else 
-    if (m.e11 > m.e22) then
+    else if (m.e11 > m.e22) then
       let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
       v ((m.e10 +. m.e01) /. s)
         (0.25 *. s)
         ((m.e21 +. m.e12) /. s)
         ((m.e02 -. m.e20) /. s)
     else
-    let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
-    v ((m.e02 +. m.e20) /. s)
-      ((m.e21 +. m.e12) /. s)
-      (0.25 *. s)
-      ((m.e10 -. m.e01) /. s)
+      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
+      v ((m.e02 +. m.e20) /. s)
+        ((m.e21 +. m.e12) /. s)
+        (0.25 *. s)
+        ((m.e10 -. m.e01) /. s)
       
   let to_zyx q = 
     let xx = q.x *. q.x in let yy = q.y *. q.y in let zz = q.z *. q.z in
