@@ -2819,8 +2819,7 @@ type color = v4
 
     [Color] provides some function to operate on {{!t}color} values
     and basic support for ICC based {{!profile}color profiles} to 
-    precisely specify how to interpret raw color samples. Thorough color 
-    profile support and conversion is provided by the {!Gcolor} module.
+    precisely specify how to interpret raw color samples.
 
     {3 References.}
     {ul
@@ -3039,8 +3038,7 @@ module Color : sig
       {{:http://color.org/icc_specs2.xalter}ICC v4 specification}.
 
       This module defines only a profile for the color space of 
-      {!color} and a grayscale color space. More profiles and
-      profile constructors can be found in {!Gcolor.ICC}. *)
+      {!color} and a grayscale color space. *)
 
   val profile_of_icc : string -> profile option
   (** [profile_of_icc s] is a profile from the ICC profile byte 

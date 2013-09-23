@@ -1942,7 +1942,6 @@ module Color_tests = struct
   let c lab = V2.norm (V2.v (V3.y lab) (V3.z lab))
 
   let deltaE_lab lab1 lab2 =
-    (* TODO: use these from Gcolor *)
     let cie76 = V3.norm (V3.sub lab1 lab2) in
     let dL,da,db = V3.to_tuple (V3.sub lab1 lab2) in
     let c1 = c lab1 and c2 = c lab2 in
