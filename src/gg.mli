@@ -1598,7 +1598,7 @@ module M3 : sig
 
   val v : float -> float -> float -> 
           float -> float -> float -> 
-	  float -> float -> float -> m3
+          float -> float -> float -> m3
   (** [v e00 e01 e02 e10 e11 e12 e20 e21 e22] is a matrix whose components 
       are specified in     
       {{:http://en.wikipedia.org/wiki/Row-major_order}row-major order} *)
@@ -2600,7 +2600,6 @@ module Box2 : sig
       [pp_fl] to print floating point values. *)
 end
 
-
 module Box3 : sig
   type t = box3
   (** The type for 3D boxes
@@ -2836,9 +2835,7 @@ type color = v4
     {- International Color Consortium. 
        {e {{:http://www.color.org/icc_specs2.xalter}ICC.1:2010-12 Image 
        technology colour management - Architecture, profile format, and 
-       data structure}}. 2010.}}
-
-*)
+       data structure}}. 2010.}} *)
 module Color : sig
 
   (** {1:colors Constructors, accessors and constants} *)
