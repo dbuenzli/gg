@@ -1325,6 +1325,13 @@ module Quat : sig
 
   (** {1:transformations3d 3D space transformations} *)
 
+  val of_m3 : m3 -> quat
+  (** [of_m3 m] is the unit quaternion for the rotation in [m]. *)
+
+  val of_m4 : m4 -> quat
+  (** [of_m4 m] is the unit quaternion for the rotation in the 3x3
+      top left matrix in [m]. *)
+
   val rot_map : v3 -> v3 -> quat
   (** Unit quaternion for the rotation, see {!M3.rot_map}. *)
 
@@ -1334,19 +1341,13 @@ module Quat : sig
   val rot_zyx : v3 -> quat
   (** Unit quaternion for the rotation, see {!M3.rot_zyx}. *)
 
-  val of_m3 : m3 -> quat
-  (** [of_m3 m] is the unit quaternion for the rotation in [m]. *)
-
-  val of_m4 : m4 -> quat
-  (** [of_m4 m] is the unit quaternion for the rotation in the 3x3
-      top left matrix in [m]. *)
-
-  val to_zyx : quat -> v3
-  (** [to_zyx q] is the x, y, z axis angles of the {e unit} quaternion [q]. *)
-
-  val to_axis : quat -> v3 * float
-  (** [to_axis q] is the rotation axis and angle of the {e unit} 
+  val to_rot_axis : quat -> v3 * float
+  (** [to_rot_axis q] is the rotation axis and angle of the {e unit} 
       quaternion [q].*)
+
+  val to_rot_zyx : quat -> v3
+  (** [to_rot_zyx q] is the x, y, z axis angles of the {e unit} 
+      quaternion [q]. *)
   
   val apply3 : quat -> v3 -> v3 
   (** [apply3 q v] applies the 3D rotation of the {e unit} quaternion

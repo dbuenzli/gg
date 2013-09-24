@@ -779,32 +779,7 @@ module Quat = struct
   let nlerp q r t = V4.unit (V4.add q (V4.smul t (V4.sub r q)))
       
   (* 3D space transformations} *)      
-      
-  let rot_map u u' =
-    let e = V3.dot u u' in
-    let c = V3.cross u u' in
-    let r = sqrt (2. *. (1. +. e)) in 
-    v (c.V3t.x /. r) (c.V3t.y /. r) (c.V3t.z /. r) (r /. 2.)
-      
-  let rot_axis u theta =
-    let a = theta *. 0.5 in
-    let s = sin a in
-    v (s *. u.V3t.x) (s *. u.V3t.y) (s *. u.V3t.z) (cos a)
-      
-  let rot_zyx r = 
-    let hz = V3.z r *. 0.5 in 
-    let hy = V3.y r *. 0.5 in 
-    let hx = V3.x r *. 0.5 in 
-    let cz = cos hz in let sz = sin hz in
-    let cy = cos hy in let sy = sin hy in
-    let cx = cos hx in let sx = sin hx in 
-    let cycz = cy *. cz in let sysz = sy *. sz in 
-    let cysz = cy *. sz in let sycz = sy *. cz in 
-    v (cycz *. sx -. sysz *. cx) 
-      (cysz *. sx +. sycz *. cx) 
-      (cysz *. cx -. sycz *. sx) 
-      (cycz *. cx +. sysz *. sx) 
-      
+
   let of_m3 m =                           (* NOTE code duplicate with of_m4. *)
     let open M3t in
     let v x y z w = unit (v x y z w) in
@@ -863,7 +838,38 @@ module Quat = struct
         (0.25 *. s)
         ((m.e10 -. m.e01) /. s)
       
-  let to_zyx q = 
+  let rot_map u u' =
+    let e = V3.dot u u' in
+    let c = V3.cross u u' in
+    let r = sqrt (2. *. (1. +. e)) in 
+    v (c.V3t.x /. r) (c.V3t.y /. r) (c.V3t.z /. r) (r /. 2.)
+      
+  let rot_axis u theta =
+    let a = theta *. 0.5 in
+    let s = sin a in
+    v (s *. u.V3t.x) (s *. u.V3t.y) (s *. u.V3t.z) (cos a)
+      
+  let rot_zyx r = 
+    let hz = V3.z r *. 0.5 in 
+    let hy = V3.y r *. 0.5 in 
+    let hx = V3.x r *. 0.5 in 
+    let cz = cos hz in let sz = sin hz in
+    let cy = cos hy in let sy = sin hy in
+    let cx = cos hx in let sx = sin hx in 
+    let cycz = cy *. cz in let sysz = sy *. sz in 
+    let cysz = cy *. sz in let sycz = sy *. cz in 
+    v (cycz *. sx -. sysz *. cx) 
+      (cysz *. sx +. sycz *. cx) 
+      (cysz *. cx -. sycz *. sx) 
+      (cycz *. cx +. sysz *. sx) 
+
+  let to_rot_axis q = 
+    let a_2 = acos q.w in
+    if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
+    let d = 1.0 /. (sin a_2) in
+    (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
+            
+  let to_rot_zyx q = 
     let xx = q.x *. q.x in let yy = q.y *. q.y in let zz = q.z *. q.z in
     let ww = q.w *. q.w in 
     let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
@@ -872,13 +878,7 @@ module Quat = struct
       (atan2 (2. *. (zy +. wx)) (ww -. xx -. yy +. zz))
       (asin (-2. *. (zx -. wy)))
       (atan2 (2. *. (xy +. wz)) (ww +. xx -. yy -. zz))
-      
-  let to_axis q = 
-    let a_2 = acos q.w in
-    if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
-    let d = 1.0 /. (sin a_2) in
-    (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
-                                                   
+                                                         
   let apply3 q v =                      (* NOTE, code duplicate with apply4. *)
     let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
     let xx = q.x *. q.x in let xy = q.x *. q.y in let xz = q.x *. q.z in 
