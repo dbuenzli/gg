@@ -1630,33 +1630,33 @@ module M4 = struct
   let srigid ~move:d ~rot:(u, theta) ~scale:s = _srigid d (rot_axis u theta) s
   let srigidq ~move:d ~rot:q ~scale:s = _srigid d (of_quat q) s
 
-(*
   let ortho ~left ~right ~bottom ~top ~near ~far = 
     let drl = 1. /. (right -. left) in
     let dtb = 1. /. (top -. bottom) in
-    let dfn = 1. /. (far -. near) in m4
+    let dfn = 1. /. (far -. near) in v
       (2. *. drl) 0.           0.             (-. (right +. left) *. drl)  
       0.          (2. *. dtb)  0.             (-. (top +. bottom) *. dtb)
-      0.          0.           (-. 2. *. dfn) (-. (far +. near) *. dfn)
+      0.          0.           (-. 2. *. dfn) (-. (far +. near)   *. dfn)
       0.          0.           0.             1.0
       
   let persp ~left ~right ~bottom ~top ~near ~far = 
     let drl = 1. /. (right -. left) in
     let dtb = 1. /. (top -. bottom) in
     let dfn = 1. /. (far -. near) in 
-    let n2 = 2. *. near in m4
+    let n2 = 2. *. near in v
       (n2 *. drl)  0.          ((right +. left) *. drl)  0.
       0.           (n2 *. dtb) ((top +. bottom) *. dtb)  0.
       0.           0.          (-. (far +. near) *. dfn) (-. (n2 *. far) *. dfn)
       0.           0.          (-. 1.)                   0.
       
+(*
   let persp_fov ~fovy ~aspect ~near ~far = 
     let f = 1. /. tan (fovy *. 0.5) in 
-    let dnf = 1. /. (near -. far) in m4
-      (f /. aspect) 0. 0.                    0.
-      0.            f  0.                    0. 
+    let dnf = 1. /. (near -. far) in v
+      (f /. aspect) 0. 0.                     0.
+      0.            f  0.                     0. 
       0.            0. ((far +. near) *. dnf) ((2. *. far *. near) *. dnf)
-      0.            0. (-. 1.)               0.
+      0.            0. (-. 1.)                0.
 *)
 
   (* 4D space transforms *)      
