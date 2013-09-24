@@ -1474,21 +1474,27 @@ module M4_tests = struct
       >> (P3.tr m P3.o = P3.o) 
       >> C.success
 
-  let () = test "rigid" & fun r -> 
+  let () = test "rigid, rigidq" & fun r -> 
     let v = V3.v 2. 3. 4. in 
     let a = Float.pi_div_4 in 
     let m = M4.rigid v (V3.ox, a) in 
-    let m' = M4.mul (M4.move v) (M4.rot_axis V3.ox Float.pi_div_4) in 
-    r >> Cm.Order.(=) m m'
+    let mq = M4.rigidq v (Quat.rot_axis V3.ox a) in
+    let m' = M4.mul (M4.move v) (M4.rot_axis V3.ox a) in 
+    let cmp = M4.compare_f (Float.compare_tol ~eps) in 
+    r >> C.Order.(=) ~cmp ~pr:M4.pp m m'
+      >> C.Order.(=) ~cmp ~pr:M4.pp mq m'
+      >> C.success
 
-  let () = test "srigid" & fun r -> 
+  let () = test "srigid, srigidq" & fun r -> 
     let v = V3.v 2. 3. 4. in 
     let a = Float.pi_div_4 in 
     let m = M4.srigid v (V3.ox, a) v in
-    let ri = M4.mul (M4.move v) (M4.rot_axis V3.ox Float.pi_div_4) in
+    let mq = M4.srigidq v (Quat.rot_axis V3.ox a) v in
+    let ri = M4.mul (M4.move v) (M4.rot_axis V3.ox a) in
     let m' = M4.mul ri (M4.scale3 v) in 
     let cmp = M4.compare_f (Float.compare_tol ~eps) in 
     r >> C.Order.(=) ~cmp ~pr:M4.pp m m'
+      >> C.Order.(=) ~cmp ~pr:M4.pp mq m'
       >> C.success
 
   (* 4D space transformations *)

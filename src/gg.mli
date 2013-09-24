@@ -2011,9 +2011,18 @@ module M4 : sig
       of 3D space that rotates by the axis/angle [rot]
       and then translates by [move]. *)
 
+  val rigidq : move:v3 -> rot:quat -> m4
+  (** [rigid move rot] is the rigid body transformation of 3D space
+      that rotates by the quaternion [rot] and then translates by
+      [move]. *)
+
   val srigid : move:v3 -> rot:v3 * float -> scale:v3 -> m4
-  (** [rigid scale move rot scale] is lik {!rigid} but starts
+  (** [rigid scale move rot scale] is like {!rigid} but starts
       by scaling according to [scale]. *)
+
+  val srigidq : move:v3 -> rot:quat -> scale:v3 -> m4
+  (** [srigid move rot scale] is like {!rigidq} but starts by scaling 
+      according to [scale]. *)
 
 (*
 

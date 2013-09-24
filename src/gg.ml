@@ -1233,7 +1233,7 @@ module M3 = struct
     v c  (-. s) move.V2t.x
       s  c      move.V2t.y
       0. 0.     1.
-      
+
   let srigid ~move ~rot ~scale = 
     let c = cos rot in
     let s = sin rot in
@@ -1616,13 +1616,19 @@ module M4 = struct
       
   let rigid ~move:d ~rot:(u, theta) =
     { (rot_axis u theta) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
-    
-  let srigid ~move:d ~rot:(u, theta) ~scale:s =
-    let m = rot_axis u theta in
+
+  let rigidq ~move:d ~rot:q =
+    { (of_quat q) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
+
+
+  let _srigid d m s = 
     v (m.e00 *. s.V3t.x) (m.e01 *. s.V3t.y) (m.e02 *. s.V3t.z) d.V3t.x
       (m.e10 *. s.V3t.x) (m.e11 *. s.V3t.y) (m.e12 *. s.V3t.z) d.V3t.y
       (m.e20 *. s.V3t.x) (m.e21 *. s.V3t.y) (m.e22 *. s.V3t.z) d.V3t.z
       0.                 0.                 0.                 1. 
+
+  let srigid ~move:d ~rot:(u, theta) ~scale:s = _srigid d (rot_axis u theta) s
+  let srigidq ~move:d ~rot:q ~scale:s = _srigid d (of_quat q) s
 
 (*
   let ortho ~left ~right ~bottom ~top ~near ~far = 
