@@ -3078,6 +3078,8 @@ type raster
 
 (** Raster data.
 
+    {b WARNING.} This interface is subject to change in the future.
+
     Raster data organizes data samples of any dimension in discrete
     1D, 2D (images) or 3D space.
 
