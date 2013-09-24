@@ -1517,19 +1517,19 @@ module Quat_tests = struct
       end
       >> C.success
 
-  let () = test "rot_map, to_m3, of_m3" & fun r ->
+  let () = test "rot_map, M3.of_quat, of_m3" & fun r ->
     let m = M3.rot_map V3.ox V3.oz in
     let q = Quat.rot_map V3.ox V3.oz in
     let fcmp = Float.compare_tol ~eps in 
     let mcmp = M3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    r >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (Quat.to_m3 q))
+    r >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (M3.of_quat q))
       >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m3 m))
       >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.ox)) V3.oz) 
       >> (V4_tests.Cv.Order.(=) (chop4 (Quat.apply4 q V4.ox)) V4.oz) 
       >> C.success
 
-  let () = test "rot_axis, to_rot, to_m4, of_m4" & fun r ->
+  let () = test "rot_axis, to_rot, M3.of_quat, of_m4" & fun r ->
     let theta = Float.pi_div_2 in
     let m = M4.rot_axis V3.ox theta in 
     let q = Quat.rot_axis V3.ox theta in
@@ -1538,14 +1538,14 @@ module Quat_tests = struct
     let mcmp = M4.compare_f fcmp in 
     let vcmp = V3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    r >> (C.Order.(=) ~cmp:mcmp ~pr:M4.pp m (Quat.to_m4 q))
+    r >> (C.Order.(=) ~cmp:mcmp ~pr:M4.pp m (M4.of_quat q))
       >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m4 m))
       >> (C.Order.(=) ~cmp:vcmp ~pr:V3.pp axis V3.ox)
       >> (C.Order.(=) ~cmp:fcmp ~pr:Format.pp_print_float theta' theta)
       >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.oy)) V3.oz)
       >> C.success
 
-  let () = test "rot_zyx, to_zyx, to_m3, of_m3" & fun ru ->
+  let () = test "rot_zyx, to_zyx, M3.of_m3, of_m3" & fun ru ->
     let theta = Float.pi_div_2 in 
     let r = V3.v (-. theta) theta theta in
     let m = M3.rot_zyx r in
@@ -1555,7 +1555,7 @@ module Quat_tests = struct
     let mcmp = M3.compare_f fcmp in 
     let vcmp = V3.compare_f fcmp in 
     let qcmp = V4.compare_f fcmp in 
-    ru >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (Quat.to_m3 q))
+    ru >> (C.Order.(=) ~cmp:mcmp ~pr:M3.pp m (M3.of_quat q))
        >> (C.Order.(=) ~cmp:qcmp ~pr:V4.pp q (Quat.of_m3 m))
        >> (C.Order.(=) ~cmp:vcmp ~pr:V3.pp r r')
        >> (V3_tests.Cv.Order.(=) (chop3 (Quat.apply3 q V3.oy)) (V3.neg V3.oy))

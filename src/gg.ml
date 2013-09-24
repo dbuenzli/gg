@@ -734,6 +734,171 @@ module P3 = struct
       (m.e20 *. p.x +. m.e21 *. p.y +. m.e22 *. p.z +. m.e23)
 end
 
+(* Quaternions *)
+
+type quat = v4
+  
+module Quat = struct
+  open V4t
+  type t = quat
+    
+  (* Constructors, accessors and constants *)
+    
+  let v = V4.v
+  let zero = V4.zero
+  let id = V4.ow
+             
+  (* Functions *)
+             
+  let mul q r = 
+    v (q.y *. r.z -. q.z *. r.y +. q.x *. r.w +. q.w *. r.x)  
+      (q.z *. r.x -. q.x *. r.z +. q.y *. r.w +. q.w *. r.y)  
+      (q.x *. r.y -. q.y *. r.x +. q.z *. r.w +. q.w *. r.z)  
+      (q.w *. r.w -. q.x *. r.x -. q.y *. r.y -. q.z *. r.z)
+      
+  let conj q = v (-.q.x) (-.q.y) (-.q.z) q.w
+  let unit = V4.unit
+  let inv q =
+    let m = V4.norm2 q in
+    V4.smul (1.0 /. m) (conj q)
+      
+  let slerp q r t = 
+    let cosv = V4.dot q r in
+    let a = acos cosv in
+    if a < gg_eps then q else
+    let sinv = sin a in
+    let c = (sin ((1.0 -. t) *. a)) /. sinv in
+    let c' = (sin (t *. a)) /. sinv in 
+    V4.add (V4.smul c q) (V4.smul c' r)
+      
+  let squad q cq cr r t =
+    let u = slerp q r t in
+    let v = slerp cq cr t in
+    slerp u v (2.0 *. t *. (1.0 -. t)) 
+      
+  let nlerp q r t = V4.unit (V4.add q (V4.smul t (V4.sub r q)))
+      
+  (* 3D space transformations} *)      
+      
+  let rot_map u u' =
+    let e = V3.dot u u' in
+    let c = V3.cross u u' in
+    let r = sqrt (2. *. (1. +. e)) in 
+    v (c.V3t.x /. r) (c.V3t.y /. r) (c.V3t.z /. r) (r /. 2.)
+      
+  let rot_axis u theta =
+    let a = theta *. 0.5 in
+    let s = sin a in
+    v (s *. u.V3t.x) (s *. u.V3t.y) (s *. u.V3t.z) (cos a)
+      
+  let rot_zyx r = 
+    let hz = V3.z r *. 0.5 in 
+    let hy = V3.y r *. 0.5 in 
+    let hx = V3.x r *. 0.5 in 
+    let cz = cos hz in let sz = sin hz in
+    let cy = cos hy in let sy = sin hy in
+    let cx = cos hx in let sx = sin hx in 
+    let cycz = cy *. cz in let sysz = sy *. sz in 
+    let cysz = cy *. sz in let sycz = sy *. cz in 
+    v (cycz *. sx -. sysz *. cx) 
+      (cysz *. sx +. sycz *. cx) 
+      (cysz *. cx -. sycz *. sx) 
+      (cycz *. cx +. sysz *. sx) 
+      
+  let of_m3 m =                           (* NOTE code duplicate with of_m4. *)
+    let open M3t in
+    let v x y z w = unit (v x y z w) in
+    let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
+    if (tr > 0.0) then
+      let s = (sqrt tr) *. 2. in 
+      v ((m.e21 -. m.e12) /. s)
+        ((m.e02 -. m.e20) /. s)
+        ((m.e10 -. m.e01) /. s)
+        (0.25 *. s)
+    else if (m.e00 > m.e11 && m.e00 > m.e22) then
+      let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
+      v (0.25 *. s)
+        ((m.e10 +. m.e01) /. s)
+        ((m.e02 +. m.e20) /. s)
+        ((m.e21 -. m.e12) /. s)
+    else if (m.e11 > m.e22) then
+      let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
+      v ((m.e10 +. m.e01) /. s)
+        (0.25 *. s)
+        ((m.e21 +. m.e12) /. s)
+        ((m.e02 -. m.e20) /. s)
+    else
+      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
+      v ((m.e02 +. m.e20) /. s)
+        ((m.e21 +. m.e12) /. s)
+        (0.25 *. s)
+        ((m.e10 -. m.e01) /. s)
+      
+  let of_m4 m =                           (* NOTE code duplicate with of_m3. *)
+    let open M4t in
+    let v x y z w = unit (v x y z w) in
+    let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
+    if (tr > 0.0) then
+      let s = (sqrt tr) *. 2. in 
+      v ((m.e21 -. m.e12) /. s)
+        ((m.e02 -. m.e20) /. s)
+        ((m.e10 -. m.e01) /. s)
+        (0.25 *. s)
+    else if (m.e00 > m.e11 && m.e00 > m.e22) then
+      let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
+      v (0.25 *. s)
+        ((m.e10 +. m.e01) /. s)
+        ((m.e02 +. m.e20) /. s)
+        ((m.e21 -. m.e12) /. s)
+    else if (m.e11 > m.e22) then
+      let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
+      v ((m.e10 +. m.e01) /. s)
+        (0.25 *. s)
+        ((m.e21 +. m.e12) /. s)
+        ((m.e02 -. m.e20) /. s)
+    else
+      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
+      v ((m.e02 +. m.e20) /. s)
+        ((m.e21 +. m.e12) /. s)
+        (0.25 *. s)
+        ((m.e10 -. m.e01) /. s)
+      
+  let to_zyx q = 
+    let xx = q.x *. q.x in let yy = q.y *. q.y in let zz = q.z *. q.z in
+    let ww = q.w *. q.w in 
+    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
+    let zx = q.z *. q.x in let zy = q.z *. q.y in 
+    let xy = q.x *. q.y in V3.v
+      (atan2 (2. *. (zy +. wx)) (ww -. xx -. yy +. zz))
+      (asin (-2. *. (zx -. wy)))
+      (atan2 (2. *. (xy +. wz)) (ww +. xx -. yy -. zz))
+      
+  let to_axis q = 
+    let a_2 = acos q.w in
+    if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
+    let d = 1.0 /. (sin a_2) in
+    (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
+                                                   
+  let apply3 q v =                      (* NOTE, code duplicate with apply4. *)
+    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
+    let xx = q.x *. q.x in let xy = q.x *. q.y in let xz = q.x *. q.z in 
+    let yy = q.y *. q.y in let yz = q.y *. q.z in let zz = q.z *. q.z in 
+    let x = v.V3t.x in let y = v.V3t.y in let z = v.V3t.z in V3.v
+      (x +. 2. *. ((-. yy -. zz) *. x +. (xy -. wz) *. y +. (wy +. xz) *. z))
+      (y +. 2. *. ((wz +. xy) *. x +. (-. xx -. zz) *. y +. (yz -. wx) *. z))
+      (z +. 2. *. ((xz -. wy) *. x +. (wx +. yz) *. y +. (-. xx -. yy) *. z))
+      
+  let apply4 q v =                      (* NOTE, code duplicate with apply3. *)
+    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
+    let xx = q.x *. q.x in let xy = q.x *. q.y in let xz = q.x *. q.z in 
+    let yy = q.y *. q.y in let yz = q.y *. q.z in let zz = q.z *. q.z in 
+    let x = v.x in let y = v.y in let z = v.z in V4.v
+      (x +. 2. *. ((-. yy -. zz) *. x +. (xy -. wz) *. y +. (wy +. xz) *. z))
+      (y +. 2. *. ((wz +. xy) *. x +. (-. xx -. zz) *. y +. (yz -. wx) *. z))
+      (z +. 2. *. ((xz -. wy) *. x +. (wx +. yz) *. y +. (-. xx -. yy) *. z))
+      v.w
+end
+
 (* Matrices *)
 
 module type M = sig
@@ -962,6 +1127,16 @@ module M3 = struct
     v a.M4t.e00 a.M4t.e01 a.M4t.e02
       a.M4t.e10 a.M4t.e11 a.M4t.e12
       a.M4t.e20 a.M4t.e21 a.M4t.e22
+
+  let of_quat q =                   (* NOTE, code duplicate with M4.of_quat. *)
+    let open V4t in
+    let x2 = q.x +. q.x in let y2 = q.y +. q.y in let z2 = q.z +. q.z in
+    let xx2 = x2 *. q.x in let xy2 = x2 *. q.y in let xz2 = x2 *. q.z in
+    let xw2 = x2 *. q.w in let yy2 = y2 *. q.y in let yz2 = y2 *. q.z in
+    let yw2 = y2 *. q.w in let zz2 = z2 *. q.z in let zw2 = z2 *. q.w in v
+      (1.0 -. yy2 -. zz2) (xy2 -. zw2)        (xz2 +. yw2)         
+      (xy2 +. zw2)        (1.0 -. xx2 -. zz2) (yz2 -. xw2)         
+      (xz2 -. yw2)        (yz2 +. xw2)        (1.0 -. xx2 -. yy2)
       
   (* Functions *)
       
@@ -1256,6 +1431,16 @@ module M4 = struct
       a.M3t.e10 a.M3t.e11 a.M3t.e12 u.V3t.y
       a.M3t.e20 a.M3t.e21 a.M3t.e22 u.V3t.z
       0.        0.        0.        1. 
+
+  let of_quat q =                   (* NOTE, code duplicate with M3.of_quat. *)
+    let x2 = q.x +. q.x in let y2 = q.y +. q.y in let z2 = q.z +. q.z in
+    let xx2 = x2 *. q.x in let xy2 = x2 *. q.y in let xz2 = x2 *. q.z in
+    let xw2 = x2 *. q.w in let yy2 = y2 *. q.y in let yz2 = y2 *. q.z in
+    let yw2 = y2 *. q.w in let zz2 = z2 *. q.z in let zw2 = z2 *. q.w in v
+      (1.0 -. yy2 -. zz2) (xy2 -. zw2)         (xz2 +. yw2)          0.0
+      (xy2 +. zw2)        (1.0 -. xx2 -. zz2)  (yz2 -. xw2)          0.0
+      (xz2 -. yw2)        (yz2 +. xw2)         (1.0 -. xx2 -. yy2)   0.0
+      0.0                 0.0                  0.0                   1.0
       
   (* Functions *)
       
@@ -1600,190 +1785,6 @@ module M4 = struct
   let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p 
 end    
-
-(* Quaternions *)
-
-type quat = v4
-  
-module Quat = struct
-  open V4t
-  type t = quat
-    
-  (* Constructors, accessors and constants *)
-    
-  let v = V4.v
-  let zero = V4.zero
-  let id = V4.ow
-             
-  (* Functions *)
-             
-  let mul q r = 
-    v (q.y *. r.z -. q.z *. r.y +. q.x *. r.w +. q.w *. r.x)  
-      (q.z *. r.x -. q.x *. r.z +. q.y *. r.w +. q.w *. r.y)  
-      (q.x *. r.y -. q.y *. r.x +. q.z *. r.w +. q.w *. r.z)  
-      (q.w *. r.w -. q.x *. r.x -. q.y *. r.y -. q.z *. r.z)
-      
-  let conj q = v (-.q.x) (-.q.y) (-.q.z) q.w
-  let unit = V4.unit
-  let inv q =
-    let m = V4.norm2 q in
-    V4.smul (1.0 /. m) (conj q)
-      
-  let slerp q r t = 
-    let cosv = V4.dot q r in
-    let a = acos cosv in
-    if a < gg_eps then q else
-    let sinv = sin a in
-    let c = (sin ((1.0 -. t) *. a)) /. sinv in
-    let c' = (sin (t *. a)) /. sinv in 
-    V4.add (V4.smul c q) (V4.smul c' r)
-      
-  let squad q cq cr r t =
-    let u = slerp q r t in
-    let v = slerp cq cr t in
-    slerp u v (2.0 *. t *. (1.0 -. t)) 
-      
-  let nlerp q r t = V4.unit (V4.add q (V4.smul t (V4.sub r q)))
-      
-  (* 3D space transformations} *)      
-      
-  let rot_map u u' =
-    let e = V3.dot u u' in
-    let c = V3.cross u u' in
-    let r = sqrt (2. *. (1. +. e)) in 
-    v (c.V3t.x /. r) (c.V3t.y /. r) (c.V3t.z /. r) (r /. 2.)
-      
-  let rot_axis u theta =
-    let a = theta *. 0.5 in
-    let s = sin a in
-    v (s *. u.V3t.x) (s *. u.V3t.y) (s *. u.V3t.z) (cos a)
-      
-  let rot_zyx r = 
-    let hz = V3.z r *. 0.5 in 
-    let hy = V3.y r *. 0.5 in 
-    let hx = V3.x r *. 0.5 in 
-    let cz = cos hz in let sz = sin hz in
-    let cy = cos hy in let sy = sin hy in
-    let cx = cos hx in let sx = sin hx in 
-    let cycz = cy *. cz in let sysz = sy *. sz in 
-    let cysz = cy *. sz in let sycz = sy *. cz in 
-    v (cycz *. sx -. sysz *. cx) 
-      (cysz *. sx +. sycz *. cx) 
-      (cysz *. cx -. sycz *. sx) 
-      (cycz *. cx +. sysz *. sx) 
-      
-  let of_m3 m =                           (* NOTE code duplicate with of_m4. *)
-    let open M3t in
-    let v x y z w = unit (v x y z w) in
-    let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
-    if (tr > 0.0) then
-      let s = (sqrt tr) *. 2. in 
-      v ((m.e21 -. m.e12) /. s)
-        ((m.e02 -. m.e20) /. s)
-        ((m.e10 -. m.e01) /. s)
-        (0.25 *. s)
-    else if (m.e00 > m.e11 && m.e00 > m.e22) then
-      let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
-      v (0.25 *. s)
-        ((m.e10 +. m.e01) /. s)
-        ((m.e02 +. m.e20) /. s)
-        ((m.e21 -. m.e12) /. s)
-    else if (m.e11 > m.e22) then
-      let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
-      v ((m.e10 +. m.e01) /. s)
-        (0.25 *. s)
-        ((m.e21 +. m.e12) /. s)
-        ((m.e02 -. m.e20) /. s)
-    else
-      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
-      v ((m.e02 +. m.e20) /. s)
-        ((m.e21 +. m.e12) /. s)
-        (0.25 *. s)
-        ((m.e10 -. m.e01) /. s)
-      
-  let of_m4 m =                           (* NOTE code duplicate with of_m3. *)
-    let open M4t in
-    let v x y z w = unit (v x y z w) in
-    let tr = 1. +. m.e00 +. m.e11 +. m.e22 in
-    if (tr > 0.0) then
-      let s = (sqrt tr) *. 2. in 
-      v ((m.e21 -. m.e12) /. s)
-        ((m.e02 -. m.e20) /. s)
-        ((m.e10 -. m.e01) /. s)
-        (0.25 *. s)
-    else if (m.e00 > m.e11 && m.e00 > m.e22) then
-      let s = sqrt (1. +. m.e00 -. m.e11 -. m.e22) *. 2. in
-      v (0.25 *. s)
-        ((m.e10 +. m.e01) /. s)
-        ((m.e02 +. m.e20) /. s)
-        ((m.e21 -. m.e12) /. s)
-    else if (m.e11 > m.e22) then
-      let s = sqrt (1. +. m.e11 -. m.e00 -. m.e22) *. 2. in
-      v ((m.e10 +. m.e01) /. s)
-        (0.25 *. s)
-        ((m.e21 +. m.e12) /. s)
-        ((m.e02 -. m.e20) /. s)
-    else
-      let s = sqrt (1. +. m.e22 -. m.e00 -. m.e11) *. 2. in
-      v ((m.e02 +. m.e20) /. s)
-        ((m.e21 +. m.e12) /. s)
-        (0.25 *. s)
-        ((m.e10 -. m.e01) /. s)
-      
-  let to_zyx q = 
-    let xx = q.x *. q.x in let yy = q.y *. q.y in let zz = q.z *. q.z in
-    let ww = q.w *. q.w in 
-    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
-    let zx = q.z *. q.x in let zy = q.z *. q.y in 
-    let xy = q.x *. q.y in V3.v
-      (atan2 (2. *. (zy +. wx)) (ww -. xx -. yy +. zz))
-      (asin (-2. *. (zx -. wy)))
-      (atan2 (2. *. (xy +. wz)) (ww +. xx -. yy -. zz))
-      
-  let to_axis q = 
-    let a_2 = acos q.w in
-    if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
-    let d = 1.0 /. (sin a_2) in
-    (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
-                                             
-  let to_m3 q =                          (* NOTE, code duplicate with to_m4. *)
-    let x2 = q.x +. q.x in let y2 = q.y +. q.y in let z2 = q.z +. q.z in
-    let xx2 = x2 *. q.x in let xy2 = x2 *. q.y in let xz2 = x2 *. q.z in
-    let xw2 = x2 *. q.w in let yy2 = y2 *. q.y in let yz2 = y2 *. q.z in
-    let yw2 = y2 *. q.w in let zz2 = z2 *. q.z in let zw2 = z2 *. q.w in M3.v
-      (1.0 -. yy2 -. zz2) (xy2 -. zw2)        (xz2 +. yw2)         
-      (xy2 +. zw2)        (1.0 -. xx2 -. zz2) (yz2 -. xw2)         
-      (xz2 -. yw2)        (yz2 +. xw2)        (1.0 -. xx2 -. yy2)
-      
-  let to_m4 q =                          (* NOTE, code duplicate with to_m3. *)
-    let x2 = q.x +. q.x in let y2 = q.y +. q.y in let z2 = q.z +. q.z in
-    let xx2 = x2 *. q.x in let xy2 = x2 *. q.y in let xz2 = x2 *. q.z in
-    let xw2 = x2 *. q.w in let yy2 = y2 *. q.y in let yz2 = y2 *. q.z in
-    let yw2 = y2 *. q.w in let zz2 = z2 *. q.z in let zw2 = z2 *. q.w in M4.v
-      (1.0 -. yy2 -. zz2) (xy2 -. zw2)         (xz2 +. yw2)          0.0
-      (xy2 +. zw2)        (1.0 -. xx2 -. zz2)  (yz2 -. xw2)          0.0
-      (xz2 -. yw2)        (yz2 +. xw2)         (1.0 -. xx2 -. yy2)   0.0
-      0.0                 0.0                  0.0                   1.0
-      
-  let apply3 q v =                      (* NOTE, code duplicate with apply4. *)
-    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
-    let xx = q.x *. q.x in let xy = q.x *. q.y in let xz = q.x *. q.z in 
-    let yy = q.y *. q.y in let yz = q.y *. q.z in let zz = q.z *. q.z in 
-    let x = v.V3t.x in let y = v.V3t.y in let z = v.V3t.z in V3.v
-      (x +. 2. *. ((-. yy -. zz) *. x +. (xy -. wz) *. y +. (wy +. xz) *. z))
-      (y +. 2. *. ((wz +. xy) *. x +. (-. xx -. zz) *. y +. (yz -. wx) *. z))
-      (z +. 2. *. ((xz -. wy) *. x +. (wx +. yz) *. y +. (-. xx -. yy) *. z))
-      
-  let apply4 q v =                      (* NOTE, code duplicate with apply3. *)
-    let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
-    let xx = q.x *. q.x in let xy = q.x *. q.y in let xz = q.x *. q.z in 
-    let yy = q.y *. q.y in let yz = q.y *. q.z in let zz = q.z *. q.z in 
-    let x = v.x in let y = v.y in let z = v.z in V4.v
-      (x +. 2. *. ((-. yy -. zz) *. x +. (xy -. wz) *. y +. (wy +. xz) *. z))
-      (y +. 2. *. ((wz +. xy) *. x +. (-. xx -. zz) *. y +. (yz -. wx) *. z))
-      (z +. 2. *. ((xz -. wy) *. x +. (wx +. yz) *. y +. (-. xx -. yy) *. z))
-      v.w
-end
 
 (* Sizes *)
 

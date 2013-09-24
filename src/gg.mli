@@ -7,8 +7,8 @@
 (** Basic types for computer graphics.  
 
     [Gg] defines types and functions for {{!Float}floats},
-    {{!vectors}vectors}, {{!points}points},
-    {{!matrices}matrices}, {{!quaternions}quaternions}, {{!sizes}sizes},
+    {{!vectors}vectors}, {{!points}points}, {{!matrices}matrices}, 
+    {{!quaternions}quaternions}, {{!sizes}sizes}, 
     {{!aboxes}axis aligned boxes}, {{!colors}colors}, 
     {{!Color.colorprofiles}color profiles} and {{!raster}raster data}.
 
@@ -1265,6 +1265,98 @@ module P3 : sig
       to transform vectors (infinite points). *)
 end
 
+(** {1:quaternions Quaternions} 
+
+    Unit {{:http://mathworld.wolfram.com/Quaternion.html}quaternions}
+    represent rotations in 3D space. They allow to smoothly
+    interpolate between orientations. A quaternion is a 4D vector,
+    whose components [x], [y], [z], [w] represents the quaternion
+    [x]i+ [y]j + [z]k + [w]. *)
+
+type quat = v4
+(** The type for quaternions. *)
+
+module Quat : sig
+
+  type t = quat
+  (** The type for quaternions. *)
+
+  (** {1:cons Constructors, accessors and constants} *)
+
+  val v : float -> float -> float -> float -> quat
+  (** [v x y z w] is the quaternion [x]i+ [y]j + [z]k + [w]. *) 
+
+  val zero : quat
+  (** [zero] is the zero quaternion. *)  
+
+  val id : quat
+  (** [id] is the identity quaternion [1]. *)
+
+  (** {1:functions Functions} *)
+
+  val mul : quat -> quat -> quat
+  (** [mul q r] is the quaternion multiplication [q * r]. *)
+
+  val conj : quat -> quat
+  (** [conj q] is the 
+      {{:http://mathworld.wolfram.com/QuaternionConjugate.html}quaternion 
+      conjugate} [q*]. *)
+
+  val unit : quat -> quat
+  (** [unit q] is the unit vector [q/|q|] (same as {!V4.unit}). *) 
+
+  val inv : quat -> quat
+  (** [inv q] is the quaternion inverse [q]{^ -1}. *)
+
+  val slerp : quat -> quat -> float -> quat
+  (** [slerp q r t] is the spherical linear interpolation between [q]
+      and [r] at [t]. Non commutative, torque minimal and constant
+      velocity. *)
+
+  val squad : quat -> quat -> quat -> quat -> float -> quat
+  (** [squad q cq cr r t] is the spherical cubic interpolation
+      between [q] and [r] at [t]. [cq] and [cr] indicate the tangent
+      orientations at [q] and [r]. *)
+
+  val nlerp : quat -> quat -> float -> quat
+  (** [nlerp q r t] is the normalized linear interpolation between [q]
+      and [r] at [t].  Commutative, torque minimal and inconstant
+      velocity. *)
+
+  (** {1:transformations3d 3D space transformations} *)
+
+  val rot_map : v3 -> v3 -> quat
+  (** Unit quaternion for the rotation, see {!M3.rot_map}. *)
+
+  val rot_axis : v3 -> float -> quat 
+  (** Unit quaternion for the rotation, see {!M3.rot_axis}. *)
+
+  val rot_zyx : v3 -> quat
+  (** Unit quaternion for the rotation, see {!M3.rot_zyx}. *)
+
+  val of_m3 : m3 -> quat
+  (** [of_m3 m] is the unit quaternion for the rotation in [m]. *)
+
+  val of_m4 : m4 -> quat
+  (** [of_m4 m] is the unit quaternion for the rotation in the 3x3
+      top left matrix in [m]. *)
+
+  val to_zyx : quat -> v3
+  (** [to_zyx q] is the x, y, z axis angles of the {e unit} quaternion [q]. *)
+
+  val to_axis : quat -> v3 * float
+  (** [to_axis q] is the rotation axis and angle of the {e unit} 
+      quaternion [q].*)
+  
+  val apply3 : quat -> v3 -> v3 
+  (** [apply3 q v] applies the 3D rotation of the {e unit} quaternion
+      [q] to the vector (or point) [v]. *)
+
+  val apply4 : quat -> v4 -> v4
+  (** [apply4 q v] apply the 3D rotation of the {e unit} quaternion
+      [q] to the homogenous vector (or point) [v]. *)
+end
+
 (** {1:matrices Matrices} 
 
     An {e m}x{e n} matrix [a] is an array of {e m} rows and {e n}
@@ -1273,8 +1365,8 @@ end
 
     Matrix constructors specify matrix elements in
     {{:http://en.wikipedia.org/wiki/Row-major_order}row-major order}
-    so that matrix definitions look mathematically natural if you
-    indent your code properly. However elements are {e stored} and {e
+    so that matrix definitions look mathematically natural with proper
+    code indentation. However elements are {e stored} and {e
     iterated} over in
     {{:http://en.wikipedia.org/wiki/Column-major_order}column-major
     order}. *)
@@ -1638,6 +1730,10 @@ module M3 : sig
   val of_m4 : m4 -> m3
   (** [of_m4 m] extracts the 3D linear part (top-left 3x3 matrix) of [m]. *)
 
+  val of_quat : quat -> m3
+  (** [of_quat q] is the rotation of the {e unit} quaternion [q] as
+      3D matrix. *)
+
   (** {1:functions Functions} *)
 
   val neg : m3 -> m3
@@ -1844,6 +1940,10 @@ module M4 : sig
   (** [of_m3_v3 m v] is the matrix whose first three rows are
       those of [m],[v] side by side and the fourth is [0 0 0 1]. *)
 
+  val of_quat : quat -> m4
+  (** [to_quat q] is the rotation of the {e unit} quaternion [q] as
+      4D matrix. *)
+
   (** {1:functions Functions} *)
 
   val neg : m4 -> m4
@@ -2029,106 +2129,6 @@ module M4 : sig
   val e31 : m4 -> float
   val e32 : m4 -> float
   val e33 : m4 -> float
-end
-
-(** {1:quaternions Quaternions} 
-
-    Unit {{:http://mathworld.wolfram.com/Quaternion.html}quaternions}
-    represent rotations in 3D space. They allow to smoothly
-    interpolate between orientations. A quaternion is a 4D vector,
-    whose components [x], [y], [z], [w] represents the quaternion
-    [x]i+ [y]j + [z]k + [w]. *)
-
-type quat = v4
-(** The type for quaternions. *)
-
-module Quat : sig
-
-  type t = quat
-  (** The type for quaternions. *)
-
-  (** {1:cons Constructors, accessors and constants} *)
-
-  val v : float -> float -> float -> float -> quat
-  (** [v x y z w] is the quaternion [x]i+ [y]j + [z]k + [w]. *) 
-
-  val zero : quat
-  (** [zero] is the zero quaternion. *)  
-
-  val id : quat
-  (** [id] is the identity quaternion [1]. *)
-
-  (** {1:functions Functions} *)
-
-  val mul : quat -> quat -> quat
-  (** [mul q r] is the quaternion multiplication [q * r]. *)
-
-  val conj : quat -> quat
-  (** [conj q] is the 
-      {{:http://mathworld.wolfram.com/QuaternionConjugate.html}quaternion 
-      conjugate} [q*]. *)
-
-  val unit : quat -> quat
-  (** [unit q] is the unit vector [q/|q|] (same as {!V4.unit}). *) 
-
-  val inv : quat -> quat
-  (** [inv q] is the quaternion inverse [q]{^ -1}. *)
-
-  val slerp : quat -> quat -> float -> quat
-  (** [slerp q r t] is the spherical linear interpolation between [q]
-      and [r] at [t]. Non commutative, torque minimal and constant
-      velocity. *)
-
-  val squad : quat -> quat -> quat -> quat -> float -> quat
-  (** [squad q cq cr r t] is the spherical cubic interpolation
-      between [q] and [r] at [t]. [cq] and [cr] indicate the tangent
-      orientations at [q] and [r]. *)
-
-  val nlerp : quat -> quat -> float -> quat
-  (** [nlerp q r t] is the normalized linear interpolation between [q]
-      and [r] at [t].  Commutative, torque minimal and inconstant
-      velocity. *)
-
-  (** {1:transformations3d 3D space transformations} *)
-
-  val rot_map : v3 -> v3 -> quat
-  (** Unit quaternion for the rotation, see {!M3.rot_map}. *)
-
-  val rot_axis : v3 -> float -> quat 
-  (** Unit quaternion for the rotation, see {!M3.rot_axis}. *)
-
-  val rot_zyx : v3 -> quat
-  (** Unit quaternion for the rotation, see {!M3.rot_zyx}. *)
-
-  val of_m3 : m3 -> quat
-  (** [of_m3 m] is the unit quaternion for the rotation in [m]. *)
-
-  val of_m4 : m4 -> quat
-  (** [of_m4 m] is the unit quaternion for the rotation in the 3x3
-      top left matrix in [m]. *)
-
-  val to_zyx : quat -> v3
-  (** [to_zyx q] is the x, y, z axis angles of the {e unit} quaternion [q]. *)
-
-  val to_axis : quat -> v3 * float
-  (** [to_axis q] is the rotation axis and angle of the {e unit} 
-      quaternion [q].*)
-  
-  val to_m3 : quat -> m3
-  (** [to_m3 q] is the rotation of the {e unit} quaternion [q] as
-      3D matrix. *)
-
-  val to_m4 : quat -> m4
-  (** [to_m4 q] is the rotation of the {e unit} quaternion [q] as
-      4D matrix. *)
-
-  val apply3 : quat -> v3 -> v3 
-  (** [apply3 q v] applies the 3D rotation of the {e unit} quaternion
-      [q] to the vector (or point) [v]. *)
-
-  val apply4 : quat -> v4 -> v4
-  (** [apply4 q v] apply the 3D rotation of the {e unit} quaternion
-      [q] to the homogenous vector (or point) [v]. *)
 end
 
 (** {1:sizes Sizes} 
@@ -3421,12 +3421,11 @@ end
        For example {!M4.scale3} indicates scale in 3D space wihle {!M4.scale}
        scale in 4D space.}
     {- Most functions take the value they act upon first.
-       But exceptions abound, to match caml conventions, to have your 
+       But exceptions abound, to match OCaml conventions, to have your 
        curry or to match mathematical notation (e.g. {!V2.tr}).}
     {- Conversion functions follow the [of_] conventions. Thus to convert
        a value of type [t'] to a value of type [t] look for the function 
-       named [T.of_t']. Exception to this rule is the conversion from 
-       quaternions to matrices which are defined as [Quat.to_] functions.}}
+       named [T.of_t'].}}
 
     To conclude note that it is sometimes hard to find the right place
     for a function. If you cannot find a function look into each of
@@ -3468,7 +3467,7 @@ end
     {- [to_string] functions are not thread-safe. Thread-safety can
        be achieved with [pp] functions.} 
     {- Do not rely on the output of printer functions, they are
-       subject to change. However one exception is the {!Float} module
+       subject to change. The only exception is {!Float}'s module
        {{!Float.printers}printers} that output a lossless textual 
        representation of floats.  While the actual format is subject to 
        change it will remain compatible with [float_of_string].}
