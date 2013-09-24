@@ -28,6 +28,7 @@ add lib src/gg_top.cmxs
 
 add doc README.md
 add doc CHANGES.md
+add doc AUTHORS.md
 
 build
 install gg
