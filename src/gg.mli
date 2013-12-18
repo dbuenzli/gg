@@ -3120,23 +3120,23 @@ module Raster : sig
   (** [pp_scalar_type ppf st] prints a textual representation of [st]
       on [ppf]. *)
 
-  type ('a, 'b) b_array = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
+  type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
   (** The type for big arrays. *)
 
   type buffer = [ 
   | `S_UInt8 of string 
   | `A_Float64 of float array
-  | `B_Int8 of (int, Bigarray.int8_signed_elt) b_array
-  | `B_Int16 of (int, Bigarray.int16_signed_elt) b_array
-  | `B_Int32 of (int32, Bigarray.int32_elt) b_array
-  | `B_Int64 of (int64, Bigarray.int64_elt) b_array
-  | `B_UInt8 of (int, Bigarray.int8_unsigned_elt) b_array
-  | `B_UInt16 of (int, Bigarray.int16_unsigned_elt) b_array
-  | `B_UInt32 of (int32, Bigarray.int32_elt) b_array
-  | `B_UInt64 of (int64, Bigarray.int64_elt) b_array
-  | `B_Float16 of (int, Bigarray.int16_unsigned_elt) b_array
-  | `B_Float32 of (float, Bigarray.float32_elt) b_array
-  | `B_Float64 of (float, Bigarray.float64_elt) b_array ]
+  | `B_Int8 of (int, Bigarray.int8_signed_elt) bigarray
+  | `B_Int16 of (int, Bigarray.int16_signed_elt) bigarray
+  | `B_Int32 of (int32, Bigarray.int32_elt) bigarray
+  | `B_Int64 of (int64, Bigarray.int64_elt) bigarray
+  | `B_UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
+  | `B_UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `B_UInt32 of (int32, Bigarray.int32_elt) bigarray
+  | `B_UInt64 of (int64, Bigarray.int64_elt) bigarray
+  | `B_Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `B_Float32 of (float, Bigarray.float32_elt) bigarray
+  | `B_Float64 of (float, Bigarray.float64_elt) bigarray ]
   (** The type for linear buffer of scalars. *)
 
   val buffer_scalar_type : buffer -> scalar_type 
