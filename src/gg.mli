@@ -3431,7 +3431,7 @@ end
     Here are a few other conventions : 
     {ul
     {- Numbers in names indicate dimensionality when ambiguity can arise. 
-       For example {!M4.scale3} indicates scale in 3D space wihle {!M4.scale}
+       For example {!M4.scale3} indicates scale in 3D space while {!M4.scale}
        scale in 4D space.}
     {- Most functions take the value they act upon first.
        But exceptions abound, to match OCaml conventions, to have your 
