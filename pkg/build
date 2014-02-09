@@ -11,6 +11,7 @@ NATIVE=$1
 
 add lib pkg/META		
 add lib src/gg.mli	
+add lib src/gg.cmti
 add lib src/gg.cmi
 add lib src/gg.cmx
 add lib src/gg.cma
