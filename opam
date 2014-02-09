@@ -6,7 +6,7 @@ doc: "http://erratique.ch/software/gg/doc/Gg"
 tags: [ "matrix" "vector" "color" "data-structure" "graphics" ]
 license: "BSD3"
 depends: ["ocamlfind"]
-ocaml-version: [>= "4.01.0"]
+ocaml-version: [>= "4.00.0"]
 build: 
 [
   ["./pkg/pkg-git" ] 
