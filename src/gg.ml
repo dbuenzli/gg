@@ -998,6 +998,8 @@ module M2 = struct
       (a.e10 -. b.e10) (a.e11 -. b.e11)
       
   let mul a b = 
+    if a == id then b else 
+    if b == id then a else
     v (a.e00 *. b.e00 +. a.e01 *. b.e10) (a.e00 *. b.e01 +. a.e01 *. b.e11)
       (a.e10 *. b.e00 +. a.e11 *. b.e10) (a.e10 *. b.e01 +. a.e11 *. b.e11)
       
@@ -1161,6 +1163,8 @@ module M3 = struct
       (a.e20 -. b.e20) (a.e21 -. b.e21) (a.e22 -. b.e22) 
       
   let mul a b =
+    if a == id then b else 
+    if b == id then a else
     v (a.e00 *. b.e00 +. a.e01 *. b.e10 +. a.e02 *. b.e20)
       (a.e00 *. b.e01 +. a.e01 *. b.e11 +. a.e02 *. b.e21)
       (a.e00 *. b.e02 +. a.e01 *. b.e12 +. a.e02 *. b.e22)
@@ -1468,6 +1472,8 @@ module M4 = struct
       (a.e30 -. b.e30) (a.e31 -. b.e31) (a.e32 -. b.e32) (a.e33 -. b.e33)
       
   let mul a b =
+    if a == id then b else 
+    if b == id then a else
     v (a.e00 *. b.e00 +. a.e01 *. b.e10 +. a.e02 *. b.e20 +. a.e03 *. b.e30)
       (a.e00 *. b.e01 +. a.e01 *. b.e11 +. a.e02 *. b.e21 +. a.e03 *. b.e31)
       (a.e00 *. b.e02 +. a.e01 *. b.e12 +. a.e02 *. b.e22 +. a.e03 *. b.e32)
