@@ -2687,11 +2687,8 @@ module Raster = struct
     
   let pp_scalar_type ppf st = Format.fprintf ppf "%s" (scalar_type_str st)
       
-  type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
-  type buffer = [ 
-    | `String of string 
-    | `Float_array of float array
-    | `Int8 of (int, Bigarray.int8_signed_elt) bigarray
+  type buffer = 
+    [ `Int8 of (int, Bigarray.int8_signed_elt) bigarray
     | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
     | `Int32 of (int32, Bigarray.int32_elt) bigarray
     | `Int64 of (int64, Bigarray.int64_elt) bigarray
@@ -2708,17 +2705,15 @@ module Raster = struct
   | `Int16 _ -> `Int16 
   | `Int32 _ -> `Int32
   | `Int64 _ -> `Int64
-  | `UInt8 _ | `String _ -> `UInt8
+  | `UInt8 _ -> `UInt8
   | `UInt16 _ -> `UInt16
   | `UInt32 _ -> `UInt32
   | `UInt64 _ -> `UInt64
   | `Float16 _ -> `Float16
   | `Float32 _ -> `Float32
-  | `Float64 _ | `Float_array _ -> `Float64
-
+  | `Float64 _ -> `Float64
+  
   let buffer_length_units ~bytes (b : buffer) = match b with
-  | `String s -> String.length s
-  | `Float_array a -> Array.length a * (if bytes then 4 else 1)
   | `Int8 b -> Bigarray.Array1.dim b
   | `Int16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
   | `Int32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
@@ -2730,18 +2725,13 @@ module Raster = struct
   | `Float16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
   | `Float32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
   | `Float64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
-    
+
   let buffer_length b = buffer_length_units ~bytes:false b
   let buffer_byte_length b = buffer_length_units ~bytes:true b
 
   let pp_buffer ppf b = 
-    let pp_info b = function 
-    | `String _ -> Format.fprintf ppf "@ (string)"
-    | `Float_array _ -> Format.fprintf ppf "@ (float@ array)"
-    | _ -> ()
-    in
-    Format.fprintf ppf "@[<1><buffer@ %a%a>@]" 
-    (* (buffer_length b) *) pp_scalar_type (buffer_scalar_type b) pp_info b
+    Format.fprintf ppf "@[<1><buffer@ %a %d>@]" 
+      pp_scalar_type (buffer_scalar_type b) (buffer_length b)
       
   (* Semantics *)
       
