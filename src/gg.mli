@@ -3119,6 +3119,23 @@ module Ba : sig
   val get_v4 : (float, 'b) bigarray -> int -> v4 
   (** [get_v4 b i] is the [i]th to [i+3]th scalars of [b] as a vector. *) 
   
+  val get_2d : ('a, 'b) bigarray -> int -> ('a * 'a)
+  (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b]. *)
+
+  val get_3d : ('a, 'b) bigarray -> int -> ('a * 'a * 'a) 
+  (** [get_v3 b i] is the [i]th to [i+2]th scalars of [b]. *)
+
+  val get_4d : ('a, 'b) bigarray -> int -> ('a * 'a * 'a * 'a)
+  (** [get_v4 b i] is the [i]th to [i+3]th scalars of [b]. *) 
+
+  (** {2 int32 Bigarray} *)
+
+  val geti_2d : (int32, 'b) bigarray -> int -> (int * int)
+  (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b]. *)
+
+  val geti_3d : (int32, 'b) bigarray -> int -> (int * int * int) 
+  (** [get_v3 b i] is the [i]th to [i+2]th scalars of [b]. *)
+
   (** {1:set Setting} *) 
 
   val set_v2 : (float, 'b) bigarray -> int -> v2 -> int

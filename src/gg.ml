@@ -2651,6 +2651,14 @@ module Ba = struct
   let get_v3 b i = V3.v b.{i} b.{i+1} b.{i+2}
   let get_v4 b i = V4.v b.{i} b.{i+1} b.{i+2} b.{i+3}
 
+  let get_2d b i = b.{i}, b.{i+1} 
+  let get_3d b i = b.{i}, b.{i+1}, b.{i+2}
+  let get_4d b i = b.{i}, b.{i+1}, b.{i+2}, b.{i+3}
+
+  let ic = Int32.to_int 
+  let geti_2d b i = ic b.{i}, ic b.{i+1}
+  let geti_3d b i = ic b.{i}, ic b.{i+1}, ic b.{i+2}
+
   (* Set *) 
 
   let set_v2 b i v = b.{i} <- V2.x v; b.{i+1} <- V2.y v; i+2
