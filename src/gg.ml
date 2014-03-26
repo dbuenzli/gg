@@ -2651,8 +2651,8 @@ module Raster = struct
   | `Float32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
   | `Float64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
     
-  let buffer_length b = buffer_length_units ~bytes:false 
-  let buffer_byte_length b = buffer_length_units ~bytes:true 
+  let buffer_length b = buffer_length_units ~bytes:false b
+  let buffer_byte_length b = buffer_length_units ~bytes:true b
 
   let pp_buffer ppf b = 
     let pp_info b = function 
