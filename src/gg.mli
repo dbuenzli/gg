@@ -3168,14 +3168,14 @@ type raster
     Raster data organizes data samples of any dimension in discrete
     1D, 2D (images) or 3D space.
 
-    A sample has a {{!type:sample_semantics}{e semantics}} that defines its
+    A sample has a {{!type:Sample.semantics}{e semantics}} that defines its
     dimension and the meaning of its {e components}. For example a 4D
     sample could represent a linear sRGBA sample. Samples are stored
     in a {{!type:buffer}linear buffer} of {e scalars} of a given
     {{!type:scalar_type}type}. A sample can use one scalar per component,
     can be packed in a single scalar or may have no direct obvious
     relationship to buffer scalars (compressed data). A
-    {{!type:sample_format}sample format} defines the semantics and
+    {{!type:Sample.format}sample format} defines the semantics and
     scalar storage of a sample.
 
     A {{!t}{e raster data}} value is a collection of samples indexed by width, 
@@ -3232,104 +3232,106 @@ module Raster : sig
   (** [pp_buffer b] prints a textual representation of [b] on 
       [ppf]. Does not print the buffer's data. *)
 
-  (** {1:semantics Sample semantics} *)
-
-  type sample_semantics = 
-    [ `Other of string * int
-    | `Color of Color.profile * bool]
-  (** The type for sample semantics. 
-      {ul 
-      {- [`Color (p, alpha)] is for color samples from the
-         color profile [p]. [alpha] indicates if there's an alpha
-         component on the {e right} of the color components.}
-      {- [`Other(label, dim)] is for samples of [dim] dimension 
-      identified by [label].}} *)
-  
-  val rgb_l : sample_semantics 
-  (** [rgb_l] is for linear RGB samples from the {!Color.p_rgb_l}
-      profile. *)
-  
-  val rgba_l : sample_semantics
-  (** [rgba_l] is for linear RGB samples from the  {!Color.p_rgb_l} 
-      profile with an alpha component. *)
-
-  val gray_l : sample_semantics
-  (** [gray_l] is for linear Gray samples from the {!Color.p_gray_l} 
-      profile. *)
-
-  val graya_l : sample_semantics
-  (** [graya_l] is for linear Gray samples from the {!Color.p_gray_l} 
-      luminance with an alpha component. *)
-
-  val pp_sample_semantics : Format.formatter -> sample_semantics -> unit 
-  (** [pp_sample_semantics ppf sem] prints a textual representation of [sem] 
-      on [ppf]. *)
-
-  (** {1:samples Sample format} *)
-
-  type sample_pack =
-    [ `PU8888 | `FourCC of string * scalar_type option
-    | `Other of string * scalar_type option ]
-  (** The type for sample packs. A sample pack describes storage for samples 
-      that do not use one scalar per component. 
-      {ul 
-      {- [`PU8888]. An arbitrary 4D sample X, Y, Z, W with unsigned
-         8 bits components packed in a single [`Uint32] scalar 
-         as [0xXXYYZZWWl].}
-      {- [`FourCC(code, restrict)]. A sample is stored according to the
-         format specified by the FourCC [code], a string of length 4.
-         If [restrict] is specified the pack can only be used with the
-         corresponding scalar type. For example [`FourCC("DXT5", Some
-         `Uint64)] can be used to specify a buffer of DXT5 compressed
-         data. [`FourCC] can also be used to describe the numerous YUV
-         packed pixel formats.}
-      {- [`Other(label, restrict)]. A sample is stored in some other
-         packing scheme identified by [label], [restrict] has the same
-         meaning as in [`FourCC].}}
-  *)
-
-  val pp_sample_pack : Format.formatter -> sample_pack -> unit 
-  (** [pp_sample_pack ppf pack] prints a textual representation of [pack]
-      on [ppf]. *)
-
-  type sample_format
-  (** The type for sample formats. *)
-  
-  val sample_format_v : ?pack:sample_pack -> sample_semantics -> 
-    scalar_type -> sample_format 
-  (** [sample_format_v pack sem st] is a sample format with semantics 
-      [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
-      per sample component is used. If present, see {!type:sample_pack}.
-
-     @raise Invalid_argument if [pack] is incompatible with [st], 
-     see {!type:sample_pack} or if a [pack] [`FourCC] code is not made of 
-     4 bytes. *)
-
-  val sf_semantics : sample_format -> sample_semantics 
-  (** [sf_semantics sf] is [sf]'s semantics. *)
-
-  val sf_scalar_type : sample_format -> scalar_type 
-  (** [sf_scalar_type sf] is [sf]'s buffer scalar type *)
-
-  val sf_pack : sample_format -> sample_pack option
-  (** [sf_pack sf] is [sf]'s sample pack, if any. *)
-
-  val sf_dim : sample_format -> int
-  (** [sf_dim sf] is [sf]'s sample dimension. *)
-
-  val sf_scalar_count : ?first:int -> ?w_skip:int -> ?h_skip:int -> 
-    w:int -> ?h:int -> ?d:int -> sample_format -> int
-  (** [sf_scalar_count first w_skip h_skip w h d sf] is the minimal 
-      number of scalars needed to hold a raster data with the corresponding 
-      parameters, see {!v} for their description. 
-
-      @raise Invalid_argument if [sf] is packed. *)
-
-  val pp_sample_format : Format.formatter -> sample_format -> unit 
-  (** [pp_sample_format ppf sf] prints a textual representation of [sf]
-      on [ppf].*)
-
   (** {1:raster Raster data} *)
+
+  (** Sample semantics and formats. *)
+  module Sample : sig
+
+    (** {1:semantics Sample semantics} *)
+    
+    type semantics = 
+      [ `Other of string * int
+      | `Color of Color.profile * bool]
+    (** The type for sample semantics. 
+        {ul 
+        {- [`Color (p, alpha)] is for color samples from the
+           color profile [p]. [alpha] indicates if there's an alpha
+           component on the {e right} of the color components.}
+        {- [`Other(label, dim)] is for samples of [dim] dimension 
+           identified by [label].}} *)
+  
+    val rgb_l : semantics 
+    (** [rgb_l] is for linear RGB samples from the {!Color.p_rgb_l}
+        profile. *)
+  
+    val rgba_l : semantics
+    (** [rgba_l] is for linear RGB samples from the  {!Color.p_rgb_l} 
+        profile with an alpha component. *)
+
+    val gray_l : semantics
+    (** [gray_l] is for linear Gray samples from the {!Color.p_gray_l} 
+        profile. *)
+
+    val graya_l : semantics
+    (** [graya_l] is for linear Gray samples from the {!Color.p_gray_l} 
+        luminance with an alpha component. *)
+
+    val pp_semantics : Format.formatter -> semantics -> unit 
+    (** [pp_sample_semantics ppf sem] prints a textual representation of [sem] 
+        on [ppf]. *)
+
+    (** {1:samples Sample format} *)
+
+    type pack =
+      [ `PU8888 | `FourCC of string * scalar_type option
+      | `Other of string * scalar_type option ]
+    (** The type for sample packs. A sample pack describes storage for samples 
+        that do not use one scalar per component. 
+        {ul 
+        {- [`PU8888]. An arbitrary 4D sample X, Y, Z, W with unsigned
+         8 bits components packed in a single [`UInt32] scalar 
+         as [0xXXYYZZWWl].}
+        {- [`FourCC(code, restrict)]. A sample is stored according to the
+           format specified by the FourCC [code], a string of length 4.
+           If [restrict] is specified the pack can only be used with the
+           corresponding scalar type. For example [`FourCC("DXT5", Some
+           `UInt64)] can be used to specify a buffer of DXT5 compressed
+           data. [`FourCC] can also be used to describe the numerous YUV
+           packed pixel formats.}
+        {- [`Other(label, restrict)]. A sample is stored in some other
+           packing scheme identified by [label], [restrict] has the same
+           meaning as in [`FourCC].}} *)
+      
+    val pp_pack : Format.formatter -> pack -> unit 
+    (** [pp_pack ppf pack] prints a textual representation of [pack]
+        on [ppf]. *)
+
+    type format
+    (** The type for sample formats. *)
+  
+    val format : ?pack:pack -> semantics -> scalar_type -> format 
+    (** [format pack sem st] is a sample format with semantics 
+        [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
+        per sample component is used. If present, see {!type:sample_pack}.
+        
+        @raise Invalid_argument if [pack] is incompatible with [st], 
+        see {!type:sample_pack} or if a [pack] [`FourCC] code is not made of 
+        4 bytes. *)
+
+    val semantics : format -> semantics 
+    (** [semantics sf] is [sf]'s semantics. *)
+      
+    val scalar_type : format -> scalar_type 
+    (** [scalar_type sf] is [sf]'s buffer scalar type *)
+
+    val pack : format -> pack option
+    (** [pack sf] is [sf]'s sample pack, if any. *)
+
+    val dim : format -> int
+    (** [dim sf] is [sf]'s sample dimension. *)
+
+    val scalar_count : ?first:int -> ?w_skip:int -> ?h_skip:int -> 
+      w:int -> ?h:int -> ?d:int -> format -> int
+    (** [sf_scalar_count first w_skip h_skip w h d sf] is the minimal 
+        number of scalars needed to hold a raster data with the corresponding 
+        parameters, see {!v} for their description. 
+        
+        @raise Invalid_argument if [sf] is packed. *)
+      
+    val pp_format : Format.formatter -> format -> unit 
+    (** [pp_format ppf sf] prints a textual representation of [sf]
+        on [ppf].*)
+  end
     
   type t = raster
   (** The type for raster data. *)
@@ -3337,7 +3339,7 @@ module Raster : sig
   (** {2 Constructor, accessors} *)
 
   val v : ?res:v3 -> ?first:int -> ?w_skip:int -> 
-  ?h_skip:int -> w:int -> ?h:int -> ?d:int -> sample_format -> buffer -> t
+  ?h_skip:int -> w:int -> ?h:int -> ?d:int -> Sample.format -> buffer -> t
   (** [v res first w_skip h_skip w h d sf buf] is raster data with 
       sample format [sf] and buffer [b].
       {ul
@@ -3386,7 +3388,7 @@ module Raster : sig
   val d : t -> int
   (** [d r] is the index depth in number of {e samples}. *)
 
-  val sample_format : t -> sample_format
+  val sample_format : t -> Sample.format
   (** [f_sample_format r] is [r]'s sample format. *)
 
   val buffer : t -> buffer

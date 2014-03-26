@@ -2732,90 +2732,92 @@ module Raster = struct
   let pp_buffer ppf b = 
     Format.fprintf ppf "@[<1><buffer@ %a %d>@]" 
       pp_scalar_type (buffer_scalar_type b) (buffer_length b)
-      
-  (* Semantics *)
-      
-  type sample_semantics = 
-    [ `Color of Color.profile * bool | `Other of string * int ]
-    
-  let rgb_l = `Color (Color.p_rgb_l, false)
-  let rgba_l = `Color (Color.p_rgb_l, true)
-  let gray_l = `Color (Color.p_gray_l, false)
-  let graya_l = `Color (Color.p_gray_l, true)
-  let pp_sample_semantics ppf = function 
-  | `Color (p, a) -> 
-      let a = if a then "A" else "" in
-      Format.fprintf ppf "%a%s" Color.pp_space (Color.profile_space p) a
-  | `Other (label, d) -> 
-      Format.fprintf ppf "%s(%dD)" label d
-        
-  type sample_pack =
-    [ `PU8888 | `FourCC of string * scalar_type option
-    | `Other of string * scalar_type option ]
 
-  let sample_pack_str p = match p with
-  | `PU8888 -> "P8888"
-  | `FourCC (c, _) -> str "'%s'" c
-  | `Other (s, _) -> str "%s" s
-                       
-  let pp_sample_pack ppf p = Format.fprintf ppf "%s" (sample_pack_str p)
-      
-  (* Sample format *)
-      
-  type sample_format =
-    { semantics : sample_semantics;
-      scalar_type : scalar_type; 
-      pack : sample_pack option; } 
-    
-  let sample_format_v ?pack semantics scalar_type = match pack with 
-  | None -> { semantics; scalar_type; pack }
-  | Some p -> 
-      let restrict = match p with 
-      | `PU8888 -> Some `UInt64 
-      | `Other (_, r) -> r
-      | `FourCC (c, r) -> 
-          if String.length c = 4 then r else invalid_arg (err_illegal_fourcc c)
-      in
-      match restrict with 
-      | None -> { semantics; scalar_type; pack } 
-      | Some st -> 
-          if st = scalar_type then { semantics; scalar_type; pack } else 
-          invalid_arg 
-            (err_sample_pack (sample_pack_str p) (scalar_type_str scalar_type))
-            
-  let sf_semantics sf = sf.semantics 
-  let sf_scalar_type sf = sf.scalar_type 
-  let sf_pack sf = sf.pack 
-  let sf_dim sf = match sf.semantics with 
-  | `Other (label, dim) -> dim 
-  | `Color (profile, alpha) -> 
-      Color.profile_dim profile + (if alpha then 1 else 0)
-                                  
-  let sf_scalar_count ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
-      ?(d = 1) sf 
-    = 
-    let x_pitch = sf_dim sf in 
-    let y_pitch = x_pitch * w + w_skip in
-    let z_pitch = y_pitch * h - w_skip (* last line *) + h_skip in
-    let size = z_pitch * d - h_skip (* last plane *) in 
-    first + size
-    
-  let pp_sample_format ppf sf =
-    let pp_opt_sample_pack ppf op = match op with 
-    | None -> () | Some pack -> Format.fprintf ppf "@ %a" pp_sample_pack pack 
-    in
-    Format.fprintf ppf 
-      "@[<1><sample_format@ %a@ %a%a>@]" 
-      pp_sample_semantics sf.semantics pp_scalar_type sf.scalar_type 
-      pp_opt_sample_pack sf.pack
-      
   (* Raster data *)
+
+  module Sample = struct
+    
+    (* Sample semantics *)
+  
+    type semantics = [ `Color of Color.profile * bool | `Other of string * int ]
+                     
+    let rgb_l = `Color (Color.p_rgb_l, false)
+    let rgba_l = `Color (Color.p_rgb_l, true)
+    let gray_l = `Color (Color.p_gray_l, false)
+    let graya_l = `Color (Color.p_gray_l, true)
+    let pp_semantics ppf = function 
+    | `Color (p, a) -> 
+        let a = if a then "A" else "" in
+        Format.fprintf ppf "%a%s" Color.pp_space (Color.profile_space p) a
+    | `Other (label, d) -> 
+        Format.fprintf ppf "%s(%dD)" label d
+          
+    (* Sample format *)
+          
+    type pack =
+      [ `PU8888 | `FourCC of string * scalar_type option
+      | `Other of string * scalar_type option ]
+      
+    let pack_str = function
+    | `PU8888 -> "P8888"
+    | `FourCC (c, _) -> str "'%s'" c
+    | `Other (s, _) -> str "%s" s      
+                         
+    let pp_pack ppf p = Format.fprintf ppf "%s" (pack_str p)
+        
+    type format =
+      { semantics : semantics;
+        scalar_type : scalar_type; 
+        pack : pack option; } 
+      
+    let format ?pack semantics scalar_type = match pack with 
+    | None -> { semantics; scalar_type; pack }
+    | Some p -> 
+        let restrict = match p with 
+        | `PU8888 -> Some `UInt64 
+        | `Other (_, r) -> r
+        | `FourCC (c, r) -> 
+            if String.length c = 4 then r else 
+            invalid_arg (err_illegal_fourcc c)
+        in
+        match restrict with 
+        | None -> { semantics; scalar_type; pack } 
+        | Some st -> 
+            if st = scalar_type then { semantics; scalar_type; pack } else 
+            invalid_arg 
+              (err_sample_pack (pack_str p) (scalar_type_str scalar_type))
+              
+    let semantics sf = sf.semantics 
+    let scalar_type sf = sf.scalar_type 
+    let pack sf = sf.pack 
+    let dim sf = match sf.semantics with 
+    | `Other (label, dim) -> dim 
+    | `Color (profile, alpha) -> 
+        Color.profile_dim profile + (if alpha then 1 else 0)
+                                    
+    let scalar_count ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
+        ?(d = 1) sf = 
+      let x_pitch = dim sf in 
+      let y_pitch = x_pitch * w + w_skip in
+      let z_pitch = y_pitch * h - w_skip (* last line *) + h_skip in
+      let size = z_pitch * d - h_skip (* last plane *) in 
+      first + size
+      
+    let pp_format ppf sf =
+      let pp_opt_pack ppf op = match op with 
+      | None -> () | Some pack -> Format.fprintf ppf "@ %a" pp_pack pack 
+      in
+      Format.fprintf ppf 
+        "@[<1><Sample.format@ %a@ %a%a>@]" 
+        pp_semantics sf.semantics pp_scalar_type sf.scalar_type 
+        pp_opt_pack sf.pack
+  end
       
   type t =
     { res : v3 option; 
       first : int; w_skip : int; h_skip : int;
       w : int; h : int; d : int; 
-      sf : sample_format; 
+      sf : Sample.format; 
       buf : buffer;  } 
     
   let v ?res ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) ?(d = 1) 
@@ -2840,8 +2842,8 @@ module Raster = struct
   let size2 r = Size2.v (float r.w) (float r.h)  
   let size3 r = Size3.v (float r.w) (float r.h) (float r.d)
   let pitches r =
-    if r.sf.pack <> None then invalid_arg err_packed_sf;
-    let x_pitch = sf_dim r.sf in 
+    if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
+    let x_pitch = Sample.dim r.sf in 
     let y_pitch = x_pitch * r.w + r.w_skip in
     let z_pitch = y_pitch * r.h - r.w_skip (* last line *) + r.h_skip in
     x_pitch, y_pitch, z_pitch          
@@ -2850,7 +2852,7 @@ module Raster = struct
     let range a v min max = 
       if v < min || v > max then failwith (err_irange a v min max);
     in
-    if r.sf.pack <> None then invalid_arg err_packed_sf; 
+    if r.sf.Sample.pack <> None then invalid_arg err_packed_sf; 
     range "x" x 0 (r.w - 1); 
     range "y" y 0 (r.h - 1); 
     range "z" z 0 (r.d - 1);
@@ -2875,7 +2877,7 @@ module Raster = struct
       Format.fprintf ppf "@[<1>(%d@ %d@ %d)@]" r.w r.h r.d
     in
     Format.fprintf ppf "@[<1><raster@ %a@ %a@ %a>@]" 
-      pp_size r pp_sample_format r.sf pp_buffer r.buf
+      pp_size r Sample.pp_format r.sf pp_buffer r.buf
 
   let to_string r = to_string_of_formatter pp r
 end
