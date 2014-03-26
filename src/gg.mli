@@ -3124,19 +3124,19 @@ module Raster : sig
   (** The type for big arrays. *)
 
   type buffer = [ 
-  | `S_UInt8 of string 
-  | `A_Float64 of float array
-  | `B_Int8 of (int, Bigarray.int8_signed_elt) bigarray
-  | `B_Int16 of (int, Bigarray.int16_signed_elt) bigarray
-  | `B_Int32 of (int32, Bigarray.int32_elt) bigarray
-  | `B_Int64 of (int64, Bigarray.int64_elt) bigarray
-  | `B_UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
-  | `B_UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
-  | `B_UInt32 of (int32, Bigarray.int32_elt) bigarray
-  | `B_UInt64 of (int64, Bigarray.int64_elt) bigarray
-  | `B_Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
-  | `B_Float32 of (float, Bigarray.float32_elt) bigarray
-  | `B_Float64 of (float, Bigarray.float64_elt) bigarray ]
+  | `String of string 
+  | `Float_array of float array
+  | `Int8 of (int, Bigarray.int8_signed_elt) bigarray
+  | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
+  | `Int32 of (int32, Bigarray.int32_elt) bigarray
+  | `Int64 of (int64, Bigarray.int64_elt) bigarray
+  | `UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
+  | `UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `UInt32 of (int32, Bigarray.int32_elt) bigarray
+  | `UInt64 of (int64, Bigarray.int64_elt) bigarray
+  | `Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `Float32 of (float, Bigarray.float32_elt) bigarray
+  | `Float64 of (float, Bigarray.float64_elt) bigarray ]
   (** The type for linear buffer of scalars. *)
 
   val buffer_scalar_type : buffer -> scalar_type 
