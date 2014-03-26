@@ -5,6 +5,7 @@
   ---------------------------------------------------------------------------*)
 
 let str = Printf.sprintf 
+let err_unsupported_by = str "unsupported bigarray kind" 
 let err_not_nan = "not a NaN"
 let err_empty_box = "empty box" 
 let err_packed_sf = "packed sample format"
@@ -18,6 +19,10 @@ let err_iclass arg v pos =
     
 let err_sample_pack p st = 
   str "sample pack %s incompatible with scalar type %s" p st
+
+let err_pp_ba_spec ~first ~stride ~count ~len =
+  str "invalid bounds: first:%d + stride:%d * count:%d >= len:%d" 
+    first stride count len
     
 let pp_pad ppf len = for i = 1 to len do Format.pp_print_space ppf () done
 let pp_buf buf ppf fmt =
@@ -2581,6 +2586,81 @@ module Color = struct
     space = `RGB;
     icc = "\000\000\002`lcms\004 \000\000mntrRGB XYZ \007\221\000\003\000\012\000\020\000\t\0006acspAPPL\000\000\000\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\246\214\000\001\000\000\000\000\211-lcms\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\011desc\000\000\001\b\000\000\0006cprt\000\000\001@\000\000\000Nwtpt\000\000\001\144\000\000\000\020chad\000\000\001\164\000\000\000,rXYZ\000\000\001\208\000\000\000\020bXYZ\000\000\001\228\000\000\000\020gXYZ\000\000\001\248\000\000\000\020rTRC\000\000\002\012\000\000\000\016gTRC\000\000\002\028\000\000\000\016bTRC\000\000\002,\000\000\000\016chrm\000\000\002<\000\000\000$mluc\000\000\000\000\000\000\000\001\000\000\000\012enUS\000\000\000\026\000\000\000\028\000R\000G\000B\000 \000b\000u\000i\000l\000t\000-\000i\000n\000\000\000\000mluc\000\000\000\000\000\000\000\001\000\000\000\012enUS\000\000\0002\000\000\000\028\000N\000o\000 \000c\000o\000p\000y\000r\000i\000g\000h\000t\000,\000 \000u\000s\000e\000 \000f\000r\000e\000e\000l\000y\000\000\000\000XYZ \000\000\000\000\000\000\246\214\000\001\000\000\000\000\211-sf32\000\000\000\000\000\000\244\149\255\255\250\019\000\000\016+\255\255\248\183\000\001\002\150\000\000\005a\000\000\003%\255\255\250\196\000\001TgXYZ \000\000\000\000\000\000o\148\000\0008\238\000\000\003\144XYZ \000\000\000\000\000\000$\157\000\000\015\131\000\000\182\190XYZ \000\000\000\000\000\000b\165\000\000\183\144\000\000\024\222para\000\000\000\000\000\000\000\000\000\001\000\000para\000\000\000\000\000\000\000\000\000\001\000\000para\000\000\000\000\000\000\000\000\000\001\000\000chrm\000\000\000\000\000\003\000\000\000\000\163\215\000\000T{\000\000L\205\000\000\153\154\000\000&f\000\000\015\\";
   }
+end
+
+(* Bigarray helpers *) 
+
+type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+
+module Ba = struct
+
+  let create k count = Bigarray.Array1.create k Bigarray.c_layout count 
+  let length b = Bigarray.Array1.dim b
+
+  let pp ?count ?stride ?(first = 0) ?(dim = 1) ~pp_scalar ppf ba = 
+    let pp = Format.fprintf in
+    let ba_len = length ba in
+    let stride = match stride with None -> dim | Some stride -> stride in
+    let count = match count with 
+    | Some count -> count 
+    | None -> (ba_len + (stride - dim) - first) / stride 
+    in
+    if first + count * stride >= ba_len
+    then invalid_arg (err_pp_ba_spec ~first ~stride ~count ~len:ba_len)
+    else
+    let i = ref first in
+    let pp_group ppf () = 
+      pp ppf "@[<1>(%a" pp_scalar ba.{!i}; 
+      for c = 1 to dim - 1 do pp ppf "@ %a" pp_scalar ba.{!i + c} done;
+      pp ppf ")@]";
+      i := !i + stride
+    in
+    pp ppf "@[<hov>%a" pp_group ();
+    for k = 1 to count - 1 do pp ppf "@ %a" pp_group (); done;
+    pp ppf "@]"
+
+  (* FIXME: The following Obj.magics can be removed once we have GADTs for 
+     bigarray kinds. http://caml.inria.fr/mantis/view.php?id=6064 *) 
+  let of_bytes (type a) (type b) ?(be = false) (k : (a, b) Bigarray.kind) s = 
+    let open Bigarray in
+    match Obj.magic k (* FIXME *) with 
+    | k when k = int8_unsigned ->
+        let b = create int8_unsigned (String.length s) in
+        for i = 0 to String.length s - 1 do 
+          b.{i} <- Char.code (String.unsafe_get s i) 
+        done;
+        (Obj.magic b : (a, b) bigarray)
+    | k when k = int8_signed ->
+        let b = create int8_signed (String.length s) in
+        for i = 0 to String.length s - 1 do 
+          let v = Char.code (String.unsafe_get s i) in
+          b.{i} <- v - (v lsr 7 * 0x100)
+        done;
+        (Obj.magic b : (a, b) bigarray)
+    | _ -> (* TODO *) invalid_arg "unsupported bigarray kind"
+            
+  (* Get *)
+
+  let get_v2 b i = V2.v b.{i} b.{i+1} 
+  let get_v3 b i = V3.v b.{i} b.{i+1} b.{i+2}
+  let get_v4 b i = V4.v b.{i} b.{i+1} b.{i+2} b.{i+3}
+
+  (* Set *) 
+
+  let set_v2 b i v = b.{i} <- V2.x v; b.{i+1} <- V2.y v; i+2
+  let set_v3 b i v = b.{i} <- V3.x v; b.{i+1} <- V3.y v; b.{i+2} <- V3.z v; i+3
+  let set_v4 b i v =
+    b.{i} <- V4.x v; b.{i+1} <- V4.y v; b.{i+2} <- V4.z v; b.{i+3} <- V4.w v;
+    i+4
+
+  let set_2d b i x y = b.{i} <- x; b.{i+1} <- y; i+2
+  let set_3d b i x y z = b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z; i+3
+  let set_4d b i x y z w = 
+    b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z; b.{i+3} <- w; i+4
+
+  let ic = Int32.of_int 
+  let seti_2d b i x y = b.{i} <- ic x; b.{i+1} <- ic y; i+2
+  let seti_3d b i x y z = b.{i} <- ic x; b.{i+1} <- ic y; b.{i+2} <- ic z; i+3
 end
 
 (* Raster data *)

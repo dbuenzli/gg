@@ -3071,6 +3071,91 @@ module Color : sig
   (** [p_rgb_l] is the color profile of {{!t}color} values. *)
 end
 
+(** {1:bigarray Bigarray helpers} *) 
+
+type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+
+(** Bigarray helpers for [Gg]. *) 
+module Ba : sig
+
+  (** {1:ba Bigarrays} *)
+  
+  val create : ('a, 'b) Bigarray.kind -> int -> ('a, 'b) bigarray 
+  (** [create k count] is a bigarray of kind [k] with [count] scalars. *)
+
+  val length : ('a, 'b) bigarray -> int 
+  (** [length b] is the length of [b]. *) 
+
+  val pp : ?count:int -> ?stride:int -> ?first:int -> ?dim:int ->
+    pp_scalar:(Format.formatter -> 'a -> unit) ->
+    Format.formatter -> ('a, 'b) bigarray -> unit
+  (** [pp count stride first dim pp_scalar ppf b] prints on [ppf], 
+      [count] groups of size [dim] of scalars of [b], starting at [first]
+      using [pp_scalar], and striding [stride] scalars to go from group
+      to group. If [count] is unspecified prints as much as 
+      possible. [stride] defaults to [dim], [first] defaults to [0] and 
+      [dim] to [1]. *)
+
+  val of_bytes : ?be:bool -> ('a, 'b) Bigarray.kind -> string ->  
+    ('a, 'b) bigarray
+  (** [of_bytes be s k] is a bigarray of kind [k] from [s]. if [be]
+      is [true] data is assumed to be in big endian order (defaults to 
+      [false]). 
+ 
+      {b TODO} For now only {!Bigarray.int8_signed} and 
+      {!Bigarray.int8_unsigned} are supported. 
+      
+      @raise Invalid_argument if given an unsupported kind or if 
+      the data length is not a multiple of the requested scalar type. *)
+
+  (** {1:get Getting} *)
+
+  val get_v2 : (float, 'b) bigarray -> int -> v2 
+  (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b] as a vector. *) 
+
+  val get_v3 : (float, 'b) bigarray -> int -> v3 
+  (** [get_v3 b i] is the [i]th to [i+2]th scalars of [b] as a vector. *) 
+
+  val get_v4 : (float, 'b) bigarray -> int -> v4 
+  (** [get_v4 b i] is the [i]th to [i+3]th scalars of [b] as a vector. *) 
+  
+  (** {1:set Setting} *) 
+
+  val set_v2 : (float, 'b) bigarray -> int -> v2 -> int
+  (** [set_v2 b i v] is [(i + 2)] and sets the [i]th to [i+1]th scalars of [b] 
+      with [v]. *) 
+
+  val set_v3 : (float, 'b) bigarray -> int -> v3 -> int
+  (** [set_v3 b i v] is [(i + 3)] and sets the [i]th to [i+2]th scalars of [b] 
+      with [v]. *) 
+
+  val set_v4 : (float, 'b) bigarray -> int -> v4 -> int
+  (** [set_v4 b i v] is [(i + 4)] and sets the [i]th to [i+3]th scalars of [b] 
+      with [v]. *) 
+
+  val set_2d : ('a, 'b) bigarray -> int -> 'a -> 'a -> int
+  (** [set_2d b i s1 s2] is [(i + 2)] and sets the [i]th to [i+1]th scalar 
+      of [b] to [s1], [s2]. *) 
+
+  val set_3d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> int
+  (** [set_3d b i s1 s2 s3] is [(i + 3)] and sets the [i]th to [i+2]th scalar 
+      of [b] to [s1], [s2], [s3]. *) 
+
+  val set_4d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> 'a -> int
+  (** [set_4d b i s1 s2 s3 s4] is [(i + 4)] and sets the [i]th to [i+3]th 
+      scalar of [b] to [s1], [s2], [s3], [s4]. *)
+
+  (** {2 int32 Bigarray} *)
+
+  val seti_2d : (int32, 'b) bigarray -> int -> int -> int -> int
+  (** [set_2d b i s1 s2] is [(i + 2)] and sets the [i]th to [i+1]th scalar 
+      of [b] to [s1], [s2]. *) 
+
+  val seti_3d : (int32, 'b) bigarray -> int -> int -> int -> int -> int
+  (** [set_3d b i s1 s2 s3] is [(i + 3)] and sets the [i]th to [i+2]th scalar 
+      of [b] to [s1], [s2], [s3]. *) 
+end
+
 (** {1:raster Raster data} *)
 
 type raster
@@ -3119,9 +3204,6 @@ module Raster : sig
   val pp_scalar_type : Format.formatter -> scalar_type -> unit 
   (** [pp_scalar_type ppf st] prints a textual representation of [st]
       on [ppf]. *)
-
-  type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t 
-  (** The type for big arrays. *)
 
   type buffer = [ 
   | `String of string 
