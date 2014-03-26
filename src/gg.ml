@@ -2635,23 +2635,24 @@ module Raster = struct
   | `Float16 _ -> `Float16
   | `Float32 _ -> `Float32
   | `Float64 _ | `Float_array _ -> `Float64
+
+  let buffer_length_units ~bytes (b : buffer) = match b with
+  | `String s -> String.length s
+  | `Float_array a -> Array.length a * (if bytes then 4 else 1)
+  | `Int8 b -> Bigarray.Array1.dim b
+  | `Int16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+  | `Int32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+  | `Int64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
+  | `UInt8 b -> Bigarray.Array1.dim b 
+  | `UInt16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+  | `UInt32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+  | `UInt64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
+  | `Float16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+  | `Float32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+  | `Float64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
     
-(*
-  let buffer_length (b : buffer) = match b with
-  | `S_Uint8 s -> String.length s
-  | `A_Float64 a -> Array.length a 
-  | `B_Int8 b -> Bigarray.Array1.dim b
-  | `B_Int16 b -> Bigarray.Array1.dim b 
-  | `B_Int32 b -> Bigarray.Array1.dim b
-  | `B_Int64 b -> Bigarray.Array1.dim b 
-  | `B_UInt8 b -> Bigarray.Array1.dim b
-  | `B_UInt16 b -> Bigarray.Array1.dim b
-  | `B_UInt32 b -> Bigarray.Array1.dim b
-  | `B_UInt64 b -> Bigarray.Array1.dim b
-  | `B_Float16 b -> Bigarray.Array1.dim b
-  | `B_Float32 b -> Bigarray.Array1.dim b
-  | `B_Float64 b -> Bigarray.Array1.dim b
-*)
+  let buffer_length b = buffer_length_units ~bytes:false 
+  let buffer_byte_length b = buffer_length_units ~bytes:true 
 
   let pp_buffer ppf b = 
     let pp_info b = function 

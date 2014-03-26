@@ -3142,10 +3142,11 @@ module Raster : sig
   val buffer_scalar_type : buffer -> scalar_type 
   (** [buffer_scalar_type b] is [b]'s buffer scalar type. *)
 
-(*  
   val buffer_length : buffer -> int 
   (** [buffer_length b] is [b]'s buffer scalar length. *)
-*)
+
+  val buffer_byte_length : buffer -> int 
+  (** [buffer_byte_length b] is [b]'s buffer byte length. *)
 
   val pp_buffer : Format.formatter -> buffer -> unit
   (** [pp_buffer b] prints a textual representation of [b] on 
