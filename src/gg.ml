@@ -2596,8 +2596,8 @@ module Raster = struct
   let scalar_type_byte_count = function 
   | `Int8 | `UInt8 -> 1 
   | `Int16 | `UInt16 | `Float16 -> 2 
-  | `Int32 | `UInt32 | `Float32 -> 3
-  | `Int64 | `UInt64 | `Float64 -> 4
+  | `Int32 | `UInt32 | `Float32 -> 4
+  | `Int64 | `UInt64 | `Float64 -> 8
     
   let scalar_type_str = function 
   | `Int8 -> "Int8" | `Int16 -> "Int16" | `Int32 -> "Int32" 
