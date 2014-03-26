@@ -2,6 +2,7 @@
 <src> : include
 <test> : include
 
+<src/gg*> : package(bigarray)
 <src/gg_top.*> : package(compiler-libs.toplevel)
 
 <test/test.{byte,native}> : use_str

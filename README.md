@@ -8,8 +8,8 @@ It defines types and functions for floats, vectors, points, sizes,
 matrices, quaternions, axis-aligned boxes, colors, color spaces, and
 raster data.
 
-Gg is made of a single, independent, module and distributed under the
-BSD3 license. 
+Gg is made of a single module, depends on bigarrays, and is
+distributed under the BSD3 license.
 
 Home page: http://erratique.ch/software/gg  
 Contact: Daniel Bünzli `<daniel.buenzli at erratique.ch>`
