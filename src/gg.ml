@@ -2797,10 +2797,10 @@ module Raster = struct
                                     
     let scalar_count ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
         ?(d = 1) sf = 
-      let x_pitch = dim sf in 
-      let y_pitch = x_pitch * w + w_skip in
-      let z_pitch = y_pitch * h - w_skip (* last line *) + h_skip in
-      let size = z_pitch * d - h_skip (* last plane *) in 
+      let x_stride = dim sf in 
+      let y_stride = x_stride * w + w_skip in
+      let z_stride = y_stride * h - w_skip (* last line *) + h_skip in
+      let size = z_stride * d - h_skip (* last plane *) in 
       first + size
       
     let pp_format ppf sf =
@@ -2841,12 +2841,12 @@ module Raster = struct
   let dim r = 1 + (if r.h > 1 then 1 else 0) + (if r.d > 1 then 1 else 0)
   let size2 r = Size2.v (float r.w) (float r.h)  
   let size3 r = Size3.v (float r.w) (float r.h) (float r.d)
-  let pitches r =
+  let strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
-    let x_pitch = Sample.dim r.sf in 
-    let y_pitch = x_pitch * r.w + r.w_skip in
-    let z_pitch = y_pitch * r.h - r.w_skip (* last line *) + r.h_skip in
-    x_pitch, y_pitch, z_pitch          
+    let x_stride = Sample.dim r.sf in 
+    let y_stride = x_stride * r.w + r.w_skip in
+    let z_stride = y_stride * r.h - r.w_skip (* last line *) + r.h_skip in
+    x_stride, y_stride, z_stride
     
   let sub ?(x = 0) ?(y = 0) ?(z = 0) ?w ?h ?d r =
     let range a v min max = 
@@ -2862,10 +2862,10 @@ module Raster = struct
     range "w" w 1 r.w;
     range "h" h 1 r.h;
     range "d" d 1 r.d;
-    let x_pitch, y_pitch, z_pitch = pitches r in
-    let first' = r.first + z * z_pitch + y * y_pitch + x * x_pitch in
-    let w_skip' = r.w_skip + (r.w - w) * x_pitch in
-    let h_skip' = r.h_skip + (r.h - h) * y_pitch in
+    let x_stride, y_stride, z_stride = strides r in
+    let first' = r.first + z * z_stride + y * y_stride + x * x_stride in
+    let w_skip' = r.w_skip + (r.w - w) * x_stride in
+    let h_skip' = r.h_skip + (r.h - h) * y_stride in
     { res = r.res; first = first'; w_skip = w_skip'; h_skip = h_skip';
       w; h; d; sf = r.sf; buf = r.buf }
     

@@ -3338,8 +3338,8 @@ module Raster : sig
 
   (** {2 Constructor, accessors} *)
 
-  val v : ?res:v3 -> ?first:int -> ?w_skip:int -> 
-  ?h_skip:int -> w:int -> ?h:int -> ?d:int -> Sample.format -> buffer -> t
+  val v : ?res:v3 -> ?first:int -> ?w_skip:int -> ?h_skip:int -> 
+    w:int -> ?h:int -> ?d:int -> Sample.format -> buffer -> t
   (** [v res first w_skip h_skip w h d sf buf] is raster data with 
       sample format [sf] and buffer [b].
       {ul
@@ -3356,7 +3356,7 @@ module Raster : sig
      For certain sample formats [first], [w_skip] and [h_skip] can be used 
      to specify subspaces in the collection of samples, see {!sub}. 
 
-     The function {!pitches} can be used to easily compute the buffer
+     The function {!strides} can be used to easily compute the buffer
      scalar index where a sample [(x,y,z)] starts.
 
   @raise Invalid_argument if [w], [h] or [d] is not positive or 
@@ -3389,7 +3389,7 @@ module Raster : sig
   (** [d r] is the index depth in number of {e samples}. *)
 
   val sample_format : t -> Sample.format
-  (** [f_sample_format r] is [r]'s sample format. *)
+  (** [sample_format r] is [r]'s sample format. *)
 
   val buffer : t -> buffer
   (** [buffer r] is [r]'s format. *)
@@ -3419,17 +3419,16 @@ module Raster : sig
      packed, if the origin is out of bounds or if new size is larger than 
      [r]'s size. *)
 
-  val pitches : t -> int * int * int 
-  (** [pitches r] is [(x_pitch, y_pitch, z_pitch)] where 
+  val strides : t -> int * int * int 
+  (** [strides r] is [(x_stride, y_stride, z_stride)] where 
       {ul
-       {- [x_pitch] is the number of buffer scalars from sample to sample.}
-       {- [y_pitch] is the number of buffer scalars from line to line.} 
-       {- [z_pitch] is the number of buffer scalars from plane to plane.}}
+       {- [x_stride] is the number of buffer scalars from sample to sample.}
+       {- [y_stride] is the number of buffer scalars from line to line.} 
+       {- [z_stride] is the number of buffer scalars from plane to plane.}}
       The buffer index where the sample [(x,y,z)] starts is given by: 
 {[
-(Raster.first r) + z * z_pitch + y * y_pitch + x * x_pitch
+(Raster.first r) + z * z_stride + y * y_stride + x * x_stride
 ]}
-  
       @raise Invalid_argument if the sample format of [r] is
       packed.
   *)
