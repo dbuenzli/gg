@@ -3418,22 +3418,29 @@ module Raster : sig
   val dim : t -> int
   (** [dim r] is [r]'s index dimension from 1 to 3. *)
 
-  val size2 : t -> size2
-  (** [size2 r] is [r]'s index width and height as floats. *)
+  val size2 : ?meters:bool -> t -> size2
+  (** [size2 r] is [r]'s index width and height as floats. 
+      If [meters] is [true] (defaults to [false]) the result is 
+      multiplied by [(res r)] or [(V2.v 11811. 11811.)] (118 ppcm, 
+      300 dpi) if there is no such value. *)
 
-  val size3 : t -> size3
-  (** [size3 r] is [r]'s index width, height and depth as floats. *)
+  val size3 : ?meters:bool -> t -> size3
+  (** [size3 r] is [r]'s index width, height and depth as floats.
+      If [meters] is [true] (defaults to [false]) the result is 
+      multiplied by [(res r)] or [(V2.v 11811. 11811. 11811.)] (118 ppcm, 
+      300 dpi) if there is no such value. *)
 
-  val box2 : ?o:p2 -> t -> box2 
-  (** [box2 o r] is a box at with origin [o] and size [size2 r]. 
-      If [o] is unspecified the box is centered around {!P2.o}. *) 
+  val box2 : ?meters:bool -> ?mid:bool -> ?o:p2 -> t -> box2 
+  (** [box2 meters mid o r] is a box with origin [o] and size 
+      [(size2 meters r)]. If [mid] is [true] (defaults to [false]), [o] 
+      specifies the mid point of the box. [o] defaults to {!P2.o}. *)
 
-  val box3 : ?o:p3 -> t -> box3
-  (** [box3 o r] is a box at with origin [o] and size [size3 r]. 
-      If [o] is unspecified the box is centered around {!P3.o}. *) 
+  val box3 : ?meters:bool -> ?mid:bool -> ?o:p3 -> t -> box3
+  (** [box3 meters mid o r] is a box with origin [o] and size 
+      [(size3 meters r)]. If [mid] is [true] (defaults to [false]), 
+      [o] specifies the mid point of the box. [o] defaults to {!P3.o}. *)
 
-  val sub : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> 
-    t -> t
+  val sub : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> t -> t
   (** [sub x y z w h d r] is a raster corresponding to a 
       subset of the index of [r]. Both [r] and the resulting raster 
       share the same buffer.

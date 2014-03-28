@@ -2852,16 +2852,29 @@ module Raster = struct
   let sample_format r = r.sf
   let buffer r = r.buf
   let dim r = 1 + (if r.h > 1 then 1 else 0) + (if r.d > 1 then 1 else 0)
-  let size2 r = Size2.v (float r.w) (float r.h)  
-  let size3 r = Size3.v (float r.w) (float r.h) (float r.d)
 
-  let box2 ?o r = match o with 
-  | None -> Box2.v_mid P2.o (size2 r) 
-  | Some o -> Box2.v o (size2 r)
+  let r11811_ppm = 11811.
+  let size2 ?(meters = false) r =
+    if not meters then Size2.v (float r.w) (float r.h) else
+    let wres, hres = match r.res with
+    | None -> r11811_ppm, r11811_ppm 
+    | Some res -> V3.x res, V3.y res
+    in
+    Size2.v (float r.w *. wres ) (float r.h *. hres)
+    
+  let size3 ?(meters = false) r = 
+    if not meters then Size3.v (float r.w) (float r.h) (float r.d) else 
+    let wres, hres, dres = match r.res with 
+    | None -> r11811_ppm, r11811_ppm, r11811_ppm
+    | Some res -> V3.x res, V3.y res, V3.z res 
+    in
+    Size3.v (float r.w *. wres ) (float r.h *. hres) (float r.d *. dres)
 
-  let box3 ?o r = match o with 
-  | None -> Box3.v_mid P3.o (size3 r)
-  | Some o -> Box3.v o (size3 r)
+  let box2 ?meters ?(mid = false) ?(o = P2.o) r = 
+    if mid then Box2.v_mid o (size2 r) else Box2.v o (size2 ?meters r)
+
+  let box3 ?meters ?(mid = false) ?(o = P3.o) r =
+    if mid then Box3.v_mid P3.o (size3 r) else Box3.v o (size3 ?meters r)
 
   let strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
