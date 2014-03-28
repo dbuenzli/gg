@@ -3424,6 +3424,14 @@ module Raster : sig
   val size3 : t -> size3
   (** [size3 r] is [r]'s index width, height and depth as floats. *)
 
+  val box2 : ?o:p2 -> t -> box2 
+  (** [box2 o r] is a box at with origin [o] and size [size2 r]. 
+      If [o] is unspecified the box is centered around {!P2.o}. *) 
+
+  val box3 : ?o:p3 -> t -> box3
+  (** [box3 o r] is a box at with origin [o] and size [size3 r]. 
+      If [o] is unspecified the box is centered around {!P3.o}. *) 
+
   val sub : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> 
     t -> t
   (** [sub x y z w h d r] is a raster corresponding to a 

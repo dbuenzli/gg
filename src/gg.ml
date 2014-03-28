@@ -2854,6 +2854,15 @@ module Raster = struct
   let dim r = 1 + (if r.h > 1 then 1 else 0) + (if r.d > 1 then 1 else 0)
   let size2 r = Size2.v (float r.w) (float r.h)  
   let size3 r = Size3.v (float r.w) (float r.h) (float r.d)
+
+  let box2 ?o r = match o with 
+  | None -> Box2.v_mid P2.o (size2 r) 
+  | Some o -> Box2.v o (size2 r)
+
+  let box3 ?o r = match o with 
+  | None -> Box3.v_mid P3.o (size3 r)
+  | Some o -> Box3.v o (size3 r)
+
   let strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
     let x_stride = Sample.dim r.sf in 
