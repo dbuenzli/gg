@@ -2661,20 +2661,19 @@ module Ba = struct
 
   (* Set *) 
 
-  let set_v2 b i v = b.{i} <- V2.x v; b.{i+1} <- V2.y v; i+2
-  let set_v3 b i v = b.{i} <- V3.x v; b.{i+1} <- V3.y v; b.{i+2} <- V3.z v; i+3
+  let set_v2 b i v = b.{i} <- V2.x v; b.{i+1} <- V2.y v
+  let set_v3 b i v = b.{i} <- V3.x v; b.{i+1} <- V3.y v; b.{i+2} <- V3.z v
   let set_v4 b i v =
-    b.{i} <- V4.x v; b.{i+1} <- V4.y v; b.{i+2} <- V4.z v; b.{i+3} <- V4.w v;
-    i+4
+    b.{i} <- V4.x v; b.{i+1} <- V4.y v; b.{i+2} <- V4.z v; b.{i+3} <- V4.w v
 
-  let set_2d b i x y = b.{i} <- x; b.{i+1} <- y; i+2
-  let set_3d b i x y z = b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z; i+3
+  let set_2d b i x y = b.{i} <- x; b.{i+1} <- y
+  let set_3d b i x y z = b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z
   let set_4d b i x y z w = 
-    b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z; b.{i+3} <- w; i+4
+    b.{i} <- x; b.{i+1} <- y; b.{i+2} <- z; b.{i+3} <- w
 
   let ic = Int32.of_int 
-  let seti_2d b i x y = b.{i} <- ic x; b.{i+1} <- ic y; i+2
-  let seti_3d b i x y z = b.{i} <- ic x; b.{i+1} <- ic y; b.{i+2} <- ic z; i+3
+  let seti_2d b i x y = b.{i} <- ic x; b.{i+1} <- ic y
+  let seti_3d b i x y z = b.{i} <- ic x; b.{i+1} <- ic y; b.{i+2} <- ic z
 end
 
 (* Raster data *)

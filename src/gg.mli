@@ -3131,46 +3131,48 @@ module Ba : sig
   (** {2 int32 Bigarray} *)
 
   val geti_2d : (int32, 'b) bigarray -> int -> (int * int)
-  (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b]. *)
+  (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b]. The 
+      integers are converted with {!Int32.to_int}. *)
 
   val geti_3d : (int32, 'b) bigarray -> int -> (int * int * int) 
-  (** [get_v3 b i] is the [i]th to [i+2]th scalars of [b]. *)
+  (** [get_v3 b i] is the [i]th to [i+2]th scalars of [b]. The 
+      integers are converted with {!Int32.to_int} *)
 
   (** {1:set Setting} *) 
 
-  val set_v2 : (float, 'b) bigarray -> int -> v2 -> int
-  (** [set_v2 b i v] is [(i + 2)] and sets the [i]th to [i+1]th scalars of [b] 
-      with [v]. *) 
+  val set_v2 : (float, 'b) bigarray -> int -> v2 -> unit
+  (** [set_v2 b i v] sets the [i]th to [i+1]th scalars of [b] with
+      [v]. *)
 
-  val set_v3 : (float, 'b) bigarray -> int -> v3 -> int
-  (** [set_v3 b i v] is [(i + 3)] and sets the [i]th to [i+2]th scalars of [b] 
-      with [v]. *) 
+  val set_v3 : (float, 'b) bigarray -> int -> v3 -> unit
+  (** [set_v3 b i v] sets the [i]th to [i+2]th scalars of [b] with
+      [v]. *)
 
-  val set_v4 : (float, 'b) bigarray -> int -> v4 -> int
-  (** [set_v4 b i v] is [(i + 4)] and sets the [i]th to [i+3]th scalars of [b] 
-      with [v]. *) 
+  val set_v4 : (float, 'b) bigarray -> int -> v4 -> unit
+  (** [set_v4 b i v] sets the [i]th to [i+3]th scalars of [b] with
+      [v]. *)
 
-  val set_2d : ('a, 'b) bigarray -> int -> 'a -> 'a -> int
-  (** [set_2d b i s1 s2] is [(i + 2)] and sets the [i]th to [i+1]th scalar 
-      of [b] to [s1], [s2]. *) 
+  val set_2d : ('a, 'b) bigarray -> int -> 'a -> 'a -> unit
+  (** [set_2d b i s1 s2] sets the [i]th to [i+1]th scalar of [b] to
+      [s1], [s2]. *)
 
-  val set_3d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> int
-  (** [set_3d b i s1 s2 s3] is [(i + 3)] and sets the [i]th to [i+2]th scalar 
-      of [b] to [s1], [s2], [s3]. *) 
+  val set_3d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> unit
+  (** [set_3d b i s1 s2 s3] sets the [i]th to [i+2]th scalar of [b] to
+      [s1], [s2], [s3]. *)
 
-  val set_4d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> 'a -> int
-  (** [set_4d b i s1 s2 s3 s4] is [(i + 4)] and sets the [i]th to [i+3]th 
-      scalar of [b] to [s1], [s2], [s3], [s4]. *)
+  val set_4d : ('a, 'b) bigarray -> int -> 'a -> 'a -> 'a -> 'a -> unit
+  (** [set_4d b i s1 s2 s3 s4] sets the [i]th to [i+3]th scalar of [b]
+      to [s1], [s2], [s3], [s4]. *)
 
   (** {2 int32 Bigarray} *)
 
-  val seti_2d : (int32, 'b) bigarray -> int -> int -> int -> int
-  (** [set_2d b i s1 s2] is [(i + 2)] and sets the [i]th to [i+1]th scalar 
-      of [b] to [s1], [s2]. *) 
+  val seti_2d : (int32, 'b) bigarray -> int -> int -> int -> unit
+  (** [set_2d b i s1 s2] sets the [i]th to [i+1]th scalar of [b] to
+      [s1], [s2]. *)
 
-  val seti_3d : (int32, 'b) bigarray -> int -> int -> int -> int -> int
-  (** [set_3d b i s1 s2 s3] is [(i + 3)] and sets the [i]th to [i+2]th scalar 
-      of [b] to [s1], [s2], [s3]. *) 
+  val seti_3d : (int32, 'b) bigarray -> int -> int -> int -> int -> unit
+  (** [set_3d b i s1 s2 s3] sets the [i]th to [i+2]th scalar of [b] to
+      [s1], [s2], [s3]. *) 
 end
 
 (** {1:raster Raster data} *)
