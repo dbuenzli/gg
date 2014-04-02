@@ -2915,6 +2915,10 @@ module Raster = struct
       pp_size r Sample.pp_format r.sf pp_buffer r.buf
 
   let to_string r = to_string_of_formatter pp r
+
+  let inch_to_meter = 0.0254
+  let spm_of_spi spi = spi /. inch_to_meter
+  let spm_to_spi spm = spm *. inch_to_meter
 end
 
 type raster = Raster.t

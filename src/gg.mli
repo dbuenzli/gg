@@ -3193,18 +3193,20 @@ type raster
     in a {{!type:buffer}linear buffer} of {e scalars} of a given
     {{!type:scalar_type}type}. A sample can use one scalar per component,
     can be packed in a single scalar or may have no direct obvious
-    relationship to buffer scalars (compressed data). A
+    relationship to buffer scalars (compressed data). The
     {{!type:Sample.format}sample format} defines the semantics and
     scalar storage of a sample.
 
     A {{!t}{e raster data}} value is a collection of samples indexed by width, 
     height and depth (i.e. x, y, z) stored in a buffer. It defines
     the sample data, the extents of the index and the sample format.
-
+    The optional {{!res}resolution} in samples per meters of a raster
+    data can specify its physical dimension.
+    
     {b Spatial convention.} If the sample index has to be interpreted
     spatially. It must be interpreted relative to the origin of a
     right-handed coordinate system. This means that the first sample,
-    indexed by [(0, 0, 0)] is the bottom-left backmost sample
+    indexed by [(0,0,0)] is the bottom-left backmost sample
     (bottom-left sample for an image). *) 
 module Raster : sig
 
@@ -3419,16 +3421,22 @@ module Raster : sig
   (** [dim r] is [r]'s index dimension from 1 to 3. *)
 
   val size2 : ?meters:bool -> t -> size2
-  (** [size2 r] is [r]'s index width and height as floats. 
-      If [meters] is [true] (defaults to [false]) the result is 
-      multiplied by [(res r)] or [(V2.v 11811. 11811.)] (118 ppcm, 
-      300 dpi) if there is no such value. *)
+  (** [size2 meters r] is [r]'s size acccording to [meters]:
+      {ul
+      {- If [meters] is [false] (default), the index width and height as 
+         floats.}
+      {- If [meters] is [true] the physical size in meters according to [r]'s
+         {{!res}resolution} (11811spm = 300spi is used if [r] has no 
+         resolution).}} *)
 
   val size3 : ?meters:bool -> t -> size3
-  (** [size3 r] is [r]'s index width, height and depth as floats.
-      If [meters] is [true] (defaults to [false]) the result is 
-      multiplied by [(res r)] or [(V2.v 11811. 11811. 11811.)] (118 ppcm, 
-      300 dpi) if there is no such value. *)
+  (** [size3 r] is [r]'s size according to [meters]:
+      {ul
+      {- If [meters] is [false] (default), the index width, height and depth
+         as floats.}
+      {- If [meters] is [true], the physical size in meters according to 
+         [r]'s {{!res}resolution} (11811spm = 300spi is used if [r] has no 
+         resolution).}} *)
 
   val box2 : ?meters:bool -> ?mid:bool -> ?o:p2 -> t -> box2 
   (** [box2 meters mid o r] is a box with origin [o] and size 
@@ -3484,6 +3492,16 @@ module Raster : sig
   val pp : Format.formatter -> t -> unit
   (** [pp ppf t] prints a textual represenation of [t] on [ppf]. Doesn't
       print the buffer samples. *)
+
+    (** {1:resconv Resolution conversions} *) 
+      
+    val spm_of_spi : float -> float
+    (** [spm_of_spi spi] is the samples per meter corresponding to 
+        the samples per inch [spi]. *)
+      
+    val spm_to_spi : float -> float 
+    (** [spm_to_spi spm] is the samples per inch corresponding to the
+        samples per meters [spm]. *)
 end
 
 (** {1:basics Basics} 
