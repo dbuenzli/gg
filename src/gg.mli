@@ -3121,6 +3121,10 @@ module Ba : sig
     | `Float16 | `Float32 | `Float64 ]
   (** The type for buffer scalar types. *)
 
+  val scalar_type_of_ba_scalar_type : ('a, 'b) ba_scalar_type -> scalar_type
+  (** [scalar_type_of_ba_scalar_type st] is the scalar type corresponding 
+      to [st]. *) 
+
   val scalar_type_byte_count : scalar_type -> int 
   (** [scalar_type_byte_count st] is the number of bytes used by a scalar
       of type [st]. *)

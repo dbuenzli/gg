@@ -2641,10 +2641,17 @@ module Ba = struct
     | Float16 -> Bigarray.int16_unsigned
     | Float32 -> Bigarray.float32
     | Float64 -> Bigarray.float64
-
+  
   type scalar_type = 
     [ `Int8 | `Int16 | `Int32 | `Int64 | `UInt8 | `UInt16 | `UInt32 | `UInt64
     | `Float16 | `Float32 | `Float64 ]
+
+  let scalar_type_of_ba_scalar_type : 
+    type a b. (a, b) ba_scalar_type -> scalar_type = function 
+    | Int8 -> `Int8 | Int16 -> `Int16 | Int32 -> `Int32 | Int64 -> `Int64
+    | UInt8 -> `UInt8 | UInt16 -> `UInt16 | UInt32 -> `UInt32 
+    | UInt64 -> `UInt64 | Float16 -> `Float16 | Float32 -> `Float32
+    | Float64 -> `Float64
     
   let scalar_type_byte_count = function 
   | `Int8 | `UInt8 -> 1 
