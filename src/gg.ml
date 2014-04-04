@@ -5,6 +5,7 @@
   ---------------------------------------------------------------------------*)
 
 let str = Format.asprintf 
+let pp = Format.fprintf
 let err_unsupported_by = str "unsupported bigarray kind" 
 let err_not_nan = "not a NaN"
 let err_empty_box = "empty box" 
@@ -34,8 +35,8 @@ let pp_buf buf ppf fmt =
   in
   Format.kfprintf flush ppf fmt
     
-let to_string_of_formatter pp v =                        (* NOT thread safe. *)
-  Format.fprintf Format.str_formatter "%a" pp v; 
+let to_string_of_formatter ppfun v =                     (* NOT thread safe. *)
+  pp Format.str_formatter "%a" ppfun v; 
   Format.flush_str_formatter ()
     
 let gg_eps = 1e-9
@@ -189,7 +190,7 @@ module Float = struct
   (* Printers *)
       
   let pp ppf x =                                     (* too slow, ∃ better ? *)
-    let pr_neg ppf neg = if neg then Format.fprintf ppf "-" else () in
+    let pr_neg ppf neg = if neg then pp ppf "-" else () in
     match classify_float x with      
     | FP_normal ->
         let x = Int64.bits_of_float x in 
@@ -198,22 +199,22 @@ module Float = struct
         let e = 
           Int64.sub (Int64.shift_right (Int64.logand x bfloat_exp) 52) 1023L
         in
-        Format.fprintf ppf "%a0x1.%013LXp%Ld" pr_neg neg f e
+        pp ppf "%a0x1.%013LXp%Ld" pr_neg neg f e
     | FP_subnormal -> 
         let f = Int64.logand (Int64.bits_of_float x) bfloat_frac in
         let neg = x < 0. in 
-        Format.fprintf ppf "%a0x0.%013LXp-1022" pr_neg neg f
+        pp ppf "%a0x0.%013LXp-1022" pr_neg neg f
     | FP_zero -> 
         let neg = Int64.logand (Int64.bits_of_float x) bfloat_sign <> 0L in 
-        Format.fprintf ppf "%a0." pr_neg neg
+        pp ppf "%a0." pr_neg neg
     | FP_infinite ->
         let neg = x < 0. in
-        Format.fprintf ppf "%ainf" pr_neg neg
+        pp ppf "%ainf" pr_neg neg
     | FP_nan ->
         let x = Int64.bits_of_float x in
         let neg = Int64.logand x bfloat_sign <> 0L in
         let p = Int64.logand x bfloat_nanp in
-        Format.fprintf ppf "%anan(0x%LX)" pr_neg neg p
+        pp ppf "%anan(0x%LX)" pr_neg neg p
           
   let to_string x = to_string_of_formatter pp x
 end
@@ -445,7 +446,7 @@ module V2 = struct
       
   (* Printers *)
       
-  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g)@]" a.x a.y
+  let pp ppf a = pp ppf "@[<1>(%g@ %g)@]" a.x a.y
   let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a)@]" 
       pp_c a.x pp_c a.y
       
@@ -564,7 +565,7 @@ module V3 = struct
 
   (* Printers *)
       
-  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g)@]" a.x a.y a.z 
+  let pp ppf a = pp ppf "@[<1>(%g@ %g@ %g)@]" a.x a.y a.z 
   let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z
       
@@ -661,7 +662,7 @@ module V4 = struct
       
   (* Printers *)
       
-  let pp ppf a = Format.fprintf ppf "@[<1>(%g@ %g@ %g@ %g)@]" a.x a.y a.z a.w
+  let pp ppf a = pp ppf "@[<1>(%g@ %g@ %g@ %g)@]" a.x a.y a.z a.w
   let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z pp_c a.w
       
@@ -1084,13 +1085,13 @@ module M2 = struct
     let e01, e01l = pp_buf b bppf "%a" pp_e a.e01 in 
     let e11, e11l = pp_buf b bppf "%a" pp_e a.e11 in 
     let max1 = max e01l e11l in
-    Format.fprintf ppf 
+    pp ppf 
       "@[<v>@[<1>|%a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s|@]@]"
       pp_pad (max0 - e00l) e00 pp_pad (max1 - e01l) e01
       pp_pad (max0 - e10l) e10 pp_pad (max1 - e11l) e11
       
-  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p     
 end
@@ -1373,7 +1374,7 @@ module M3 = struct
     let e12, e12l = pp_buf b bppf "%a" pp_e a.e12 in 
     let e22, e22l = pp_buf b bppf "%a" pp_e a.e22 in 
     let max2 = max e02l e12l e22l in
-    Format.fprintf ppf 
+    pp ppf 
       "@[<v>@[<1>|%a%s@ %a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s@ %a%s|@]@]"
@@ -1382,7 +1383,7 @@ module M3 = struct
       pp_pad (max0 - e20l) e20 pp_pad (max1 - e21l) e21 pp_pad (max2 - e22l) e22
       
   
-  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p 
 end
@@ -1784,7 +1785,7 @@ module M4 = struct
     let e23, e23l = pp_buf b bppf "%a" pp_e a.e23 in 
     let e33, e33l = pp_buf b bppf "%a" pp_e a.e33 in 
     let max3 = max e03l e13l e23l e33l in
-    Format.fprintf ppf 
+    pp ppf 
       "@[<v>@[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
@@ -1798,7 +1799,7 @@ module M4 = struct
       pp_pad (max0 - e30l) e30 pp_pad (max1 - e31l) e31 
       pp_pad (max2 - e32l) e32 pp_pad (max3 - e33l) e33
       
-  let pp_e_default ppf = Format.fprintf ppf "%g"
+  let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
   let to_string p = to_string_of_formatter pp p 
 end    
@@ -2065,9 +2066,9 @@ module Box2 = struct
   (* Printers *)
         
   let _print pp_v2 ppf b = match b with 
-  | E -> Format.fprintf ppf "@[<1><box2@ empty>@]"
+  | E -> pp ppf "@[<1>(box2@ empty)@]"
   | R (o, s) ->
-      Format.fprintf ppf "@[<1><box2 %a@ %a>@]" pp_v2 o pp_v2 s
+      pp ppf "@[<1>(box2 %a@ %a)@]" pp_v2 o pp_v2 s
         
   let pp ppf b = _print V2.pp ppf b 
   let pp_f pp_f ppf b = _print (V2.pp_f pp_f) ppf b 
@@ -2311,9 +2312,9 @@ module Box3 = struct
   (* Printers *)
         
   let _print pp_v3 ppf b = match b with 
-  | E -> Format.fprintf ppf "@[<1><box3@ empty>@]"
+  | E -> pp ppf "@[<1>(box3@ empty)@]"
   | R (o, s) ->
-      Format.fprintf ppf "@[<1><box3 %a@ %a>@]" pp_v3 o pp_v3 s
+      pp ppf "@[<1>(box3 %a@ %a)@]" pp_v3 o pp_v3 s
         
   let pp ppf b = _print V3.pp ppf b 
   let pp_f pp_f ppf b = _print (V3.pp_f pp_f) ppf b 
@@ -2559,7 +2560,7 @@ module Color = struct
   | `CLRB -> "BCLR" | `CLRC -> "CCLR" | `CLRD -> "DCLR" | `CLRE -> "ECLR" 
   | `CLRF -> "FCLR"
     
-  let pp_space ppf s = Format.fprintf ppf "%s" (space_str s)
+  let pp_space ppf s = pp ppf "%s" (space_str s)
       
   (* Color profiles *) 
       
@@ -2660,7 +2661,7 @@ module Ba = struct
   | `Int32 | `UInt32 | `Float32 -> 4
   | `Int64 | `UInt64 | `Float64 -> 8
     
-  let pp_scalar_type ppf st = Format.fprintf ppf begin match st with 
+  let pp_scalar_type ppf st = pp ppf begin match st with 
     | `Int8 -> "int8" | `Int16 -> "int16" | `Int32 -> "int32" 
     | `Int64 -> "int64" | `UInt8 -> "uint8" | `UInt16 -> "uint16" 
     | `UInt32 -> "uInt32" | `UInt64 -> "uint64" | `Float16 -> "float16" 
@@ -2712,8 +2713,7 @@ module Ba = struct
     let byte_length b = length_units ~bytes:true b
         
     let pp ppf b = 
-      Format.fprintf ppf "@[<1><buffer@ %a %d>@]" 
-        pp_scalar_type (scalar_type b) (length b)
+      pp ppf "@[<1>(buffer@ %a %d)@]" pp_scalar_type (scalar_type b) (length b)
   end
   
   (* Linear bigarrays *) 
@@ -2758,7 +2758,7 @@ module Ba = struct
     | _ -> (* TODO *) invalid_arg "unsupported bigarray scalar type"
 
   let pp ?count ?stride ?(first = 0) ?(dim = 1) ~pp_scalar ppf ba = 
-    let pp = Format.fprintf in
+    let pp = pp in
     let ba_len = length ba in
     let stride = match stride with None -> dim | Some stride -> stride in
     let count = match count with 
@@ -2830,23 +2830,21 @@ module Raster = struct
     let pp_semantics ppf = function 
     | `Color (p, a) -> 
         let a = if a then "A" else "" in
-        Format.fprintf ppf "%a%s" Color.pp_space (Color.profile_space p) a
+        pp ppf "%a%s" Color.pp_space (Color.profile_space p) a
     | `Other (label, d) -> 
-        Format.fprintf ppf "%s(%dD)" label d
+        pp ppf "%s(%dD)" label d
           
     (* Sample format *)
           
     type pack =
       [ `PU8888 | `FourCC of string * Ba.scalar_type option
       | `Other of string * Ba.scalar_type option ]
-      
-    let pack_str = function
-    | `PU8888 -> "P8888"
-    | `FourCC (c, _) -> str "'%s'" c
-    | `Other (s, _) -> str "%s" s      
+                               
+    let pp_pack ppf = function 
+    | `PU8888 -> pp ppf "P8888"
+    | `FourCC (c, _) -> pp ppf "'%s'" c
+    | `Other (s, _) -> pp ppf "%s" s
                          
-    let pp_pack ppf p = Format.fprintf ppf "%s" (pack_str p)
-        
     type format =
       { semantics : semantics;
         scalar_type : Ba.scalar_type; 
@@ -2867,8 +2865,8 @@ module Raster = struct
         | Some st -> 
             if st = scalar_type then { semantics; scalar_type; pack } else 
             invalid_arg 
-              (err_sample_pack (pack_str p) 
-                 (str "%a" Ba.pp_scalar_type scalar_type))
+              (err_sample_pack 
+                 (str "%a" pp_pack p) (str "%a" Ba.pp_scalar_type scalar_type))
               
     let semantics sf = sf.semantics 
     let scalar_type sf = sf.scalar_type 
@@ -2888,10 +2886,9 @@ module Raster = struct
       
     let pp_format ppf sf =
       let pp_opt_pack ppf op = match op with 
-      | None -> () | Some pack -> Format.fprintf ppf "@ %a" pp_pack pack 
+      | None -> () | Some pack -> pp ppf "@ %a" pp_pack pack 
       in
-      Format.fprintf ppf 
-        "@[<1><Sample.format@ %a@ %a%a>@]" 
+      pp ppf "@[<1>(raster-sf@ %a@ %a%a)@]" 
         pp_semantics sf.semantics Ba.pp_scalar_type sf.scalar_type 
         pp_opt_pack sf.pack
   end
@@ -2977,12 +2974,8 @@ module Raster = struct
   let equal r r' = r = r' 
   let compare r r' = Pervasives.compare r r'
   let pp ppf r =
-    let pp_size ppf r = 
-      if (r.d = 1) then Format.fprintf ppf "@[<1>(%d@ %d)@]" r.w r.h else 
-      Format.fprintf ppf "@[<1>(%d@ %d@ %d)@]" r.w r.h r.d
-    in
-    Format.fprintf ppf "@[<1><raster@ %a@ %a@ %a>@]" 
-      pp_size r Sample.pp_format r.sf Ba.Buffer.pp r.buf
+    pp ppf "@[<1>(raster@ %a@ %a@ %a)@]" 
+      V3.pp (size3 r) Sample.pp_format r.sf Ba.Buffer.pp r.buf
 
   let to_string r = to_string_of_formatter pp r
 
