@@ -4,7 +4,7 @@
    %%PROJECTNAME%% release %%VERSION%%
   ---------------------------------------------------------------------------*)
 
-let str = Printf.sprintf 
+let str = Format.asprintf 
 let err_unsupported_by = str "unsupported bigarray kind" 
 let err_not_nan = "not a NaN"
 let err_empty_box = "empty box" 
@@ -2594,14 +2594,156 @@ module Color = struct
   }
 end
 
-(* Bigarray helpers *) 
+(* Linear bigarrays and bigarray buffers *) 
 
 type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
 
+type buffer = 
+  [ `Int8 of (int, Bigarray.int8_signed_elt) bigarray
+  | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
+  | `Int32 of (int32, Bigarray.int32_elt) bigarray
+  | `Int64 of (int64, Bigarray.int64_elt) bigarray
+  | `UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
+  | `UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `UInt32 of (int32, Bigarray.int32_elt) bigarray
+  | `UInt64 of (int64, Bigarray.int64_elt) bigarray
+  | `Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `Float32 of (float, Bigarray.float32_elt) bigarray
+  | `Float64 of (float, Bigarray.float64_elt) bigarray ]
+  
 module Ba = struct
 
-  let create k count = Bigarray.Array1.create k Bigarray.c_layout count 
+  (* Scalar types *)
+  
+  type ('a, 'b) ba_scalar_type =
+    | Int8 : (int, Bigarray.int8_signed_elt) ba_scalar_type
+    | Int16 : (int, Bigarray.int16_signed_elt) ba_scalar_type
+    | Int32 : (int32, Bigarray.int32_elt) ba_scalar_type
+    | Int64 : (int64, Bigarray.int64_elt) ba_scalar_type
+    | UInt8 : (int, Bigarray.int8_unsigned_elt) ba_scalar_type
+    | UInt16 : (int, Bigarray.int16_unsigned_elt) ba_scalar_type
+    | UInt32 : (int32, Bigarray.int32_elt) ba_scalar_type
+    | UInt64 : (int64, Bigarray.int64_elt) ba_scalar_type
+    | Float16 : (int, Bigarray.int16_unsigned_elt) ba_scalar_type
+    | Float32 : (float, Bigarray.float32_elt) ba_scalar_type
+    | Float64 : (float, Bigarray.float64_elt) ba_scalar_type
+
+  let ba_kind : type a b. (a, b) ba_scalar_type -> (a, b) Bigarray.kind 
+    = function 
+    | Int8 -> Bigarray.int8_signed 
+    | Int16 -> Bigarray.int16_signed
+    | Int32 -> Bigarray.int32 
+    | Int64 -> Bigarray.int64
+    | UInt8 -> Bigarray.int8_unsigned
+    | UInt16 -> Bigarray.int16_unsigned
+    | UInt32 -> Bigarray.int32
+    | UInt64 -> Bigarray.int64
+    | Float16 -> Bigarray.int16_unsigned
+    | Float32 -> Bigarray.float32
+    | Float64 -> Bigarray.float64
+
+  type scalar_type = 
+    [ `Int8 | `Int16 | `Int32 | `Int64 | `UInt8 | `UInt16 | `UInt32 | `UInt64
+    | `Float16 | `Float32 | `Float64 ]
+    
+  let scalar_type_byte_count = function 
+  | `Int8 | `UInt8 -> 1 
+  | `Int16 | `UInt16 | `Float16 -> 2 
+  | `Int32 | `UInt32 | `Float32 -> 4
+  | `Int64 | `UInt64 | `Float64 -> 8
+    
+  let pp_scalar_type ppf st = Format.fprintf ppf begin match st with 
+    | `Int8 -> "int8" | `Int16 -> "int16" | `Int32 -> "int32" 
+    | `Int64 -> "int64" | `UInt8 -> "uint8" | `UInt16 -> "uint16" 
+    | `UInt32 -> "uInt32" | `UInt64 -> "uint64" | `Float16 -> "float16" 
+    | `Float32 -> "float32" | `Float64 -> "float64"
+    end
+    
+  (* Bigarray buffers. *)
+
+  let ba_create k count = 
+    Bigarray.Array1.create (ba_kind k) Bigarray.c_layout count 
+
+  module Buffer = struct 
+    type t = buffer
+
+    let create st count = match st with 
+    | `Int8 -> `Int8 (ba_create Int8 count)
+    | `Int16 -> `Int16 (ba_create Int16 count)
+    | `Int32 -> `Int32 (ba_create Int32 count)
+    | `Int64 -> `Int64 (ba_create Int64 count)
+    | `UInt8 -> `UInt8 (ba_create UInt8 count)
+    | `UInt16 -> `UInt16 (ba_create UInt16 count)
+    | `UInt32 -> `UInt32 (ba_create UInt32 count)
+    | `UInt64 -> `UInt64 (ba_create UInt64 count)
+    | `Float16 -> `Float16 (ba_create Float16 count)
+    | `Float32 -> `Float32 (ba_create Float32 count)
+    | `Float64 -> `Float64 (ba_create Float64 count)
+    
+    let scalar_type = function 
+    | `Int8 _ -> `Int8 | `Int16 _ -> `Int16 | `Int32 _ -> `Int32
+    | `Int64 _ -> `Int64 | `UInt8 _ -> `UInt8 | `UInt16 _ -> `UInt16
+    | `UInt32 _ -> `UInt32 | `UInt64 _ -> `UInt64 | `Float16 _ -> `Float16 
+    | `Float32 _ -> `Float32 | `Float64 _ -> `Float64
+  
+    let length_units ~bytes (b : buffer) = match b with
+    | `Int8 b -> Bigarray.Array1.dim b
+    | `Int16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+    | `Int32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+    | `Int64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
+    | `UInt8 b -> Bigarray.Array1.dim b 
+    | `UInt16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+    | `UInt32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+    | `UInt64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
+    | `Float16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
+    | `Float32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
+    | `Float64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
+                                            
+    let length b = length_units ~bytes:false b
+    let byte_length b = length_units ~bytes:true b
+        
+    let pp ppf b = 
+      Format.fprintf ppf "@[<1><buffer@ %a %d>@]" 
+        pp_scalar_type (scalar_type b) (length b)
+  end
+  
+  (* Linear bigarrays *) 
+
+  let create = ba_create
+  let unsafe_get = Bigarray.Array1.unsafe_get
+  let unsafe_set = Bigarray.Array1.unsafe_set          
+
   let length b = Bigarray.Array1.dim b
+  let sub = Bigarray.Array1.sub
+  let blit src si dst di len = 
+    let src = if si = 0 && length src = len then src else sub src si len in
+    let dst = if di = 0 then dst else sub dst di len in
+    Bigarray.Array1.blit src dst
+
+  let fill = Bigarray.Array1.fill
+  let of_array st a = Bigarray.Array1.of_array (ba_kind st) Bigarray.c_layout a
+  let of_list st l = 
+    let ba = create st (List.length l) in 
+    List.iteri (unsafe_set ba) l; 
+    ba
+
+  let of_bytes (type a) (type b) ?(be = false) (k : (a, b) ba_scalar_type) s : 
+    (a, b) bigarray =
+    match k with
+    | Int8 -> 
+        let b = create Int8 (String.length s) in
+        for i = 0 to String.length s - 1 do 
+          b.{i} <- Char.code (String.unsafe_get s i) 
+        done;
+        b 
+    | UInt8 -> 
+        let b = create UInt8 (String.length s) in
+        for i = 0 to String.length s - 1 do 
+          let v = Char.code (String.unsafe_get s i) in
+          b.{i} <- v - (v lsr 7 * 0x100)
+        done;
+        b
+    | _ -> (* TODO *) invalid_arg "unsupported bigarray scalar type"
 
   let pp ?count ?stride ?(first = 0) ?(dim = 1) ~pp_scalar ppf ba = 
     let pp = Format.fprintf in
@@ -2625,26 +2767,6 @@ module Ba = struct
     for k = 1 to count - 1 do pp ppf "@ %a" pp_group (); done;
     pp ppf "@]"
 
-  (* FIXME: The following Obj.magics can be removed once we have GADTs for 
-     bigarray kinds. http://caml.inria.fr/mantis/view.php?id=6064 *) 
-  let of_bytes (type a) (type b) ?(be = false) (k : (a, b) Bigarray.kind) s = 
-    let open Bigarray in
-    match Obj.magic k (* FIXME *) with 
-    | k when k = int8_unsigned ->
-        let b = create int8_unsigned (String.length s) in
-        for i = 0 to String.length s - 1 do 
-          b.{i} <- Char.code (String.unsafe_get s i) 
-        done;
-        (Obj.magic b : (a, b) bigarray)
-    | k when k = int8_signed ->
-        let b = create int8_signed (String.length s) in
-        for i = 0 to String.length s - 1 do 
-          let v = Char.code (String.unsafe_get s i) in
-          b.{i} <- v - (v lsr 7 * 0x100)
-        done;
-        (Obj.magic b : (a, b) bigarray)
-    | _ -> (* TODO *) invalid_arg "unsupported bigarray kind"
-            
   (* Get *)
 
   let get_v2 b i = V2.v b.{i} b.{i+1} 
@@ -2679,73 +2801,8 @@ end
 (* Raster data *)
 
 module Raster = struct
-  
-  (* Scalar type and buffers *)
-  
-  type scalar_type = 
-    [ `Int8 | `Int16 | `Int32 | `Int64 | `UInt8 | `UInt16 | `UInt32 | `UInt64
-    | `Float16 | `Float32 | `Float64 ]
-    
-  let scalar_type_byte_count = function 
-  | `Int8 | `UInt8 -> 1 
-  | `Int16 | `UInt16 | `Float16 -> 2 
-  | `Int32 | `UInt32 | `Float32 -> 4
-  | `Int64 | `UInt64 | `Float64 -> 8
-    
-  let scalar_type_str = function 
-  | `Int8 -> "Int8" | `Int16 -> "Int16" | `Int32 -> "Int32" 
-  | `Int64 -> "Int64" | `UInt8 -> "UInt8" | `UInt16 -> "UInt16" 
-  | `UInt32 -> "UInt32" | `UInt64 -> "UInt64" | `Float16 -> "Float16" 
-  | `Float32 -> "Float32" | `Float64 -> "Float64"
-    
-  let pp_scalar_type ppf st = Format.fprintf ppf "%s" (scalar_type_str st)
-      
-  type buffer = 
-    [ `Int8 of (int, Bigarray.int8_signed_elt) bigarray
-    | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
-    | `Int32 of (int32, Bigarray.int32_elt) bigarray
-    | `Int64 of (int64, Bigarray.int64_elt) bigarray
-    | `UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
-    | `UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
-    | `UInt32 of (int32, Bigarray.int32_elt) bigarray
-    | `UInt64 of (int64, Bigarray.int64_elt) bigarray
-    | `Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
-    | `Float32 of (float, Bigarray.float32_elt) bigarray
-    | `Float64 of (float, Bigarray.float64_elt) bigarray ]
-  
-  let buffer_scalar_type = function 
-  | `Int8 _ -> `Int8 
-  | `Int16 _ -> `Int16 
-  | `Int32 _ -> `Int32
-  | `Int64 _ -> `Int64
-  | `UInt8 _ -> `UInt8
-  | `UInt16 _ -> `UInt16
-  | `UInt32 _ -> `UInt32
-  | `UInt64 _ -> `UInt64
-  | `Float16 _ -> `Float16
-  | `Float32 _ -> `Float32
-  | `Float64 _ -> `Float64
-  
-  let buffer_length_units ~bytes (b : buffer) = match b with
-  | `Int8 b -> Bigarray.Array1.dim b
-  | `Int16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
-  | `Int32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
-  | `Int64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
-  | `UInt8 b -> Bigarray.Array1.dim b 
-  | `UInt16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
-  | `UInt32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
-  | `UInt64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
-  | `Float16 b -> Bigarray.Array1.dim b * (if bytes then 2 else 1)
-  | `Float32 b -> Bigarray.Array1.dim b * (if bytes then 4 else 1)
-  | `Float64 b -> Bigarray.Array1.dim b * (if bytes then 8 else 1)
 
-  let buffer_length b = buffer_length_units ~bytes:false b
-  let buffer_byte_length b = buffer_length_units ~bytes:true b
-
-  let pp_buffer ppf b = 
-    Format.fprintf ppf "@[<1><buffer@ %a %d>@]" 
-      pp_scalar_type (buffer_scalar_type b) (buffer_length b)
-
+  
   (* Raster data *)
 
   module Sample = struct
@@ -2768,8 +2825,8 @@ module Raster = struct
     (* Sample format *)
           
     type pack =
-      [ `PU8888 | `FourCC of string * scalar_type option
-      | `Other of string * scalar_type option ]
+      [ `PU8888 | `FourCC of string * Ba.scalar_type option
+      | `Other of string * Ba.scalar_type option ]
       
     let pack_str = function
     | `PU8888 -> "P8888"
@@ -2780,7 +2837,7 @@ module Raster = struct
         
     type format =
       { semantics : semantics;
-        scalar_type : scalar_type; 
+        scalar_type : Ba.scalar_type; 
         pack : pack option; } 
       
     let format ?pack semantics scalar_type = match pack with 
@@ -2798,7 +2855,8 @@ module Raster = struct
         | Some st -> 
             if st = scalar_type then { semantics; scalar_type; pack } else 
             invalid_arg 
-              (err_sample_pack (pack_str p) (scalar_type_str scalar_type))
+              (err_sample_pack (pack_str p) 
+                 (str "%a" Ba.pp_scalar_type scalar_type))
               
     let semantics sf = sf.semantics 
     let scalar_type sf = sf.scalar_type 
@@ -2822,7 +2880,7 @@ module Raster = struct
       in
       Format.fprintf ppf 
         "@[<1><Sample.format@ %a@ %a%a>@]" 
-        pp_semantics sf.semantics pp_scalar_type sf.scalar_type 
+        pp_semantics sf.semantics Ba.pp_scalar_type sf.scalar_type 
         pp_opt_pack sf.pack
   end
       
@@ -2912,7 +2970,7 @@ module Raster = struct
       Format.fprintf ppf "@[<1>(%d@ %d@ %d)@]" r.w r.h r.d
     in
     Format.fprintf ppf "@[<1><raster@ %a@ %a@ %a>@]" 
-      pp_size r Sample.pp_format r.sf pp_buffer r.buf
+      pp_size r Sample.pp_format r.sf Ba.Buffer.pp r.buf
 
   let to_string r = to_string_of_formatter pp r
 

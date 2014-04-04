@@ -3071,20 +3071,124 @@ module Color : sig
   (** [p_rgb_l] is the color profile of {{!t}color} values. *)
 end
 
-(** {1:bigarray Bigarray helpers} *) 
+(** {1:bigarray Linear bigarrays and bigarray buffers} *) 
 
 type ('a, 'b) bigarray = ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+(** The type for linear bigarrays. *) 
 
-(** Bigarray helpers for [Gg]. *) 
+type buffer =
+  [ `Int8 of (int, Bigarray.int8_signed_elt) bigarray
+  | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
+  | `Int32 of (int32, Bigarray.int32_elt) bigarray
+  | `Int64 of (int64, Bigarray.int64_elt) bigarray
+  | `UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
+  | `UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `UInt32 of (int32, Bigarray.int32_elt) bigarray
+  | `UInt64 of (int64, Bigarray.int64_elt) bigarray
+  | `Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
+  | `Float32 of (float, Bigarray.float32_elt) bigarray
+  | `Float64 of (float, Bigarray.float64_elt) bigarray ]
+(** The type for linear bigarray buffers. *) 
+
+(** Linear bigarrays and bigarray buffers.
+
+    This module has a few convenience functions for linear (1D) bigarrays. 
+
+    The purpose of {!buffer} is to allow to specify a few more data 
+    types than bigarrays are able to express and do facilitate the 
+    generic handling of lienar bigarrays. *)
 module Ba : sig
 
+  (** {1:scalars Scalar types} *)
+
+  (** The type for bigarray scalar types. *)
+  type ('a, 'b) ba_scalar_type =
+    | Int8 : (int, Bigarray.int8_signed_elt) ba_scalar_type
+    | Int16 : (int, Bigarray.int16_signed_elt) ba_scalar_type
+    | Int32 : (int32, Bigarray.int32_elt) ba_scalar_type
+    | Int64 : (int64, Bigarray.int64_elt) ba_scalar_type
+    | UInt8 : (int, Bigarray.int8_unsigned_elt) ba_scalar_type
+    | UInt16 : (int, Bigarray.int16_unsigned_elt) ba_scalar_type
+    | UInt32 : (int32, Bigarray.int32_elt) ba_scalar_type
+    | UInt64 : (int64, Bigarray.int64_elt) ba_scalar_type
+    | Float16 : (int, Bigarray.int16_unsigned_elt) ba_scalar_type
+    | Float32 : (float, Bigarray.float32_elt) ba_scalar_type
+    | Float64 : (float, Bigarray.float64_elt) ba_scalar_type
+
+  type scalar_type = 
+    [ `Int8 | `Int16 | `Int32 | `Int64 
+    | `UInt8 | `UInt16 | `UInt32 | `UInt64
+    | `Float16 | `Float32 | `Float64 ]
+  (** The type for buffer scalar types. *)
+
+  val scalar_type_byte_count : scalar_type -> int 
+  (** [scalar_type_byte_count st] is the number of bytes used by a scalar
+      of type [st]. *)
+
+  val pp_scalar_type : Format.formatter -> scalar_type -> unit 
+  (** [pp_scalar_type ppf st] prints a textual representation of [st]
+      on [ppf]. *)
+
+  (** {1:buffers Bigarray buffers} *) 
+
+  module Buffer : sig 
+
+    type t = buffer
+    (** The type for bigarray buffers. *) 
+    
+    val create : scalar_type -> int -> buffer 
+    (** [create st count] is a buffer of scalar type [st] with 
+        [count] scalars. *)
+
+    val scalar_type : buffer -> scalar_type 
+    (** [buffer_scalar_type b] is [b]'s buffer scalar type. *)
+
+    val length : buffer -> int 
+    (** [buffer_length b] is [b]'s buffer scalar length. *)
+
+    val byte_length : buffer -> int 
+    (** [buffer_byte_length b] is [b]'s buffer byte length. *)
+
+    val pp : Format.formatter -> buffer -> unit
+    (** [pp b] prints a textual representation of [b] on 
+        [ppf]. Does not print the buffer's data. *)
+  end
+
   (** {1:ba Bigarrays} *)
-  
-  val create : ('a, 'b) Bigarray.kind -> int -> ('a, 'b) bigarray 
+
+  val create : ('a, 'b) ba_scalar_type -> int -> ('a, 'b) bigarray 
   (** [create k count] is a bigarray of kind [k] with [count] scalars. *)
 
   val length : ('a, 'b) bigarray -> int 
-  (** [length b] is the length of [b]. *) 
+  (** [length ba] is the length of [ba]. *) 
+
+  val sub : ('a, 'b) bigarray -> int -> int -> ('a, 'b) bigarray
+  (** [sub ba i len] are the [i]th to [i]th + [n] scalars of [ba] 
+      as a bigarray. Note, this is not a copy. *) 
+
+  val blit : ('a, 'b) bigarray -> int -> ('a, 'b) bigarray -> int -> int -> unit
+  (** [blit src si dst di len] copies [len] scalar values starting at [si]
+      in [src] to [dst] starting at [di]. *) 
+      
+  val fill : ('a, 'b) bigarray -> 'a -> unit 
+  (** [fill ba v] sets each scalar value of [ba] to [v]. *)
+
+  val of_array : ('a, 'b) ba_scalar_type -> 'a array -> ('a, 'b) bigarray 
+  (** [of_array st a] is a bigarray from array [a]. *) 
+
+  val of_list : ('a, 'b) ba_scalar_type -> 'a list -> ('a, 'b) bigarray
+  (** [of_list st l] is a bigarray from list [l]. *)
+
+  val of_bytes : ?be:bool -> ('a, 'b) ba_scalar_type -> string ->  
+    ('a, 'b) bigarray
+  (** [of_bytes be s k] is a bigarray of kind [k] from [s]. if [be]
+      is [true] data is assumed to be in big endian order (defaults to 
+      [false]). 
+ 
+      {b TODO} For now only [Int8] and [UInt8] are supported.
+
+      @raise Invalid_argument if given an unsupported kind or if 
+      the data length is not a multiple of the requested scalar type. *)
 
   val pp : ?count:int -> ?stride:int -> ?first:int -> ?dim:int ->
     pp_scalar:(Format.formatter -> 'a -> unit) ->
@@ -3096,19 +3200,12 @@ module Ba : sig
       possible. [stride] defaults to [dim], [first] defaults to [0] and 
       [dim] to [1]. *)
 
-  val of_bytes : ?be:bool -> ('a, 'b) Bigarray.kind -> string ->  
-    ('a, 'b) bigarray
-  (** [of_bytes be s k] is a bigarray of kind [k] from [s]. if [be]
-      is [true] data is assumed to be in big endian order (defaults to 
-      [false]). 
- 
-      {b TODO} For now only {!Bigarray.int8_signed} and 
-      {!Bigarray.int8_unsigned} are supported. 
-      
-      @raise Invalid_argument if given an unsupported kind or if 
-      the data length is not a multiple of the requested scalar type. *)
 
   (** {1:get Getting} *)
+
+  (**/**)
+  val unsafe_get : ('a, 'b) bigarray -> int -> 'a 
+  (**/**)
 
   val get_v2 : (float, 'b) bigarray -> int -> v2 
   (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b] as a vector. *) 
@@ -3139,6 +3236,10 @@ module Ba : sig
       integers are converted with {!Int32.to_int} *)
 
   (** {1:set Setting} *) 
+
+  (**/**)
+  val unsafe_set : ('a, 'b) bigarray -> int -> 'a -> unit
+  (**/**)
 
   val set_v2 : (float, 'b) bigarray -> int -> v2 -> unit
   (** [set_v2 b i v] sets the [i]th to [i+1]th scalars of [b] with
@@ -3190,7 +3291,7 @@ type raster
     A sample has a {{!type:Sample.semantics}{e semantics}} that defines its
     dimension and the meaning of its {e components}. For example a 4D
     sample could represent a linear sRGBA sample. Samples are stored
-    in a {{!type:buffer}linear buffer} of {e scalars} of a given
+    in a {{!Ba.buffer}linear buffer} of {e scalars} of a given
     {{!type:scalar_type}type}. A sample can use one scalar per component,
     can be packed in a single scalar or may have no direct obvious
     relationship to buffer scalars (compressed data). The
@@ -3210,50 +3311,7 @@ type raster
     (bottom-left sample for an image). *) 
 module Raster : sig
 
-  (** {1:scalars Scalar types and buffers} *)
-
-  type scalar_type = 
-    [ `Int8 | `Int16 | `Int32 | `Int64 
-    | `UInt8 | `UInt16 | `UInt32 | `UInt64
-    | `Float16 | `Float32 | `Float64 ]
-  (** The type for scalar types. *)
-
-  val scalar_type_byte_count : scalar_type -> int 
-  (** [scalar_type_byte_count st] is the number of bytes used by a scalar
-      of type [st]. *)
-
-  val pp_scalar_type : Format.formatter -> scalar_type -> unit 
-  (** [pp_scalar_type ppf st] prints a textual representation of [st]
-      on [ppf]. *)
-
-  type buffer =
-    [ `Int8 of (int, Bigarray.int8_signed_elt) bigarray
-    | `Int16 of (int, Bigarray.int16_signed_elt) bigarray
-    | `Int32 of (int32, Bigarray.int32_elt) bigarray
-    | `Int64 of (int64, Bigarray.int64_elt) bigarray
-    | `UInt8 of (int, Bigarray.int8_unsigned_elt) bigarray
-    | `UInt16 of (int, Bigarray.int16_unsigned_elt) bigarray
-    | `UInt32 of (int32, Bigarray.int32_elt) bigarray
-    | `UInt64 of (int64, Bigarray.int64_elt) bigarray
-    | `Float16 of (int, Bigarray.int16_unsigned_elt) bigarray
-    | `Float32 of (float, Bigarray.float32_elt) bigarray
-    | `Float64 of (float, Bigarray.float64_elt) bigarray ]
-  (** The type for linear buffer of scalars. *)
-
-  val buffer_scalar_type : buffer -> scalar_type 
-  (** [buffer_scalar_type b] is [b]'s buffer scalar type. *)
-
-  val buffer_length : buffer -> int 
-  (** [buffer_length b] is [b]'s buffer scalar length. *)
-
-  val buffer_byte_length : buffer -> int 
-  (** [buffer_byte_length b] is [b]'s buffer byte length. *)
-
-  val pp_buffer : Format.formatter -> buffer -> unit
-  (** [pp_buffer b] prints a textual representation of [b] on 
-      [ppf]. Does not print the buffer's data. *)
-
-  (** {1:raster Raster data} *)
+  (** {1:samples Sample semantics and formats} *) 
 
   (** Sample semantics and formats. *)
   module Sample : sig
@@ -3294,8 +3352,8 @@ module Raster : sig
     (** {1:samples Sample format} *)
 
     type pack =
-      [ `PU8888 | `FourCC of string * scalar_type option
-      | `Other of string * scalar_type option ]
+      [ `PU8888 | `FourCC of string * Ba.scalar_type option
+      | `Other of string * Ba.scalar_type option ]
     (** The type for sample packs. A sample pack describes storage for samples 
         that do not use one scalar per component. 
         {ul 
@@ -3320,7 +3378,7 @@ module Raster : sig
     type format
     (** The type for sample formats. *)
   
-    val format : ?pack:pack -> semantics -> scalar_type -> format 
+    val format : ?pack:pack -> semantics -> Ba.scalar_type -> format 
     (** [format pack sem st] is a sample format with semantics 
         [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
         per sample component is used. If present, see {!type:sample_pack}.
@@ -3332,7 +3390,7 @@ module Raster : sig
     val semantics : format -> semantics 
     (** [semantics sf] is [sf]'s semantics. *)
       
-    val scalar_type : format -> scalar_type 
+    val scalar_type : format -> Ba.scalar_type 
     (** [scalar_type sf] is [sf]'s buffer scalar type *)
 
     val pack : format -> pack option
@@ -3353,11 +3411,11 @@ module Raster : sig
     (** [pp_format ppf sf] prints a textual representation of [sf]
         on [ppf].*)
   end
+
+  (** {1:raster Raster data} *)
     
   type t = raster
   (** The type for raster data. *)
-
-  (** {2 Constructor, accessors} *)
 
   val v : ?res:v3 -> ?first:int -> ?w_skip:int -> ?h_skip:int -> 
     w:int -> ?h:int -> ?d:int -> Sample.format -> buffer -> t
@@ -3415,7 +3473,7 @@ module Raster : sig
   val buffer : t -> buffer
   (** [buffer r] is [r]'s format. *)
 
-  (** {2 Functions} *)
+  (** {1 Functions} *)
 
   val dim : t -> int
   (** [dim r] is [r]'s index dimension from 1 to 3. *)
@@ -3475,7 +3533,7 @@ module Raster : sig
       packed.
   *)
 
-  (** {2 Predicates and comparisons} *)
+  (** {1 Predicates and comparisons} *)
 
   val equal : t -> t -> bool
   (** [equal r r'] is [r = r']. *)
@@ -3483,7 +3541,7 @@ module Raster : sig
   val compare : t -> t -> int
   (** [compare r r'] is [Pervasives.compare r r']. *)
 
-  (** {2 Printers} *)
+  (** {1 Printers} *)
 
   val to_string : t -> string 
   (** [to_string r] is a textual representation of [r]. Doesn't
