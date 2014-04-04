@@ -2628,8 +2628,9 @@ module Ba = struct
     | Float32 : (float, Bigarray.float32_elt) ba_scalar_type
     | Float64 : (float, Bigarray.float64_elt) ba_scalar_type
 
-  let ba_kind : type a b. (a, b) ba_scalar_type -> (a, b) Bigarray.kind 
-    = function 
+  let ba_kind_of_ba_scalar_type 
+    : type a b. (a, b) ba_scalar_type -> (a, b) Bigarray.kind 
+    = function
     | Int8 -> Bigarray.int8_signed 
     | Int16 -> Bigarray.int16_signed
     | Int32 -> Bigarray.int32 
@@ -2668,8 +2669,9 @@ module Ba = struct
     
   (* Bigarray buffers. *)
 
-  let ba_create k count = 
-    Bigarray.Array1.create (ba_kind k) Bigarray.c_layout count 
+  let ba_create st count = 
+    let kind = ba_kind_of_ba_scalar_type st in
+    Bigarray.Array1.create kind Bigarray.c_layout count 
 
   module Buffer = struct 
     type t = buffer
@@ -2728,7 +2730,10 @@ module Ba = struct
     Bigarray.Array1.blit src dst
 
   let fill = Bigarray.Array1.fill
-  let of_array st a = Bigarray.Array1.of_array (ba_kind st) Bigarray.c_layout a
+  let of_array st a = 
+    let kind = ba_kind_of_ba_scalar_type st in
+    Bigarray.Array1.of_array kind Bigarray.c_layout a
+
   let of_list st l = 
     let ba = create st (List.length l) in 
     List.iteri (unsafe_set ba) l; 

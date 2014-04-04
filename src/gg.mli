@@ -3115,6 +3115,11 @@ module Ba : sig
     | Float32 : (float, Bigarray.float32_elt) ba_scalar_type
     | Float64 : (float, Bigarray.float64_elt) ba_scalar_type
 
+  val ba_kind_of_ba_scalar_type : 
+    ('a, 'b) ba_scalar_type -> ('a, 'b) Bigarray.kind 
+  (** [ba_kind_of_ba_scalar_type st] is the bigarray kind corresponding
+      to [st]. *)
+
   type scalar_type = 
     [ `Int8 | `Int16 | `Int32 | `Int64 
     | `UInt8 | `UInt16 | `UInt32 | `UInt64
