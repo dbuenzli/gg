@@ -234,8 +234,9 @@ module Float : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : float -> string
-  (** [to_string x] is a lossless textual representation of [x].
+  val pp : Format.formatter -> float -> unit
+  (** [pp ppf x] prints a lossless textual representation of [x] on [ppf].
+
       {ul 
       {- Normals are represented by ["[-]0x1.<f>p<e>"] where
          [<f>] is the significand bits in hexadecimal and [<e>] the 
@@ -249,11 +250,7 @@ module Float : sig
       This format should be compatible with recent implementations of 
       {{:http://www.opengroup.org/onlinepubs/000095399/functions/strtod.html}
       strtod} and hence with [float_of_string] (but negative NaNs seem to 
-      be problematic to get back) . *)
-
-  val pp : Format.formatter -> float -> unit
-  (** [pp ppf x] prints [x] on [ppf] according to the lossless
-      representation of {!to_string}. *) 
+      be problematic to get back). *)
 
   (** {1:floatrecall Quick recall on OCaml's [float]s} 
 
@@ -478,9 +475,6 @@ module type V = sig
 
   (** {1:printers Printers} *)
   
-  val to_string : t -> string
-  (** [to_string v] is a textual representation of [v]. *)
-
   val pp : Format.formatter -> t -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
@@ -693,9 +687,6 @@ module V2 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : v2 -> string
-  (** [to_string v] is a textual representation of [v]. *)
-
   val pp : Format.formatter -> v2 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
@@ -924,9 +915,6 @@ module V3 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : v3 -> string
-  (** [to_string v] is a textual representation of [v]. *)
-
   val pp : Format.formatter -> v3 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
@@ -1117,9 +1105,6 @@ module V4 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : v4 -> string
-  (** [to_string v] is a textual representation of [v]. *)
-
   val pp : Format.formatter -> v4 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
 
@@ -1496,9 +1481,6 @@ module type M = sig
 
   (** {1:printers Printers} *)
   
-  val to_string : t -> string
-  (** [to_string a] is a textual representation of [a]. *)
-
   val pp : Format.formatter -> t -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
@@ -1658,9 +1640,6 @@ module M2 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : m2 -> string
-  (** [to_string a] is a textual representation of [a]. *)
-
   val pp : Format.formatter -> m2 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
@@ -1863,9 +1842,6 @@ module M3 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : m3 -> string
-  (** [to_string a] is a textual representation of [a]. *)
-
   val pp : Format.formatter -> m3 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
@@ -2111,9 +2087,6 @@ module M4 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : m4 -> string
-  (** [to_string a] is a textual representation of [a]. *)
-
   val pp : Format.formatter -> m4 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
 
@@ -2392,9 +2365,6 @@ module type Box = sig
 
   (** {1:printers Printers} *)
   
-  val to_string : t -> string
-  (** [to_string b] is a textual representation of [b]. *)
-
   val pp : Format.formatter -> t -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
@@ -2599,9 +2569,6 @@ module Box2 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : box2 -> string
-  (** [to_string b] is a textual representation of [b]. *)
-
   val pp : Format.formatter -> box2 -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
@@ -2808,9 +2775,6 @@ module Box3 : sig
 
   (** {1:printers Printers} *)
   
-  val to_string : box3 -> string
-  (** [to_string b] is a textual representation of [b]. *)
-
   val pp : Format.formatter -> box3 -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
 
@@ -3552,23 +3516,19 @@ module Raster : sig
 
   (** {1 Printers} *)
 
-  val to_string : t -> string 
-  (** [to_string r] is a textual representation of [r]. Doesn't
-      print the buffer samples. *)
-
   val pp : Format.formatter -> t -> unit
   (** [pp ppf t] prints a textual represenation of [t] on [ppf]. Doesn't
       print the buffer samples. *)
 
-    (** {1:resconv Resolution conversions} *) 
+  (** {1:resconv Resolution conversions} *) 
       
-    val spm_of_spi : float -> float
-    (** [spm_of_spi spi] is the samples per meter corresponding to 
+  val spm_of_spi : float -> float
+  (** [spm_of_spi spi] is the samples per meter corresponding to 
         the samples per inch [spi]. *)
-      
-    val spm_to_spi : float -> float 
-    (** [spm_to_spi spm] is the samples per inch corresponding to the
-        samples per meters [spm]. *)
+    
+  val spm_to_spi : float -> float 
+  (** [spm_to_spi spm] is the samples per inch corresponding to the
+      samples per meters [spm]. *)
 end
 
 (** {1:basics Basics} 
@@ -3597,9 +3557,8 @@ end
     {- [dim], an [int] value that indicates the dimensionality 
        of the type ({!V2.dim}).}
     {- [v], a constructor for the type ({!V2.v}).}
-    {- [to_string] and [pp] to convert values to a textual 
-       representation for debugging purposes and toplevel interaction
-       ({!V2.to_string}, {!V2.pp}).}
+    {- [pp] to convert values to a textual representation for debugging 
+       purposes and toplevel interaction {!V2.pp}).}
     {- [equal] and [compare] the standard functions that make a module 
        a good functor argument ({!V2.equal}, {!V2.compare}).}
     {- [equal_f] and [compare_f] which compare
@@ -3678,13 +3637,11 @@ end
     {2:tipsremarks Remarks and Tips}
     {ul
     {- Everything is tail-recursive.}
-    {- [to_string] functions are not thread-safe. Thread-safety can
-       be achieved with [pp] functions.} 
     {- Do not rely on the output of printer functions, they are
-       subject to change. The only exception is {!Float}'s module
-       {{!Float.printers}printers} that output a lossless textual 
-       representation of floats.  While the actual format is subject to 
-       change it will remain compatible with [float_of_string].}
+       subject to change. The only exception is the function
+       {!Float.pp} that output a lossless textual representation of
+       floats.  While the actual format is subject to change it will
+       remain compatible with [float_of_string].}
     {- All modules can be directly given as arguments to [Set.Make]
        and [Map.Make]. However this will use [Pervasives.compare] and
        thus binary comparison between floats. Depending on the intended

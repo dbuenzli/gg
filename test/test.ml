@@ -19,6 +19,7 @@ open Checkm
 open Checkm.C.Special
 open Gg
 
+let str = Format.asprintf
 let eps = 1e-9
 
 module Test = Checkm.Test                                 (* help ocamlbuild. *)
@@ -434,11 +435,11 @@ module Float_tests = struct
       
   let float_trip x r = 
     let pr ppf x = Float.pp ppf (Int64.float_of_bits x) in
-    let x' = float_of_string (Float.to_string x) in
+    let x' = float_of_string (str "%a" Float.pp x) in
     r >> C.Order.(=) ~pr (Int64.bits_of_float x) (Int64.bits_of_float x')
       >> C.success
       
-  let () = test "to_string, non nan" & fun r ->  
+  let () = test "pp, non nan" & fun r ->  
     r >> float_trip (0. /. -1.)
       >> float_trip 0.
       >> float_trip infinity

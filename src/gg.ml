@@ -34,11 +34,7 @@ let pp_buf buf ppf fmt =
     s, String.length s
   in
   Format.kfprintf flush ppf fmt
-    
-let to_string_of_formatter ppfun v =                     (* NOT thread safe. *)
-  pp Format.str_formatter "%a" ppfun v; 
-  Format.flush_str_formatter ()
-    
+        
 let gg_eps = 1e-9
   
 (* Floating point utilities. *)
@@ -215,8 +211,6 @@ module Float = struct
         let neg = Int64.logand x bfloat_sign <> 0L in
         let p = Int64.logand x bfloat_nanp in
         pp ppf "%anan(0x%LX)" pr_neg neg p
-          
-  let to_string x = to_string_of_formatter pp x
 end
 
 (* Vector and matrix types are defined here so that they can be seen
@@ -359,7 +353,6 @@ module type V = sig
     
   (* Printers *)
     
-  val to_string : t -> string
   val pp : Format.formatter -> t -> unit
   val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
@@ -447,10 +440,7 @@ module V2 = struct
   (* Printers *)
       
   let pp ppf a = pp ppf "@[<1>(%g@ %g)@]" a.x a.y
-  let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a)@]" 
-      pp_c a.x pp_c a.y
-      
-  let to_string a = to_string_of_formatter pp a
+  let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a)@]" pp_c a.x pp_c a.y
 end
 
 module V3 = struct
@@ -568,8 +558,6 @@ module V3 = struct
   let pp ppf a = pp ppf "@[<1>(%g@ %g@ %g)@]" a.x a.y a.z 
   let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z
-      
-  let to_string a = to_string_of_formatter pp a
 end
 
 module V4 = struct
@@ -665,8 +653,6 @@ module V4 = struct
   let pp ppf a = pp ppf "@[<1>(%g@ %g@ %g@ %g)@]" a.x a.y a.z a.w
   let pp_f pp_c ppf a = Format.fprintf ppf "@[<1>(%a@ %a@ %a@ %a)@]" 
       pp_c a.x pp_c a.y pp_c a.z pp_c a.w
-      
-  let to_string a = to_string_of_formatter pp a
 end
 
 (* Points *)
@@ -954,7 +940,6 @@ module type M = sig
     
   (* Printers *)
     
-  val to_string : t -> string
   val pp : Format.formatter -> t -> unit
   val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
@@ -1093,7 +1078,6 @@ module M2 = struct
       
   let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
-  let to_string p = to_string_of_formatter pp p     
 end
 
 module M3 = struct
@@ -1385,7 +1369,6 @@ module M3 = struct
   
   let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
-  let to_string p = to_string_of_formatter pp p 
 end
 
 module M4 = struct
@@ -1801,7 +1784,6 @@ module M4 = struct
       
   let pp_e_default ppf = pp ppf "%g"
   let pp ppf a = pp_f pp_e_default ppf a
-  let to_string p = to_string_of_formatter pp p 
 end    
 
 (* Sizes *)
@@ -1886,7 +1868,6 @@ module type Box = sig
     
   (* Printers *)
     
-  val to_string : t -> string
   val pp : Format.formatter -> t -> unit
   val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
@@ -2072,7 +2053,6 @@ module Box2 = struct
         
   let pp ppf b = _print V2.pp ppf b 
   let pp_f pp_f ppf b = _print (V2.pp_f pp_f) ppf b 
-  let to_string p = to_string_of_formatter pp p 
 end
 
 module Box3 = struct
@@ -2318,7 +2298,6 @@ module Box3 = struct
         
   let pp ppf b = _print V3.pp ppf b 
   let pp_f pp_f ppf b = _print (V3.pp_f pp_f) ppf b 
-  let to_string p = to_string_of_formatter pp p 
 end
 
 type box2 = Box2.t
@@ -2976,8 +2955,6 @@ module Raster = struct
   let pp ppf r =
     pp ppf "@[<1>(raster@ %a@ %a@ %a)@]" 
       V3.pp (size3 r) Sample.pp_format r.sf Ba.Buffer.pp r.buf
-
-  let to_string r = to_string_of_formatter pp r
 
   let inch_to_meter = 0.0254
   let spm_of_spi spi = spi /. inch_to_meter
