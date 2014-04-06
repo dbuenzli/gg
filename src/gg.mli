@@ -1317,20 +1317,20 @@ module Quat : sig
   (** [of_m4 m] is the unit quaternion for the rotation in the 3x3
       top left matrix in [m]. *)
 
-  val rot_map : v3 -> v3 -> quat
-  (** Unit quaternion for the rotation, see {!M3.rot_map}. *)
+  val rot3_map : v3 -> v3 -> quat
+  (** Unit quaternion for the rotation, see {!M3.rot3_map}. *)
 
-  val rot_axis : v3 -> float -> quat 
-  (** Unit quaternion for the rotation, see {!M3.rot_axis}. *)
+  val rot3_axis : v3 -> float -> quat 
+  (** Unit quaternion for the rotation, see {!M3.rot3_axis}. *)
 
-  val rot_zyx : v3 -> quat
-  (** Unit quaternion for the rotation, see {!M3.rot_zyx}. *)
+  val rot3_zyx : v3 -> quat
+  (** Unit quaternion for the rotation, see {!M3.rot3_zyx}. *)
 
-  val to_rot_axis : quat -> v3 * float
-  (** [to_rot_axis q] is the rotation axis and angle of the {e unit} 
+  val to_rot3_axis : quat -> v3 * float
+  (** [to_rot3_axis q] is the rotation axis and angle of the {e unit} 
       quaternion [q].*)
 
-  val to_rot_zyx : quat -> v3
+  val to_rot3_zyx : quat -> v3
   (** [to_rot_zyx q] is the x, y, z axis angles of the {e unit} 
       quaternion [q]. *)
   
@@ -1587,11 +1587,11 @@ module M2 : sig
 
   (** {1:transformations2d 2D space transformations} *) 
 
-  val rot : float -> m2
-  (** [rot theta] rotates 2D space around the origin by [theta]. *)
+  val rot2 : float -> m2
+  (** [rot2 theta] rotates 2D space around the origin by [theta]. *)
 
-  val scale : v2 -> m2
-  (** [scale s] scales 2D space in the [x] and [y] dimensions
+  val scale2 : v2 -> m2
+  (** [scale2 s] scales 2D space in the [x] and [y] dimensions
       according to [s]. *)
 
   (** {1:traversal Traversal} *)
@@ -1759,41 +1759,41 @@ module M3 : sig
 
   (** {1:transformations2d 2D space transformations} *) 
 
-  val move : v2 -> m3
-  (** [move d] translates 2D space in the x and y dimensions according 
+  val move2 : v2 -> m3
+  (** [move2 d] translates 2D space in the x and y dimensions according 
       to [d]. *)
 
-  val rot : float -> m3
-  (** See {!M2.rot}. *)
+  val rot2 : float -> m3
+  (** See {!M2.rot2}. *)
 
   val scale2 : v2 -> m3
-  (** See {!M2.scale}. *)
+  (** See {!M2.scale2}. *)
 
-  val rigid : move:v2 -> rot:float -> m3 
-  (** [rigid move theta] is the rigid body transformation of 
+  val rigid2 : move:v2 -> rot:float -> m3 
+  (** [rigid2 move theta] is the rigid body transformation of 
       2D space that rotates by [theta] and then translates by [move]. *)
 
-  val srigid : move:v2 -> rot:float -> scale:v2 -> m3 
-  (** [srigid move theta scale] is like {!rigid} but starts by
+  val srigid2 : move:v2 -> rot:float -> scale:v2 -> m3 
+  (** [srigid2 move theta scale] is like {!rigid2} but starts by
       scaling according to [scale]. *)
       
   (** {1:transformations3d 3D space transformations} *) 
 
-  val rot_map : v3 -> v3 -> m3 
-  (** [rot_map u v] rotates 3D space to map the {e unit} vector [u] on
+  val rot3_map : v3 -> v3 -> m3 
+  (** [rot3_map u v] rotates 3D space to map the {e unit} vector [u] on
       the {e unit} vector [v]. *)
 
-  val rot_axis : v3 -> float -> m3
+  val rot3_axis : v3 -> float -> m3
   (** [rot_axis v theta] rotates 3D space by [theta] around 
       the {e unit} vector [v]. *)
 
-  val rot_zyx : v3 -> m3 
-  (** [rot_zyx r] rotates 3D space first by [V3.x r] around the
+  val rot3_zyx : v3 -> m3 
+  (** [rot3_zyx r] rotates 3D space first by [V3.x r] around the
       x-axis, then by [V3.y r] around the y-axis and finally by [V3.z
       r] around the z-axis. *)
 
-  val scale : v3 -> m3
-  (** [scale s] scales 3D space in the [x], [y] and [z] dimensions
+  val scale3 : v3 -> m3
+  (** [scale3 s] scales 3D space in the [x], [y] and [z] dimensions
       according to [s]. *)
  
   (** {1:traversal Traversal} *)
@@ -1964,39 +1964,56 @@ module M4 : sig
       {{:http://mathworld.wolfram.com/MatrixInverse.html}inverse matrix}
       [a]{^ -1}. *)
 
+  (** {1:transformations2d 2D space transformations} *) 
+
+  val move2 : v2 -> m4
+  (** See {!M3.move2}. *)
+
+  val rot2 : float -> m4
+  (** See {!M2.rot2}. *)
+
+  val scale2 : v2 -> m4
+  (** See {!M2.scale2}. *)
+
+  val rigid2 : move:v2 -> rot:float -> m4
+  (** See {!M3.rigid2}. *)
+
+  val srigid2 : move:v2 -> rot:float -> scale:v2 -> m4
+  (** See {!M3.srigid2}. *)
+
   (** {1:transformations3d 3D space transformations} *)
 
-  val move : v3 -> m4
+  val move3 : v3 -> m4
   (** [move d] translates 3D space in the x, y and z dimensions according
       to [d]. *)
 
-  val rot_map : v3 -> v3 -> m4
-  (** See {!M3.rot_map}. *)
+  val rot3_map : v3 -> v3 -> m4
+  (** See {!M3.rot3_map}. *)
 
-  val rot_axis : v3 -> float -> m4
-  (** See {!M3.rot_axis}. *)
+  val rot3_axis : v3 -> float -> m4
+  (** See {!M3.rot3_axis}. *)
 
-  val rot_zyx : v3 -> m4
-  (** See {!M3.rot_zyx}. *)
+  val rot3_zyx : v3 -> m4
+  (** See {!M3.rot3_zyx}. *)
 
   val scale3 : v3 -> m4
-  (** See {!M3.scale}. *)
+  (** See {!M3.scale3}. *)
 
-  val rigid : move:v3 -> rot:v3 * float -> m4
-  (** [rigid move rot] is the rigid body transformation
+  val rigid3 : move:v3 -> rot:v3 * float -> m4
+  (** [rigid3 move rot] is the rigid body transformation
       of 3D space that rotates by the axis/angle [rot]
       and then translates by [move]. *)
 
-  val rigidq : move:v3 -> rot:quat -> m4
-  (** [rigid move rot] is the rigid body transformation of 3D space
+  val rigid3q : move:v3 -> rot:quat -> m4
+  (** [rigid3q move rot] is the rigid body transformation of 3D space
       that rotates by the quaternion [rot] and then translates by
       [move]. *)
 
-  val srigid : move:v3 -> rot:v3 * float -> scale:v3 -> m4
-  (** [rigid scale move rot scale] is like {!rigid} but starts
+  val srigid3 : move:v3 -> rot:v3 * float -> scale:v3 -> m4
+  (** [srigid3 scale move rot scale] is like {!rigid} but starts
       by scaling according to [scale]. *)
 
-  val srigidq : move:v3 -> rot:quat -> scale:v3 -> m4
+  val srigid3q : move:v3 -> rot:quat -> scale:v3 -> m4
   (** [srigid move rot scale] is like {!rigidq} but starts by scaling 
       according to [scale]. *)
 
@@ -2037,8 +2054,8 @@ module M4 : sig
 
   (** {1:transformations4d 4D space transformations} *)
 
-  val scale : v4 -> m4
-  (** [scale s] scales 4D space in the x, y, z and w dimensions according
+  val scale4 : v4 -> m4
+  (** [scale4 s] scales 4D space in the x, y, z and w dimensions according
       to [s]. *)
 
   (** {1:traversal Traversal} *)

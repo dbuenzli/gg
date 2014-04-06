@@ -830,18 +830,18 @@ module Quat = struct
         (0.25 *. s)
         ((m.e10 -. m.e01) /. s)
       
-  let rot_map u u' =
+  let rot3_map u u' =
     let e = V3.dot u u' in
     let c = V3.cross u u' in
     let r = sqrt (2. *. (1. +. e)) in 
     v (c.V3t.x /. r) (c.V3t.y /. r) (c.V3t.z /. r) (r /. 2.)
       
-  let rot_axis u theta =
+  let rot3_axis u theta =
     let a = theta *. 0.5 in
     let s = sin a in
     v (s *. u.V3t.x) (s *. u.V3t.y) (s *. u.V3t.z) (cos a)
       
-  let rot_zyx r = 
+  let rot3_zyx r = 
     let hz = V3.z r *. 0.5 in 
     let hy = V3.y r *. 0.5 in 
     let hx = V3.x r *. 0.5 in 
@@ -855,13 +855,13 @@ module Quat = struct
       (cysz *. cx -. sycz *. sx) 
       (cycz *. cx +. sysz *. sx) 
 
-  let to_rot_axis q = 
+  let to_rot3_axis q = 
     let a_2 = acos q.w in
     if a_2 < gg_eps then (V3.v 1.0 0.0 0.0), 0.0  else
     let d = 1.0 /. (sin a_2) in
     (V3.v (q.x *. d) (q.y *. d) (q.z *. d)), (a_2 *. 2.0) 
             
-  let to_rot_zyx q = 
+  let to_rot3_zyx q = 
     let xx = q.x *. q.x in let yy = q.y *. q.y in let zz = q.z *. q.z in
     let ww = q.w *. q.w in 
     let wx = q.w *. q.x in let wy = q.w *. q.y in let wz = q.w *. q.z in
@@ -1014,13 +1014,13 @@ module M2 = struct
       
   (* 2D space transformations *)
       
-  let rot theta =
+  let rot2 theta =
     let c = cos theta in
     let s = sin theta in 
     v c (-. s) 
       s c
       
-  let scale s =
+  let scale2 s =
     v s.x 0.
       0.  s.y
       
@@ -1204,12 +1204,12 @@ module M3 = struct
       
   (* 2D space transforms *)
       
-  let move d =
+  let move2 d =
     v 1. 0. d.V2t.x
       0. 1. d.V2t.y
       0. 0. 1.
       
-  let rot theta = 
+  let rot2 theta = 
     let c = cos theta in
     let s = sin theta in
     v c  (-. s) 0.
@@ -1221,14 +1221,14 @@ module M3 = struct
       0.      s.V2t.y 0.
       0.      0.      1.
       
-  let rigid ~move ~rot = 
+  let rigid2 ~move ~rot = 
     let c = cos rot in
     let s = sin rot in
     v c  (-. s) move.V2t.x
       s  c      move.V2t.y
       0. 0.     1.
 
-  let srigid ~move ~rot ~scale = 
+  let srigid2 ~move ~rot ~scale = 
     let c = cos rot in
     let s = sin rot in
     v (c *. scale.V2t.x) ((-. s) *. scale.V2t.y) move.V2t.x
@@ -1237,7 +1237,7 @@ module M3 = struct
       
   (* 3D space transforms *)
       
-  let rot_map u u' = 
+  let rot3_map u u' = 
     let n = V3.cross u u' in
     let e = V3.dot u u' in
     let h = 1. /. (1. +. e) in
@@ -1248,7 +1248,7 @@ module M3 = struct
       (h *. xy +. n.z)       (e +. h *. n.y *. n.y) (h *. yz -. n.x)     
       (h *. xz -. n.y)       (h *. yz +. n.x)       (e +. h *. n.z *. n.z)
 
-  let rot_axis u theta = 
+  let rot3_axis u theta = 
     let xy = u.x *. u.y in
     let xz = u.x *. u.z in
     let yz = u.y *. u.z in
@@ -1265,7 +1265,7 @@ module M3 = struct
       (yz *. one_c +. u.x *. s)
       (u.z *. u.z *. one_c +. c)
       
-  let rot_zyx r = 
+  let rot3_zyx r = 
     let cz = cos r.z in let sz = sin r.z in
     let cy = cos r.y in let sy = sin r.y in
     let cx = cos r.x in let sx = sin r.x in
@@ -1273,7 +1273,7 @@ module M3 = struct
       (cy *. sz) (sy *. sx *. sz +. cx *. cz) (sy *. cx *. sz -. sx *. cz)
       (-. sy)    (cy *. sx)                   (cy *. cx) 
       
-  let scale s =
+  let scale3 s =
     v s.x 0.  0.
       0.  s.y 0.
       0.  0.  s.z
@@ -1550,15 +1550,55 @@ module M4 = struct
       (   m02 /. det) (-. m12 /. det) (   m22 /. det) (-. m32 /. det)
       (-. m03 /. det) (   m13 /. det) (-. m23 /. det) (   m33 /. det)
       
+  (* 2D space transforms *) 
+
+  (* 2D space transforms *)
+      
+  let move2 d =
+    v 1. 0. 0. d.V2t.x
+      0. 1. 0. d.V2t.y
+      0. 0. 1. 0. 
+      0. 0. 0. 1. 
+      
+  let rot2 theta = 
+    let c = cos theta in
+    let s = sin theta in
+    v c  (-. s) 0. 0. 
+      s  c      0. 0. 
+      0. 0.     1. 0. 
+      0. 0.     0. 1. 
+      
+  let scale2 s = 
+    v s.V2t.x 0.      0. 0.
+      0.      s.V2t.y 0. 0.
+      0.      0.      1. 0.
+      0.      0.      0. 1.
+      
+  let rigid2 ~move ~rot = 
+    let c = cos rot in
+    let s = sin rot in
+    v c  (-. s) 0. move.V2t.x
+      s  c      0. move.V2t.y
+      0. 0.     1. 0. 
+      0. 0.     0. 1.
+
+  let srigid2 ~move ~rot ~scale = 
+    let c = cos rot in
+    let s = sin rot in
+    v (c *. scale.V2t.x) ((-. s) *. scale.V2t.y) 0. move.V2t.x
+      (s *. scale.V2t.x) (c *. scale.V2t.y)      0. move.V2t.y
+      0.                 0.                      1. 0. 
+      0.                 0.                      0. 1.
+
   (* 3D space transforms *)      
       
-  let move d = 
+  let move3 d = 
     v 1. 0. 0. d.V3t.x
       0. 1. 0. d.V3t.y
       0. 0. 1. d.V3t.z
       0. 0. 0. 1.
       
-  let rot_map u u' = 
+  let rot3_map u u' = 
     let n = V3.cross u u' in
     let e = V3.dot u u' in
     let h = 1. /. (1. +. e) in
@@ -1573,7 +1613,7 @@ module M4 = struct
       (h *. xz -. y)     (h *. yz +. x)       (e +. h *. z *. z) 0.
       0.                 0.                   0.                 1.
       
-  let rot_axis u theta = 
+  let rot3_axis u theta = 
     let xy = u.V3t.x *. u.V3t.y in
     let xz = u.V3t.x *. u.V3t.z in
     let yz = u.V3t.y *. u.V3t.z in
@@ -1594,7 +1634,7 @@ module M4 = struct
       0.
       0. 0. 0. 1.
       
-  let rot_zyx r = 
+  let rot3_zyx r = 
     let cz = cos r.V3t.z in let sz = sin r.V3t.z in
     let cy = cos r.V3t.y in let sy = sin r.V3t.y in
     let cx = cos r.V3t.x in let sx = sin r.V3t.x in
@@ -1609,12 +1649,11 @@ module M4 = struct
       0.      0.      s.V3t.z 0.
       0.      0.      0.      1.
       
-  let rigid ~move:d ~rot:(u, theta) =
-    { (rot_axis u theta) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
+  let rigid3 ~move:d ~rot:(u, theta) =
+    { (rot3_axis u theta) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
 
-  let rigidq ~move:d ~rot:q =
+  let rigid3q ~move:d ~rot:q =
     { (of_quat q) with e03 = d.V3t.x; e13 = d.V3t.y; e23 = d.V3t.z }
-
 
   let _srigid d m s = 
     v (m.e00 *. s.V3t.x) (m.e01 *. s.V3t.y) (m.e02 *. s.V3t.z) d.V3t.x
@@ -1622,8 +1661,8 @@ module M4 = struct
       (m.e20 *. s.V3t.x) (m.e21 *. s.V3t.y) (m.e22 *. s.V3t.z) d.V3t.z
       0.                 0.                 0.                 1. 
 
-  let srigid ~move:d ~rot:(u, theta) ~scale:s = _srigid d (rot_axis u theta) s
-  let srigidq ~move:d ~rot:q ~scale:s = _srigid d (of_quat q) s
+  let srigid3 ~move:d ~rot:(u, a) ~scale:s = _srigid d (rot3_axis u a) s
+  let srigid3q ~move:d ~rot:q ~scale:s = _srigid d (of_quat q) s
 
   let ortho ~left ~right ~bottom ~top ~near ~far = 
     let drl = 1. /. (right -. left) in
@@ -1656,7 +1695,7 @@ module M4 = struct
 
   (* 4D space transforms *)      
       
-  let scale s =
+  let scale4 s =
     v s.x 0.  0.  0.
       0.  s.y 0.  0.
       0.  0.  s.z 0.
