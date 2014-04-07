@@ -2945,7 +2945,7 @@ module Raster = struct
     | None -> r11811_ppm, r11811_ppm 
     | Some res -> V3.x res, V3.y res
     in
-    Size2.v (float r.w *. wres ) (float r.h *. hres)
+    Size2.v (float r.w /. wres ) (float r.h /. hres)
     
   let size3 ?(meters = false) r = 
     if not meters then Size3.v (float r.w) (float r.h) (float r.d) else 
@@ -2953,7 +2953,7 @@ module Raster = struct
     | None -> r11811_ppm, r11811_ppm, r11811_ppm
     | Some res -> V3.x res, V3.y res, V3.z res 
     in
-    Size3.v (float r.w *. wres ) (float r.h *. hres) (float r.d *. dres)
+    Size3.v (float r.w /. wres ) (float r.h /. hres) (float r.d /. dres)
 
   let box2 ?meters ?(mid = false) ?(o = P2.o) r = 
     if mid then Box2.v_mid o (size2 r) else Box2.v o (size2 ?meters r)
