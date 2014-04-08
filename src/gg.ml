@@ -2956,10 +2956,12 @@ module Raster = struct
     Size3.v (float r.w /. wres ) (float r.h /. hres) (float r.d /. dres)
 
   let box2 ?meters ?(mid = false) ?(o = P2.o) r = 
-    if mid then Box2.v_mid o (size2 r) else Box2.v o (size2 ?meters r)
+    if mid then Box2.v_mid o (size2 ?meters r) else 
+    Box2.v o (size2 ?meters r)
 
   let box3 ?meters ?(mid = false) ?(o = P3.o) r =
-    if mid then Box3.v_mid P3.o (size3 r) else Box3.v o (size3 ?meters r)
+    if mid then Box3.v_mid P3.o (size3 ?meters r) else 
+    Box3.v o (size3 ?meters r)
 
   let strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
