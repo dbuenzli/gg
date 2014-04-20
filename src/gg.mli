@@ -2188,6 +2188,12 @@ module Size2 : sig
 
   val unit : size2
   (** [unit] is the unit size, one width and height. *)
+
+  (** {1:functions Functions} *) 
+
+  val aspect : size2 -> float 
+  (** [aspect s] is [w s /. h s]. *)
+  
 end
 
 module Size3 : sig

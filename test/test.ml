@@ -1659,6 +1659,10 @@ module Size2_tests = struct
     r >> (Size2.w index = 0.)
       >> (Size2.h index = 1.)
       >> C.success
+
+  let () = test "aspect" & fun r -> 
+    r >> (Size2.aspect (Size2.v 8. 2.) = 4.) 
+      >> C.success
 end
 
 module Size3_tests = struct

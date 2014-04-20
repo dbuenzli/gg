@@ -1845,6 +1845,7 @@ module Size2 = struct
   let h = V2.y 
   let zero = V2.zero
   let unit = V2.v 1. 1.
+  let aspect s = s.V2t.x /. s.V2t.y 
 end
 
 module Size3 = struct
