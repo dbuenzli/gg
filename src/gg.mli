@@ -10,7 +10,9 @@
     {{!vectors}vectors}, {{!points}points}, {{!matrices}matrices}, 
     {{!quaternions}quaternions}, {{!sizes}sizes}, 
     {{!aboxes}axis aligned boxes}, {{!colors}colors}, 
-    {{!Color.colorprofiles}color profiles} and {{!raster}raster data}.
+    {{!Color.colorprofiles}color profiles}, {{!bigarray}linear bigarrays}
+    and
+    {{!raster}raster data}.
 
     Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope. 
@@ -2010,11 +2012,11 @@ module M4 : sig
       [move]. *)
 
   val srigid3 : move:v3 -> rot:v3 * float -> scale:v3 -> m4
-  (** [srigid3 scale move rot scale] is like {!rigid} but starts
+  (** [srigid3 scale move rot scale] is like {!rigid3} but starts
       by scaling according to [scale]. *)
 
   val srigid3q : move:v3 -> rot:quat -> scale:v3 -> m4
-  (** [srigid move rot scale] is like {!rigidq} but starts by scaling 
+  (** [srigid3q move rot scale] is like {!rigid3q} but starts by scaling 
       according to [scale]. *)
 
 (** {1:projections3d 3D space projections}
@@ -3083,7 +3085,7 @@ type buffer =
 
     The purpose of {!buffer} is to allow to specify a few more data 
     types than bigarrays are able to express and do facilitate the 
-    generic handling of lienar bigarrays. *)
+    generic handling of linear bigarrays. *)
 module Ba : sig
 
   (** {1:scalars Scalar types} *)
@@ -3287,8 +3289,8 @@ type raster
     A sample has a {{!type:Sample.semantics}{e semantics}} that defines its
     dimension and the meaning of its {e components}. For example a 4D
     sample could represent a linear sRGBA sample. Samples are stored
-    in a {{!Ba.buffer}linear buffer} of {e scalars} of a given
-    {{!type:scalar_type}type}. A sample can use one scalar per component,
+    in a {{!buffer}linear buffer} of {e scalars} of a given
+    {{!type:Ba.scalar_type}type}. A sample can use one scalar per component,
     can be packed in a single scalar or may have no direct obvious
     relationship to buffer scalars (compressed data). The
     {{!type:Sample.format}sample format} defines the semantics and
@@ -3377,10 +3379,10 @@ module Raster : sig
     val format : ?pack:pack -> semantics -> Ba.scalar_type -> format 
     (** [format pack sem st] is a sample format with semantics 
         [sem] and scalar type [st]. If [pack] is absent one scalar of type [st] 
-        per sample component is used. If present, see {!type:sample_pack}.
+        per sample component is used. If present, see {!type:Sample.pack}.
         
         @raise Invalid_argument if [pack] is incompatible with [st], 
-        see {!type:sample_pack} or if a [pack] [`FourCC] code is not made of 
+        see {!type:Sample.pack} or if a [pack] [`FourCC] code is not made of 
         4 bytes. *)
 
     val semantics : format -> semantics 
@@ -3614,7 +3616,7 @@ end
     Here are a few other conventions : 
     {ul
     {- Numbers in names indicate dimensionality when ambiguity can arise. 
-       For example {!M4.scale3} indicates scale in 3D space while {!M4.scale}
+       For example {!M4.scale3} indicates scale in 3D space while {!M4.scale4}
        scale in 4D space.}
     {- Most functions take the value they act upon first.
        But exceptions abound, to match OCaml conventions, to have your 
