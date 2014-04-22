@@ -24,6 +24,12 @@ let err_sample_pack p st =
 let err_pp_ba_spec ~first ~stride ~count ~len =
   str "invalid bounds: first:%d + stride:%d * count:%d >= len:%d" 
     first stride count len
+
+let err_buffer_data data k = 
+  str "data argument %s is irrelevant for bigarray kind %s" data k 
+
+let err_buffer_kind = 
+  str "bigarray kind can't be represented by a Gg.Ba.scalar_type"
     
 let pp_pad ppf len = for i = 1 to len do Format.pp_print_space ppf () done
 let pp_buf buf ppf fmt =
@@ -2731,6 +2737,53 @@ module Ba = struct
     let length b = length_units ~bytes:false b
     let byte_length b = length_units ~bytes:true b
         
+    (* FIXME: It will be possible to remove the Obj.magics once we 
+       have GADTs for bigarray kinds. 
+       See http://caml.inria.fr/mantis/view.php?id=6064 *) 
+
+    let of_bigarray ?data ba : buffer = 
+      let err_buffer_data data k = 
+        let str_of_data = function 
+        | None -> assert false 
+        | Some `Float -> "`Float"
+        | Some `Unsigned -> "`Unsigned"
+        in
+        let st = str "%a" pp_scalar_type k in
+        invalid_arg (err_buffer_data (str_of_data data) st)
+      in          
+      let check_data_none d k = if d <> None then err_buffer_data d k in 
+      let open Bigarray in
+      match Obj.magic (Bigarray.Array1.kind ba) with
+      | k when k = int8_signed -> 
+          check_data_none data `Int8; `Int8 (Obj.magic ba)
+      | k when k = int16_signed -> 
+          check_data_none data `Int16; `Int16 (Obj.magic ba)
+      | k when k = int32 -> 
+          begin match data with 
+          | None -> `Int32 (Obj.magic ba)
+          | Some `Unsigned -> `UInt32 (Obj.magic ba)
+          | Some _ -> err_buffer_data data `Int32 
+          end
+      | k when k = int64 ->
+          begin match data with 
+          | None -> `Int64 (Obj.magic ba)
+          | Some `Unsigned -> `UInt64 (Obj.magic ba)
+          | Some _ -> err_buffer_data data `Int64
+          end
+      | k when k = int8_unsigned -> 
+          check_data_none data `UInt8; `UInt8 (Obj.magic ba)
+      | k when k = int16_unsigned ->
+          begin match data with 
+          | None -> `UInt16 (Obj.magic ba) 
+          | Some `Float -> `Float16 (Obj.magic ba)
+          | Some _ -> err_buffer_data data `Int16
+          end
+      | k when k = float32 -> 
+          check_data_none data `Float32; `Float32 (Obj.magic ba)
+      | k when k = float64 -> 
+          check_data_none data `Float64; `Float64 (Obj.magic ba)
+      | _ -> invalid_arg err_buffer_kind 
+               
     let pp ppf b = 
       pp ppf "@[<1>(buffer@ %a %d)@]" pp_scalar_type (scalar_type b) (length b)
   end

@@ -3147,6 +3147,18 @@ module Ba : sig
     val byte_length : buffer -> int 
     (** [buffer_byte_length b] is [b]'s buffer byte length. *)
 
+    val of_bigarray : ?data:[`Unsigned | `Float] -> ('a, 'b) bigarray -> buffer
+    (** [of_bigarray ba] is a buffer for the bigarray [ba]. [data]
+        can be used to add information whenever the bigarray kind is:
+        {ul
+        {- {!Bigarray.int16_unsigned}, if [`Float] is specified 
+           the scalar type will be [`Float16].} 
+        {- {!Bigarray.int32} or {!Bigarray.int64}, if [`Unsigned] is
+           specified the scalar type will be, respectively [`UInt32]
+           and [`UInt64].} }
+        @raise Invalid_argument if the bigarray kind does not
+        correspond to a {!Ba.scalar_type} or if [data] is irrelevant. *)
+
     val pp : Format.formatter -> buffer -> unit
     (** [pp b] prints a textual representation of [b] on 
         [ppf]. Does not print the buffer's data. *)
