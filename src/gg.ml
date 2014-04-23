@@ -3027,7 +3027,7 @@ module Raster = struct
 
   (* Argument validators *) 
 
-  let check_first v = if v < 0 then () else invalid_arg (err_rfirst v)
+  let check_first v = if v >= 0 then () else invalid_arg (err_rfirst v)
   let check_index a v = if v >= 1. then () else invalid_arg (err_rindex a v) 
   let check_stride a v min = 
     let min = int_of_float min in
