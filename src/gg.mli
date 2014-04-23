@@ -2273,6 +2273,10 @@ end
     corners}. There is a distinguished n-dimensional [empty] box such
     that S([empty]) is empty.  *)
 
+type box1
+(** The type for 1D axis-aligned boxes 
+    ({{:http://mathworld.wolfram.com/Interval.html}closed intervals}). *)
+
 type box2
 (** The type for 2D axis-aligned boxes 
     ({{:http://mathworld.wolfram.com/Rectangle.html}rectangles}). *)
@@ -2424,6 +2428,179 @@ module type Box = sig
 
   val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
     t -> unit
+  (** [pp_f pp_fl ppf b] prints [b] like {!pp} but uses 
+      [pp_fl] to print floating point values. *)
+end
+
+module Box1 : sig
+
+  type t
+  (** The type for 1D boxes 
+      ({{:http://mathworld.wolfram.com/Interval.html}closed intervals}). *)
+
+  val dim : int
+  (** [dim] is the dimension of the boxes of type {!box2}. *)
+
+  type v = float
+  (** The type for 1D vectors. *)
+
+  type p = float
+  (** The type for 1D points. *)
+
+  type size = size1
+  (** The type for 1D sizes. *)
+
+  type m = float
+  (** The type for matrices representing
+      {{:http://mathworld.wolfram.com/LinearTransformation.html}linear 
+      transformations}
+      of 1D space. *)
+
+  (** {1:cons Constructors, accessors and constants} *)
+
+  val v : float -> size1 -> box1
+  (** [v o size] is a box whose origin is [o] and size is [size]. *)
+
+  val v_mid : float -> size1 -> box1
+  (** [v_mid mid size] is a box whose {!mid} point is [mid] and 
+      size is [size]. *)
+
+  val empty : box1
+  (** [empty] is {e the} empty box. *)
+
+  val o : box1 -> float
+  (** [o b] is the origin of [b].
+
+      @raise Invalid_argument on {!empty} *)
+
+  val ox : box1 -> float 
+  (** [ox b] is [o b]. *) 
+
+  val size : box1 -> size1
+  (** [size b] is the size of [b]. 
+
+      @raise Invalid_argument on {!empty} *)
+
+  val w : box1 -> float 
+  (** [w b] is [size b]. *) 
+
+  val zero : box1
+  (** [zero] is a box whose origin and size is zero. *)
+
+  val unit : box1
+  (** [unit] is the unit box which extends from zero to 
+      one in all dimensions. *)
+
+  val of_pts : float -> float -> box1
+  (** [of_pts p p'] is the smallest box whose space contains [p] and [p']. *)
+
+  (** {1:functions Functions} *)
+
+  val min : box1 -> float
+  (** [min b] is the smallest point of [b] (its origin). 
+
+      @raise Invalid_argument on {!empty} *)
+
+  val minx : box1 -> float 
+  (** [minx b] is [min b]. *) 
+
+  val max : box1 -> float
+  (** [max b] is the greatest point of [b] (its size added to the origin). 
+
+      @raise Invalid_argument on {!empty} *)
+
+  val maxx : box1 -> float 
+  (** [maxx b] is [max b]. *) 
+
+  val mid : box1 -> float
+  (** [mid b] is the mid point between [min] and [max]. 
+
+      @raise Invalid_argument on {!empty} *)
+
+  val midx : box1 -> float 
+  (** [midx b] is [mid b]. *) 
+
+  val left : box1 -> float 
+  (** [left b] is [minx b]. *) 
+
+  val right : box1 -> float 
+  (** [right b] is [maxx b]. *) 
+
+  val area : box1 -> float
+  (** [area b] is the surface area of [b]. *)
+
+  val inter : box1 -> box1 -> box1
+  (** [inter b b'] is a box whose space is the intersection of S([b]) 
+      and S([b']). *)
+
+  val union : box1 -> box1 -> box1
+  (** [union b b'] is the smallest box whose space contains 
+      S([b]) and S([b']). *)
+
+  val inset : float -> box1 -> box1
+  (** [inset d b] is [b] whose edges are inset in each dimension
+      according to amounts in [d]. Negative values in [d] outset. If
+      the resulting size is negative returns {!empty}.  Returns
+      {!empty} on {!empty}. *)
+
+  val round : box1 -> box1
+  (** [round b] is the smallest box containing [b] with integer valued
+      corners. Returns {!empty} on {!empty}. *)
+
+  val move : float -> box1 -> box1
+  (** [move d b] is [b] translated by [d]. Returns {!empty} on {!empty}. *)
+
+  val ltr : float -> box1 -> box1
+  (** [ltr m b] is the smallest box containing the corners of [b] transformed
+      by [m]. Returns {!empty} on {!empty}. *)
+
+  val tr : m2 -> box1 -> box1 
+  (** [tr m b] is the smallest box containing the corners of [b] transformed
+      by [m] in homogenous 1D space. Returns {!empty} on {!empty}. *)
+
+  val map_f : (float -> float) -> box1 -> box1
+  (** [map_f f b] is the box whose origin and size are those of [b] with
+      their components mapped by [f]. Returns {!empty} on {!empty}. *)
+
+  (** {1 Predicates and comparisons} *)
+
+  val is_empty : box1 -> bool 
+  (** [is_empty b] is [true] iff [b] is {!empty}. *)
+
+  val is_pt : box1 -> bool 
+  (** [is_pt b] is [true] iff [b] is not {!empty} and its size is equal
+      to 0 in every dimension. *)
+
+  val isects : box1 -> box1 -> bool
+  (** [isects b b'] is [not (is_empty (inter b b'))]. *)
+
+  val subset : box1 -> box1 -> bool 
+  (** [subset b b'] is [true] iff S([b]) is included in S([b']). *)
+
+  val mem : float -> box1 -> bool 
+  (** [mem p b] is [true] iff [p] is in S([b]). *)
+
+  val equal : box1 -> box1 -> bool
+  (** [equal b b'] is [b = b']. *)
+
+  val equal_f : (float -> float -> bool) -> box1 -> box1 -> bool 
+  (** [equal_f eq b b'] tests [b] and [b'] like {!equal}
+      but uses [eq] to test floating point values. *)
+
+  val compare : box1 -> box1 -> int
+  (** [compare u v] is [Pervasives.compare u v]. *)
+
+  val compare_f : (float -> float -> int) -> box1 -> box1 -> int 
+  (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
+      but uses [cmp] to compare floating point values. *)
+
+  (** {1:printers Printers} *)
+  
+  val pp : Format.formatter -> box1 -> unit
+  (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
+
+  val pp_f : (Format.formatter -> float -> unit) -> Format.formatter -> 
+    box1 -> unit
   (** [pp_f pp_fl ppf b] prints [b] like {!pp} but uses 
       [pp_fl] to print floating point values. *)
 end

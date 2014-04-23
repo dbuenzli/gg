@@ -242,7 +242,7 @@ end
 
 module M2t = struct
   type t = { e00 : float; e10 : float; (* col 0 *) 
-       e01 : float; e11 : float; (* col 1 *) }
+             e01 : float; e11 : float; (* col 1 *) }
   let i = [| (fun a -> a.e00); (fun a -> a.e10); 
              (fun a -> a.e01); (fun a -> a.e11); |]
           
@@ -1929,6 +1929,134 @@ module type Box = sig
     t -> unit
 end
 
+module Box1 = struct
+  type t = E | R of float * float
+  let dim = 1
+  type v = float
+  type p = float
+  type size = size1
+  type m = float
+    
+  let err_e () = invalid_arg err_empty_box
+      
+  (* Constructors, accessors and constants *)
+      
+  let v o s = R (o, s)
+  let v_mid m s = R (m -. 0.5 *. s, s)
+  let empty = E
+  let o = function E -> err_e () | R (o, _) -> o 
+  let ox = function E -> err_e () | R (o, _) -> o
+  let size = function E -> err_e () | R (_, size) -> size
+  let w = function E -> err_e () | R (_, size) -> size
+  let zero = v 0. Size1.zero
+  let unit = v 0. Size1.unit
+  let of_pts p p' = if p < p' then v p (p' -. p) else v p' (p -. p')
+      
+  (* Functions *)
+      
+  let min = o 
+  let minx = o
+  let max = function E -> err_e () | R (o, s) -> o +. s
+  let maxx = max
+  let mid = function E -> err_e () | R (o, s) -> o +. 0.5 *. s
+  let midx = mid
+  let left = minx 
+  let right = maxx 
+  let area = function E -> 0. | R (_, s) -> s
+  let inter b b' = match b, b' with
+  | E, _ | _, E -> E 
+  | R (o, s), R (o', s') -> 
+      let l = o in let r = l +. s in
+      let l' = o' in let r' = l' +. s' in
+      if (r < l') || (r' < l) then E else 
+      let o'' = if l > l' then l else l' in
+      let s'' = (if r < r' then r else r') -. o'' in 
+      v o'' s''
+        
+  let union b b' = match b, b' with 
+  | E, b | b, E -> b 
+  | R (o, s), R (o', s') -> 
+      let o'' = if o < o' then o else o' in
+      let s'' =
+        let r = o +. s in let r' = o' +. s' in
+        (if r > r' then r else r') -. o''
+      in 
+      v o'' s''
+        
+  let inset d = function
+  | E -> E 
+  | R (o, s) -> 
+      let o' = o +. d in
+      let s' = s -. 2. *. d in
+      if s' < 0. then E else v o' s'
+        
+  let round = function
+  | E -> E
+  | R (o, s) -> 
+      let o' = floor o in 
+      let s' = if (s = 0. && o' <> o) then 1. else ceil s in 
+      v o' s'
+
+  let move d = function E -> E | R (o, s) -> v (o +. d) s      
+  let ltr m = function E -> E | R (o, s) ->
+    let c0 = m *. o in 
+    let c1 = m *. (o +. s) in
+    if c0 < c1 then v c0 (c1 -. c0) else v c1 (c0 -. c1)
+ 
+  let tr m = function E -> E | R (o, s) -> 
+    let c0 = m.M2t.e00 *. o +. m.M2t.e01 in 
+    let c1 = m.M2t.e00 *. (o +. s) +. m.M2t.e01 in
+    if c0 < c1 then v c0 (c1 -. c0) else v c1 (c0 -. c1)
+
+  let map_f f = function E -> E | R (o, s) -> v (f o) (f s)
+                                                
+  (* Predicates and comparisons *)
+
+  let is_empty = function E -> true | R _ -> false 
+  let is_pt = function E -> false | R (_, s) -> s = 0.
+                                           
+  let isects b b' = match b, b' with 
+  | E, _ | _, E -> false
+  | R (o, s), R (o', s') -> 
+      let l = o in let r = l +. s in
+      let l' = o' in let r' = l' +. s' in
+      not ((r < l') || (r' < l))
+
+  let subset b b' = match b, b' with
+  | b, E -> false
+  | E, b -> true
+  | R (o, s), R (o', s') -> (o' <= o) && (s <= s')
+                                                         
+  let mem p = function 
+  | E -> false
+  | R (o, s) -> (o <= p) && (p <= o +. s)
+                      
+  let equal b b' = b = b'
+  let equal_f eq b b' = match b, b' with
+  | E, E -> true 
+  | E, _ | _, E -> false
+  | R (o, s), R (o', s') -> eq o o' && eq s s'
+                              
+  let compare b b' = Pervasives.compare b b' 
+  let compare_f cmp  b b' = match b, b' with
+  | E, E -> 0
+  | E, _ -> -1
+  | _, E -> 1
+  | R (o, s), R (o', s') ->
+      let c = cmp o o' in if c <> 0 then c else
+      let c = cmp s s' in c
+        
+  (* Printers *)
+        
+  let _print pp_f ppf b = match b with 
+  | E -> pp ppf "@[<1>(box1@ empty)@]"
+  | R (o, s) ->
+      pp ppf "@[<1>(box2 %a@ %a)@]" pp_f o pp_f s
+        
+  let pp ppf b = _print (fun ppf f -> Format.fprintf ppf "%g" f) ppf b 
+  let pp_f pp_f ppf b = _print pp_f ppf b 
+end
+
 module Box2 = struct
   open V2t
   type t = E | R of p2 * size2
@@ -2356,6 +2484,7 @@ module Box3 = struct
   let pp_f pp_f ppf b = _print (V3.pp_f pp_f) ppf b 
 end
 
+type box1 = Box1.t
 type box2 = Box2.t
 type box3 = Box3.t 
               

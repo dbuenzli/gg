@@ -1,1 +1,3 @@
-* Sort out whether `{w,h}_skip` should be replaced by `{w,h}_stride.`
+* Now that we have Size1 and Box1, consider whether V1 should be introduced.
+  for example right know we cannot use the Box_tests functor because 
+  of this. But is it needless bureaucracy ?  
