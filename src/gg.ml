@@ -1833,6 +1833,7 @@ end
 
 (* Sizes *)
 
+type size1 = float
 type size2 = v2
 type size3 = v3
   
@@ -1841,6 +1842,15 @@ module type Size = sig
   val dim : int
   val zero : t
   val unit : t
+end
+
+module Size1 = struct
+  type t = float
+  let dim = 1
+  let v w = w
+  let w w = w
+  let zero = 0. 
+  let unit = 1.
 end
 
 module Size2 = struct

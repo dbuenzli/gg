@@ -2139,6 +2139,9 @@ end
     An n-dimensional {e size} [s] represents extents in n-dimensional space.
 *)
 
+type size1 = float
+(** The type for sizes in 1D space. *) 
+
 type size2 = v2
 (** The type for sizes in 2D space. *)
 
@@ -2160,6 +2163,32 @@ module type Size = sig
 
   val unit : t
   (** [unit] is the unit size, one extent in each dimension. *)
+end
+
+module Size1 : sig
+  (** In 1D space, {e width} is the extent along the x-axis. 
+
+      {1:top  }*)
+
+  type t = float 
+  (** The type for 1D sizes. *) 
+
+  val dim : int 
+  (** [dim] is the dimension of sizes of type {!size1} *) 
+    
+  (** {1:cons Constructors, accessors and constants} *)
+
+  val v : float -> size1
+  (** [v w] is a size of width [w]. *)
+
+  val w : size1 -> float
+  (** [w s] is the width of [s]. *)
+
+  val zero : size1
+  (** [zero] is the zero size, zero width. *)
+
+  val unit : size1
+  (** [unit] is the unit size, one width. *)
 end
 
 module Size2 : sig
