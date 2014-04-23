@@ -3177,9 +3177,9 @@ module Raster = struct
     let res = match r.res with None -> res_default | Some r -> axis r in
     axis r.size /. res
 
-  let wi = r = int_of_float (Size3.w r.size)
-  let hi = r = int_of_float (Size3.h r.size)
-  let di = r = int_of_float (Size3.d r.size)
+  let wi r = int_of_float (Size3.w r.size)
+  let hi r = int_of_float (Size3.h r.size)
+  let di r = int_of_float (Size3.d r.size)
   let w ?(meters = false) r = extent Size3.w ~meters r 
   let h ?(meters = false) r = extent Size3.h ~meters r 
   let d ?(meters = false) r = extent Size3.d ~meters r
@@ -3217,7 +3217,7 @@ module Raster = struct
 
   let dim r = 
     if Size3.d r.size > 1. then 3 else
-    if Size2.h r.size > 1. then 2 else 1
+    if Size3.h r.size > 1. then 2 else 1
 
   let kind r = match dim r with 
   | 1 -> `D1 | 2 -> `D2 | 3 -> `D3 | n -> assert false
