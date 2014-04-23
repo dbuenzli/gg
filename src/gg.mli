@@ -3703,11 +3703,20 @@ module Raster : sig
 
   (** {1:rsize Raster sizes and boxes} 
 
-      All these functions have an optional [meter] argument that
+      In these functions have an optional [meter] argument that
       defaults to [false]. If [false] the result is in integral number
       of {e samples}. If [true] the result is in {e meters} according
       to the rasters' {{!res}resolution}.  If the raster has no
       resolution, {!Raster.res_default} is used in all dimensions. *) 
+
+  val wi : t -> int
+  (** [wi r] is [r]'s index width in number of samples. *)
+
+  val hi : t -> int
+  (** [hi r] is [r]'s index height in number of samples. *)
+
+  val di : t -> int
+  (** [d r] is [r]'s index height in number of samples. *)
 
   val w : ?meters:bool -> t -> float
   (** [w r] is [r]'s index width. *)

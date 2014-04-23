@@ -3176,7 +3176,10 @@ module Raster = struct
     if not meters then axis r.size else 
     let res = match r.res with None -> res_default | Some r -> axis r in
     axis r.size /. res
-    
+
+  let wi = r = int_of_float (Size3.w r.size)
+  let hi = r = int_of_float (Size3.h r.size)
+  let di = r = int_of_float (Size3.d r.size)
   let w ?(meters = false) r = extent Size3.w ~meters r 
   let h ?(meters = false) r = extent Size3.h ~meters r 
   let d ?(meters = false) r = extent Size3.d ~meters r
