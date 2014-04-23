@@ -3213,9 +3213,8 @@ module Raster = struct
     Box3.v o (size3 ?meters r)
 
   let dim r = 
-    1 
-    + (if Size3.h r.size > 1. then 1 else 0) 
-    + (if Size3.d r.size > 1. then 1 else 0)
+    if Size3.d r.size > 1. then 3 else
+    if Size2.h r.size > 1. then 2 else 1
 
   let kind r = match dim r with 
   | 1 -> `D1 | 2 -> `D2 | 3 -> `D3 | n -> assert false
