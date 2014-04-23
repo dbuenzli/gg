@@ -3514,17 +3514,28 @@ type raster
     {{!type:Sample.format}sample format} defines the semantics and
     scalar storage of a sample.
 
-    A {{!t}{e raster data}} value is a collection of samples indexed by width, 
-    height and depth (i.e. x, y, z) stored in a buffer. It defines
-    the sample data, the extents of the index and the sample format.
-    The optional {{!res}resolution} in samples per meters of a raster
-    data can specify its physical dimension.
-    
+    A {{!t}{e raster data}} value is a collection of samples indexed
+    by width, height and depth (i.e. x, y, z) stored in a buffer.  It
+    defines the sample data, the extents of the index and the sample
+    format.  The optional {{!res}resolution} in samples per meters of
+    a raster data can specify its physical dimension.
+
     {b Spatial convention.} If the sample index has to be interpreted
     spatially. It must be interpreted relative to the origin of a
     right-handed coordinate system. This means that the first sample,
     indexed by [(0,0,0)] is the bottom-left backmost sample
-    (bottom-left sample for an image). *) 
+    (bottom-left sample for a 2D image). 
+
+    {b Index sizes.} Index sizes are specified using
+    {{!sizes}size} types which are made of floats as it is more
+    pratical in most scenarios. These floats should however be {e
+    integral} floats. The function {!v}, {!Sample.scalar_count}
+    and {!sub} ensure this by applying {!Float.round} to these values. 
+    This means that the {{!rsize}raster size functions} when called with 
+    [meters = false] will always return sizes that are integral floats that
+    you can convert to integers safely without having to think about
+    rounding issues. Note also that index sizes are always strictly 
+    positive.*)
 module Raster : sig
 
   (** {1:samples Sample semantics and formats} *) 
@@ -3615,11 +3626,11 @@ module Raster : sig
     val dim : format -> int
     (** [dim sf] is [sf]'s sample dimension. *)
 
-    val scalar_count : ?first:int -> ?w_skip:int -> ?h_skip:int -> 
-      w:int -> ?h:int -> ?d:int -> format -> int
-    (** [sf_scalar_count first w_skip h_skip w h d sf] is the minimal 
-        number of scalars needed to hold a raster data with the corresponding 
-        parameters, see {!v} for their description. 
+    val scalar_count : ?first:int -> ?w_stride:int -> ?h_stride:int -> 
+      [ `D1 of float | `D2 of size2 | `D3 of size3 ] -> format -> int
+    (** [sf_scalar_count first w_stride h_stride size sf] is the minimal 
+        number of scalars needed to hold a raster data with the 
+        corresponding parameters, see {!v} for their description. 
         
         @raise Invalid_argument if [sf] is packed. *)
       
@@ -3633,88 +3644,97 @@ module Raster : sig
   type t = raster
   (** The type for raster data. *)
 
-  val v : ?res:v3 -> ?first:int -> ?w_skip:int -> ?h_skip:int -> 
-    w:int -> ?h:int -> ?d:int -> Sample.format -> buffer -> t
-  (** [v res first w_skip h_skip w h d sf buf] is raster data with 
+  val v : ?res:v3 -> ?first:int -> ?w_stride:int -> ?h_stride:int -> 
+    [ `D1 of float | `D2 of size2 | `D3 of size3 ] -> Sample.format -> 
+    buffer -> t
+  (** [v res first w_stride h_stride size sf buf] is raster data with 
       sample format [sf] and buffer [b].
       {ul
-      {- [w], [h], [d], specify the index width, height and depth, in 
-         number of {e samples}. [h] and [d] default to [1].}
+      {- [size], specify the index extents. height and depth if unspecified
+         default to [1]. All extents must be strictly positive.}
       {- [first], {e buffer scalar} index where the data of the first sample
          is stored.}
-      {- [w_skip], number of {e buffer scalars} to skip between two 
-         consecutive lines, defaults to [0].} 
-      {- [h_skip], number of {e buffer scalars} to skip between two 
-         consecutive planes, defaults to [0].}
+      {- [w_stride], number of {e samples} ({b not} buffer scalars) to skip 
+         to go from the first sample of a line to the first sample of the next
+         line. Defaults to the index width.} 
+      {- [h_stride], number of {e lines} to skip to go from the first line
+         of a plane to the first line of the next plane. Defaults to the 
+         index height.}
       {- [res], is an optional sample resolution specification in 
          samples per meters.}}
-     For certain sample formats [first], [w_skip] and [h_skip] can be used 
-     to specify subspaces in the collection of samples, see {!sub}. 
 
-     The function {!strides} can be used to easily compute the buffer
-     scalar index where a sample [(x,y,z)] starts.
+      For certain sample formats [first], [w_stride] and [h_stride] can be 
+      used to specify subspaces in the collection of samples, see {!sub}. 
 
-  @raise Invalid_argument if [w], [h] or [d] is not positive or 
-  if [first], [w_skip] or [h_skip] is negative. Or if the scalar type of 
-  [sf] doesn't match [(Raster.buffer_scalar_type b)].
-*)
+      The function {!scalar_strides} can be used to easily compute the
+      linear buffer scalar index where a sample [(x,y,z)] starts.
+
+      @raise Invalid_argument if the elements of [size] are not stricly 
+      positive, if [first] is negative, if [w_stride] or [h_stride] are 
+      smaller than the index width or height or if the scalar type of 
+      [sf] doesn't match [(Raster.buffer_scalar_type b)]. *)
 
   val res : t -> v3 option
   (** [res r] is [r]'s resolution in sample per meters, if any. *)
-  
+
+  val get_res : t -> v3 
+  (** [get_res r] is {!res} but @raise Invalid_argument
+      if there's no resolution. *)
+
   val first : t -> int
   (** [first r] is the {e buffer scalar} index where the first sample 
       is stored. *)
   
-  val w_skip : t -> int
-  (** [w_skip r] is the number of {e buffer scalars} to skip between 
-      two consecutive lines. *)
+  val w_stride : t -> int
+  (** [w_stride r] is the number of {e samples} to skip to go 
+      from the first sample of a line to the first sample of 
+      the next line. *)
 
-  val h_skip : t -> int
-  (** [f_h_skip r] is the number of {e buffer scalars} to skip 
-      between two consecutive planes. *)
-
-  val w : t -> int
-  (** [w r] is the index width in number of {e samples}. *)
-
-  val h : t -> int
-  (** [h r] is the index height in number of {e samples}. *)
-
-  val d : t -> int
-  (** [d r] is the index depth in number of {e samples}. *)
-
+  val h_stride : t -> int
+  (** [h_stride r] is the number of {e lines} to skip to go 
+      from the first line of a plane to the first 
+      line of the next plane. *)
+  
   val sample_format : t -> Sample.format
   (** [sample_format r] is [r]'s sample format. *)
 
   val buffer : t -> buffer
   (** [buffer r] is [r]'s format. *)
 
-  (** {1 Functions} *)
+  (** {1:rsize Raster sizes and boxes} 
 
-  val dim : t -> int
-  (** [dim r] is [r]'s index dimension from 1 to 3. *)
+      All these functions have an optional [meter] argument that
+      defaults to [false]. If [false] the result is in integral number
+      of {e samples}. If [true] the result is in {e meters} according
+      to the rasters' {{!res}resolution}.  If the raster has no
+      resolution, {!Raster.res_default} is used in all dimensions. *) 
 
-  val size2 : ?meters:bool -> t -> size2
-  (** [size2 meters r] is [r]'s size acccording to [meters]:
-      {ul
-      {- If [meters] is [false] (default), the index width and height as 
-         floats.}
-      {- If [meters] is [true] the physical size in meters according to [r]'s
-         {{!res}resolution} (11811spm = 300spi is used if [r] has no 
-         resolution).}} *)
+  val w : ?meters:bool -> t -> float
+  (** [w r] is [r]'s index width. *)
 
-  val size3 : ?meters:bool -> t -> size3
-  (** [size3 r] is [r]'s size according to [meters]:
-      {ul
-      {- If [meters] is [false] (default), the index width, height and depth
-         as floats.}
-      {- If [meters] is [true], the physical size in meters according to 
-         [r]'s {{!res}resolution} (11811spm = 300spi is used if [r] has no 
-         resolution).}} *)
+  val h : ?meters:bool -> t -> float
+  (** [h r] is [r]'s index height. *)
+
+  val d : ?meters:bool -> t -> float
+  (** [d r] is [r]'s index depth. *)
+
+  val size1 : ?meters:bool -> t -> size1
+  (** [size1 r] is [r]'s index width. *)
+    
+  val size2 : ?meters:bool -> t -> size2 
+  (** [size2 r] is [r]'s index width and height. *) 
+
+  val size3 : ?meters:bool -> t -> size3  
+  (** [size3 r] is [r]'s index width, height and depth. *) 
+
+  val box1 : ?meters:bool -> ?mid:bool -> ?o:float -> t -> box1 
+  (** [box1 meters mid o r] is a box with origin [o] and size [(size1
+      meters r)]. If [mid] is [true] (defaults to [false]), [o]
+      specifies the mid point of the box. [o] defaults to 0. *)
 
   val box2 : ?meters:bool -> ?mid:bool -> ?o:p2 -> t -> box2 
-  (** [box2 meters mid o r] is a box with origin [o] and size 
-      [(size2 meters r)]. If [mid] is [true] (defaults to [false]), [o] 
+  (** [box2 meters mid o r] is a box with origin [o] and size [(size2
+      meters r)]. If [mid] is [true] (defaults to [false]), [o]
       specifies the mid point of the box. [o] defaults to {!P2.o}. *)
 
   val box3 : ?meters:bool -> ?mid:bool -> ?o:p3 -> t -> box3
@@ -3722,21 +3742,34 @@ module Raster : sig
       [(size3 meters r)]. If [mid] is [true] (defaults to [false]), 
       [o] specifies the mid point of the box. [o] defaults to {!P3.o}. *)
 
-  val sub : ?x:int -> ?y:int -> ?z:int -> ?w:int -> ?h:int -> ?d:int -> t -> t
-  (** [sub x y z w h d r] is a raster corresponding to a 
-      subset of the index of [r]. Both [r] and the resulting raster 
-      share the same buffer.
-      {ul
-       {- [x], [y], [z], new sample origin of the raster data, 
-          defaults to [(0, 0, 0)].}
-       {- [w], [h], [d], new size of the index, defaults to [r]'s 
-          sizes minus the new sample origin.}}
-     @raise Invalid_argument, if the sample format of [r] is 
-     packed, if the origin is out of bounds or if new size is larger than 
-     [r]'s size. *)
+  (** {1 Functions} *)
 
-  val strides : t -> int * int * int 
-  (** [strides r] is [(x_stride, y_stride, z_stride)] where 
+  val dim : t -> int
+  (** [dim r] is [r]'s index dimension from 1 to 3. Note that 
+      this is not derived from the case size given to {!v} for creating [r]. 
+      It is derived from the size [(w,h,d)] as follows: [(w,1,1)] means 1, 
+      [(w,h,1)] with [h > 1] means 2, [(w,h,d)] with [h,d > 1] means 3. *)
+
+  val kind : t -> [ `D1 | `D2 | `D3 ] 
+  (** [kind r] is like {!dim} but symbolically. *) 
+
+  val sub : [ `D1 of box1 | `D2 of box2 | `D3 of box3 ] -> t -> t
+  (** [sub region] is a raster corresponding to a subset of the 
+      index of [r]. Both [r] and the resulting raster share 
+      the same buffer. The integral origin of the box defines the 
+      new sample origin of the raster data and its integral 
+      size the new size of the index. 
+
+      If the dimension of the box is smaller than the raster the
+      result is in the first line ([y = 0]) and/or layer ([z = 0]) of
+      the raster [r].  
+
+      @raise Invalid_argument, if the sample format of [r] is packed,
+      if the origin is out of bounds or if new size is larger than
+      [r]'s size. *)
+
+  val scalar_strides : t -> int * int * int 
+  (** [scalar_strides r] is [(x_stride, y_stride, z_stride)] where 
       {ul
        {- [x_stride] is the number of buffer scalars from sample to sample.}
        {- [y_stride] is the number of buffer scalars from line to line.} 
@@ -3763,8 +3796,11 @@ module Raster : sig
   (** [pp ppf t] prints a textual represenation of [t] on [ppf]. Doesn't
       print the buffer samples. *)
 
-  (** {1:resconv Resolution conversions} *) 
-      
+  (** {1:resolution Default resolution and conversions} *) 
+
+  val res_default : float
+  (** [res_default] is 11811spm (300spi). *) 
+
   val spm_of_spi : float -> float
   (** [spm_of_spi spi] is the samples per meter corresponding to 
         the samples per inch [spi]. *)

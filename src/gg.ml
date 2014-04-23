@@ -11,13 +11,13 @@ let err_not_nan = "not a NaN"
 let err_empty_box = "empty box" 
 let err_packed_sf = "packed sample format"
 let err_illegal_fourcc c = str "illegal FourCC code (%S)" c
-let err_irange arg v min max = 
-  str "%s is %d but in expected in [%d;%d] range" arg v min max
-    
-let err_iclass arg v pos = 
-  let kind = if pos then "positive" else "non-negative" in 
-  str "%s is %d but %s integer expected" arg v kind
-    
+let err_rresnone = "raster's res is None"    
+let err_rindex a v = str "index %s is %f but should be >= 1." a v 
+let err_rfirst v = str "first is %d but non-negative int expected" v
+let err_rstride a v min = str "%s_stride is %d but should be >= %d" a v min
+let err_rrange k a v min max =
+  str "%s %s is %d but exepected in [%d;%d] range" k a v min max
+
 let err_sample_pack p st = 
   str "sample pack %s incompatible with scalar type %s" p st
 
@@ -3025,8 +3025,22 @@ end
 
 module Raster = struct
 
-  
-  (* Raster data *)
+  (* Argument validators *) 
+
+  let check_first v = if v < 0 then () else invalid_arg (err_rfirst v)
+  let check_index a v = if v >= 1. then () else invalid_arg (err_rindex a v) 
+  let check_stride a v min = 
+    let min = int_of_float min in
+    if v >= min then () else invalid_arg (err_rstride a v min)
+
+  let check_range k a v min max = 
+    if min <= v && v <= max then () else 
+    invalid_arg (err_rrange k a v min max)
+
+  let check_sub_pos = check_range "pos"
+  let check_sub_index = check_range "index" 
+
+  (* Samples *) 
 
   module Sample = struct
     
@@ -3087,12 +3101,27 @@ module Raster = struct
     | `Color (profile, alpha) -> 
         Color.profile_dim profile + (if alpha then 1 else 0)
                                     
-    let scalar_count ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) 
-        ?(d = 1) sf = 
-      let x_stride = dim sf in 
-      let y_stride = x_stride * w + w_skip in
-      let z_stride = y_stride * h - w_skip (* last line *) + h_skip in
-      let size = z_stride * d - h_skip (* last plane *) in 
+    let scalar_count ?(first = 0) ?w_stride ?h_stride size sf = 
+      let w, h, d = match size with 
+      | `D1 w -> Float.round w, 1., 1.
+      | `D2 s -> 
+          Float.round (Size2.w s), 
+          Float.round (Size2.h s), 
+          1.
+      | `D3 s -> 
+          Float.round (Size3.w s), 
+          Float.round (Size3.h s), 
+          Float.round (Size3.d s)
+      in  
+      let w_stride = match w_stride with None -> int_of_float w | Some s -> s in
+      let h_stride = match h_stride with None -> int_of_float h | Some s -> s in
+      check_first first; 
+      check_index "width" w; check_index "height" h ; check_index "depth" d;
+      check_stride "w" w_stride w; check_stride "h" h_stride h;
+      let x_stride = dim sf in
+      let y_stride = x_stride * w_stride in
+      let z_stride = y_stride * h_stride in
+      let size = z_stride * int_of_float d in
       first + size
       
     let pp_format ppf sf =
@@ -3106,47 +3135,74 @@ module Raster = struct
       
   type t =
     { res : v3 option; 
-      first : int; w_skip : int; h_skip : int;
-      w : int; h : int; d : int; 
+      first : int; w_stride : int; h_stride : int;
+      size : size3; 
       sf : Sample.format; 
       buf : buffer;  } 
     
-  let v ?res ?(first = 0) ?(w_skip = 0) ?(h_skip = 0) ~w ?(h = 1) ?(d = 1) 
-      sf buf
-    =
-    let nneg a v = if v >= 0 then () else invalid_arg (err_iclass a v false) in
-    let pos a v = if v > 0 then () else invalid_arg (err_iclass a v true) in
-    nneg "first" first; nneg "w_skip" w_skip; nneg "h_skip" h_skip;
-    pos "w" w; pos "h" h; pos "d" d;
-    { res; first; w_skip; h_skip; w; h; d; sf; buf} 
-    
+  let v ?res ?(first = 0) ?w_stride ?h_stride size sf buf =
+    let w, h, d = match size with
+    | `D1 w -> Float.round w, 1., 1. 
+    | `D2 s -> 
+        Float.round (Size2.w s), 
+        Float.round (Size2.h s), 
+        1.
+    | `D3 s -> 
+        Float.round (Size3.w s), 
+        Float.round (Size3.h s), 
+        Float.round (Size3.d s)
+    in
+    let size = Size3.v w h d in
+    let w_stride = match w_stride with None -> int_of_float w | Some s -> s in
+    let h_stride = match h_stride with None -> int_of_float h | Some s -> s in 
+    check_first first; 
+    check_index "width" w; check_index "height" h ; check_index "depth" d;
+    check_stride "w" w_stride w; check_stride "h" h_stride h;
+    { res; first; w_stride; h_stride; size; sf; buf} 
+
+  let res_default = 11811.    
   let res r = r.res
+  let get_res r = match r.res with 
+  | None -> invalid_arg err_rresnone 
+  | Some r -> r
+
   let first r = r.first
-  let w_skip r = r.w_skip
-  let h_skip r = r.h_skip
-  let w r = r.w
-  let h r = r.h
-  let d r = r.d
+  let w_stride r = r.w_stride
+  let h_stride r = r.h_stride
   let sample_format r = r.sf
   let buffer r = r.buf
-  let dim r = 1 + (if r.h > 1 then 1 else 0) + (if r.d > 1 then 1 else 0)
 
-  let r11811_ppm = 11811.
+  let extent axis ~meters r =
+    if not meters then axis r.size else 
+    let res = match r.res with None -> res_default | Some r -> axis r in
+    axis r.size /. res
+    
+  let w ?(meters = false) r = extent Size3.w ~meters r 
+  let h ?(meters = false) r = extent Size3.h ~meters r 
+  let d ?(meters = false) r = extent Size3.d ~meters r
+  
+  let size1 = w
   let size2 ?(meters = false) r =
-    if not meters then Size2.v (float r.w) (float r.h) else
+    if not meters then V2.of_v3 r.size else
     let wres, hres = match r.res with
-    | None -> r11811_ppm, r11811_ppm 
+    | None -> res_default, res_default
     | Some res -> V3.x res, V3.y res
     in
-    Size2.v (float r.w /. wres ) (float r.h /. hres)
+    Size2.v (Size3.w r.size /. wres ) (Size3.h r.size /. hres)
     
   let size3 ?(meters = false) r = 
-    if not meters then Size3.v (float r.w) (float r.h) (float r.d) else 
+    if not meters then r.size else 
     let wres, hres, dres = match r.res with 
-    | None -> r11811_ppm, r11811_ppm, r11811_ppm
+    | None -> res_default, res_default, res_default
     | Some res -> V3.x res, V3.y res, V3.z res 
-    in
-    Size3.v (float r.w /. wres ) (float r.h /. hres) (float r.d /. dres)
+    in Size3.v
+      (Size3.w r.size /. wres) 
+      (Size3.h r.size /. hres) 
+      (Size3.d r.size /. dres)
+
+  let box1 ?meters ?(mid = false) ?(o = 0.) r = 
+    if mid then Box1.v_mid o (size1 ?meters r) else 
+    Box1.v o (size1 ?meters r)
 
   let box2 ?meters ?(mid = false) ?(o = P2.o) r = 
     if mid then Box2.v_mid o (size2 ?meters r) else 
@@ -3156,34 +3212,55 @@ module Raster = struct
     if mid then Box3.v_mid P3.o (size3 ?meters r) else 
     Box3.v o (size3 ?meters r)
 
-  let strides r =
+  let dim r = 
+    1 
+    + (if Size3.h r.size > 1. then 1 else 0) 
+    + (if Size3.d r.size > 1. then 1 else 0)
+
+  let kind r = match dim r with 
+  | 1 -> `D1 | 2 -> `D2 | 3 -> `D3 | n -> assert false
+
+  let scalar_strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
     let x_stride = Sample.dim r.sf in 
-    let y_stride = x_stride * r.w + r.w_skip in
-    let z_stride = y_stride * r.h - r.w_skip (* last line *) + r.h_skip in
+    let y_stride = x_stride * r.w_stride in
+    let z_stride = y_stride * r.h_stride in
     x_stride, y_stride, z_stride
     
-  let sub ?(x = 0) ?(y = 0) ?(z = 0) ?w ?h ?d r =
-    let range a v min max = 
-      if v < min || v > max then failwith (err_irange a v min max);
-    in
+  let sub box r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf; 
-    range "x" x 0 (r.w - 1); 
-    range "y" y 0 (r.h - 1); 
-    range "z" z 0 (r.d - 1);
-    let w = match w with None -> r.w - x | Some w -> w in 
-    let h = match h with None -> r.h - y | Some h -> h in 
-    let d = match d with None -> r.d - z | Some d -> d in
-    range "w" w 1 r.w;
-    range "h" h 1 r.h;
-    range "d" d 1 r.d;
-    let x_stride, y_stride, z_stride = strides r in
+    let round = Float.round in
+    let x, y, z, w, h, d = match box with 
+    | `D1 b -> 
+        round (Box1.ox b), 0., 0., 
+        round (Box1.w b), 1., 1.
+    | `D2 b -> 
+        round (Box2.ox b), round (Box2.oy b), 0.,
+        round (Box2.w b), round (Box2.h b), 1.
+    | `D3 b -> 
+        round (Box3.ox b), round (Box3.oy b), round (Box3.oz b), 
+        round (Box3.w b), round (Box3.d b), round (Box3.h b)
+    in
+    let size = Size3.v w h d in
+    let x, y, z = int_of_float x, int_of_float y, int_of_float z in 
+    let w, h, d = int_of_float w, int_of_float h, int_of_float d in 
+    let rw, rh, rd = int_of_float (Size3.w r.size), 
+                     int_of_float (Size3.h r.size), 
+                     int_of_float (Size3.d r.size) 
+    in
+    check_sub_pos "x" x 0 (rw - 1); 
+    check_sub_pos "y" y 0 (rh - 1); 
+    check_sub_pos "z" z 0 (rd - 1);
+    check_sub_index "width" w 1 rw; 
+    check_sub_index "height" h 1 rh; 
+    check_sub_index "depth" d 1 rd;
+    let x_stride, y_stride, z_stride = scalar_strides r in
     let first' = r.first + z * z_stride + y * y_stride + x * x_stride in
-    let w_skip' = r.w_skip + (r.w - w) * x_stride in
-    let h_skip' = r.h_skip + (r.h - h) * y_stride in
-    { res = r.res; first = first'; w_skip = w_skip'; h_skip = h_skip';
-      w; h; d; sf = r.sf; buf = r.buf }
-    
+    let w_stride' = r.w_stride + (rw - w) in 
+    let h_stride' = r.h_stride + (rh - h) in 
+    { res = r.res; first = first'; w_stride = w_stride'; h_stride = h_stride';
+      size; sf = r.sf; buf = r.buf }
+
   let equal r r' = r = r' 
   let compare r r' = Pervasives.compare r r'
   let pp ppf r =
