@@ -2,5 +2,9 @@
   for example right know we cannot use the Box_tests functor because 
   of this. But is it needless bureaucracy ?  
 
+* bottom -> bot 
+* M{2,3,4}.rot2 should take an optional rotation point.
+* mid_left, mid_right, top_mid, bottom_mid ? 
+* Fix toplevel.
 * Raster.sub, maybe add an optional ?copy argument to make a tight copy
   of the buffer data.
