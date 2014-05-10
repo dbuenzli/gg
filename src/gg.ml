@@ -2349,7 +2349,7 @@ module Box3 = struct
       let o' = V3.add o d in
       let w = s.x -. 2. *. d.x in
       let h = s.y -. 2. *. d.y in
-      let d = s.y -. 2. *. d.z in
+      let d = s.z -. 2. *. d.z in
       if w < 0. || h < 0. || d < 0. then E else
       v o' (Size3.v w h d)
         
