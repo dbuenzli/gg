@@ -1670,22 +1670,22 @@ module M4 = struct
   let srigid3 ~move:d ~rot:(u, a) ~scale:s = _srigid d (rot3_axis u a) s
   let srigid3q ~move:d ~rot:q ~scale:s = _srigid d (of_quat q) s
 
-  let ortho ~left ~right ~bottom ~top ~near ~far = 
+  let ortho ~left ~right ~bot ~top ~near ~far = 
     let drl = 1. /. (right -. left) in
-    let dtb = 1. /. (top -. bottom) in
+    let dtb = 1. /. (top -. bot) in
     let dfn = 1. /. (far -. near) in v
       (2. *. drl) 0.           0.             (-. (right +. left) *. drl)  
-      0.          (2. *. dtb)  0.             (-. (top +. bottom) *. dtb)
+      0.          (2. *. dtb)  0.             (-. (top +. bot) *. dtb)
       0.          0.           (-. 2. *. dfn) (-. (far +. near)   *. dfn)
       0.          0.           0.             1.0
       
-  let persp ~left ~right ~bottom ~top ~near ~far = 
+  let persp ~left ~right ~bot ~top ~near ~far = 
     let drl = 1. /. (right -. left) in
-    let dtb = 1. /. (top -. bottom) in
+    let dtb = 1. /. (top -. bot) in
     let dfn = 1. /. (far -. near) in 
     let n2 = 2. *. near in v
       (n2 *. drl)  0.          ((right +. left) *. drl)  0.
-      0.           (n2 *. dtb) ((top +. bottom) *. dtb)  0.
+      0.           (n2 *. dtb) ((top +. bot) *. dtb)  0.
       0.           0.          (-. (far +. near) *. dfn) (-. (n2 *. far) *. dfn)
       0.           0.          (-. 1.)                   0.
       

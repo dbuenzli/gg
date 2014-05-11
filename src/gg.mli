@@ -2024,17 +2024,17 @@ module M4 : sig
     Projection matrices assume a right-handed coordinate
     system with the eye at the origin looking down the z-axis. *)
 
-  val ortho : left:float -> right:float -> bottom:float -> top:float -> 
+  val ortho : left:float -> right:float -> bot:float -> top:float -> 
     near:float -> far:float -> m4
-  (** [ortho left right bottom top near far] maps the axis aligned box with 
-      corners [(left, bottom, -near)] and [(right, top, -far)] to 
+  (** [ortho left right bot top near far] maps the axis aligned box with 
+      corners [(left, bot, -near)] and [(right, top, -far)] to 
       the axis aligned cube with corner [(-1, -1, -1)] and [(1, 1, 1)]. *) 
 
-  val persp : left:float -> right:float -> bottom:float -> top:float -> 
+  val persp : left:float -> right:float -> bot:float -> top:float -> 
     near:float -> far:float -> m4
-  (** [persp left right bottom top near far] maps the frustum with top of 
+  (** [persp left right bot top near far] maps the frustum with top of 
       the underlying pyramid at the origin, near clip rectangle corners
-      [(left, bottom, -near)], [(right, top, -near)] and far plane at
+      [(left, bot, -near)], [(right, top, -near)] and far plane at
       [-far] to the axis aligned cube with corners [(-1, -1, -1)] and 
       [(1,1,1)]. *)
 
