@@ -2063,12 +2063,17 @@ module Box2_tests = struct
       >> C.success
            
   open Cv.Order
-  let () = test "bottom_{left,right}, top_{left,right}" & fun r ->
+  let () = test "b{l,m,r}, m{l,m,r}, t{l,m,r}" & fun r ->
       r 
-      >> (Box2.bottom_left bt = V2.v 1. 2.)
-      >> (Box2.bottom_right bt = V2.v 2. 2.)
-      >> (Box2.top_left bt = V2.v 1. 4.)
-      >> (Box2.top_right bt = V2.v 2. 4.)
+      >> (Box2.bl_pt bt = V2.v 1. 2.)
+      >> (Box2.bm_pt bt = V2.v 1.5 2.)
+      >> (Box2.br_pt bt = V2.v 2. 2.)
+      >> (Box2.ml_pt bt = V2.v 1. 3.)
+      >> (Box2.mm_pt bt = V2.v 1.5 3.)
+      >> (Box2.mr_pt bt = V2.v 2. 3.)
+      >> (Box2.tl_pt bt = V2.v 1. 4.)
+      >> (Box2.tm_pt bt = V2.v 1.5 4.)
+      >> (Box2.tr_pt bt = V2.v 2. 4.)
       >> C.success
            
   open Cbox.Order 

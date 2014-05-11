@@ -2706,23 +2706,48 @@ module Box2 : sig
   val midy : box2 -> float 
   (** [midy b] is [V2.y (mid b)]. *)
 
-  val bottom_left : box2 -> p2
-  (** [bottom_left b] is the bottom-left corner of [b].
+  val bl_pt : box2 -> p2
+  (** [bl b] is the bottom-left corner of [b].
 
       @raise Invalid_argument on {!empty} *)
 
-  val bottom_right : box2 -> p2
-  (** [bottom_right b] is the bottom-right corner of [b].
+  val bm_pt : box2 -> p2
+  (** [bm_pt b] is the bottom-mid point of [b].
 
       @raise Invalid_argument on {!empty} *)
 
-  val top_left : box2 -> p2
-  (** [top_left b] is the top-left corner of [b].
+  val br_pt : box2 -> p2
+  (** [br_pt b] is the bottom-right corner of [b].
 
       @raise Invalid_argument on {!empty} *)
 
-  val top_right : box2 -> p2
-  (** [top_right b] is the top-right corner of [b].
+  val ml_pt : box2 -> p2
+  (** [ml_pt b] is the mid-left corner of [b].
+
+      @raise Invalid_argument on {!empty} *)
+
+  val mm_pt : box2 -> p2
+  (** [ml_pt b] is {!mid b}.
+
+      @raise Invalid_argument on {!empty} *)
+
+  val mr_pt : box2 -> p2 
+  (** [mr_pt b] is the mid-right point of [b].
+
+      @raise Invalid_argument on {!empty} *)
+
+  val tl_pt : box2 -> p2
+  (** [tl_pt b] is the top-left corner of [b].
+
+      @raise Invalid_argument on {!empty} *)
+
+  val tm_pt : box2 -> p2
+  (** [tm_pt b] is the top-middle corner of [b].
+
+      @raise Invalid_argument on {!empty} *)
+
+  val tr_pt : box2 -> p2
+  (** [tr_pt b] is the top-right corner of [b].
 
       @raise Invalid_argument on {!empty} *)
 

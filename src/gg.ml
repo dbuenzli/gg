@@ -2106,10 +2106,19 @@ module Box2 = struct
   let midy = function
   | E -> err_e () | R (o, s) -> o.y +. 0.5 *. s.y
                                                 
-  let bottom_left = min 
-  let bottom_right = function E -> err_e () | R (o, s) -> P2.v (o.x +. s.x) o.y
-  let top_left = function E -> err_e () | R (o, s) -> P2.v o.x (o.y +. s.y)
-  let top_right = max
+  let bl_pt = min 
+  let bm_pt = function E -> err_e () | R (o, s) -> P2.v (o.x +. 0.5 *. s.x) o.y
+  let br_pt = function E -> err_e () | R (o, s) -> P2.v (o.x +. s.x) o.y
+  
+  let ml_pt = function E -> err_e () | R (o, s) -> P2.v o.x (o.y +. 0.5 *. s.y)
+  let mm_pt = mid                                                    
+  let mr_pt = function E -> err_e () | R (o, s) -> P2.v (o.x +. s.x) 
+                                                        (o.y +. 0.5 *. s.y)
+  let tl_pt = function E -> err_e () | R (o, s) -> P2.v o.x (o.y +. s.y)
+  let tm_pt = function E -> err_e () | R (o, s) -> P2.v (o.x +. 0.5 *. s.x)
+                                                        (o.y +. s.y)
+  let tr_pt = max
+
   let area = function E -> 0. | R (_, s) -> s.x *. s.y
   let inter b b' = match b, b' with 
   | E, _ | _, E -> E 
