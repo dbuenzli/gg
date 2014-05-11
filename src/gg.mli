@@ -2950,6 +2950,38 @@ module Box3 : sig
   val midz : box3 -> float 
   (** [midz b] is [V3.z (mid b)]. *)
 
+  val fbl_pt : box3 -> p3
+  (** [fbl_pt b] is the far-bottom-left corner of [b]. 
+      @raise Invalid_argument on {!empty}. *)
+
+  val fbr_pt : box3 -> p3
+  (** [fbl_pt b] is the far-bottom-right corner of [b].
+      @raise Invalid_argument on {!empty}. *)
+
+  val ftl_pt : box3 -> p3
+  (** [fbl_pt b] is the far-top-left corner of [b].
+      @raise Invalid_argument on {!empty}. *)
+
+  val ftr_pt : box3 -> p3
+  (** [fbl_pt b] is the far-top-right corner of [b]. 
+      @raise Invalid_argument on {!empty}. *)
+
+  val nbl_pt : box3 -> p3
+  (** [nbl_pt b] is the near-bottom-left corner of [b]. 
+      @raise Invalid_argument on {!empty}. *)
+
+  val nbr_pt : box3 -> p3
+  (** [nbl_pt b] is the near-bottom-right corner of [b].
+      @raise Invalid_argument on {!empty}. *)
+
+  val ntl_pt : box3 -> p3
+  (** [nbl_pt b] is the near-top-left corner of [b].
+      @raise Invalid_argument on {!empty}. *)
+
+  val ntr_pt : box3 -> p3
+  (** [nbl_pt b] is the near-top-right corner of [b]. 
+      @raise Invalid_argument on {!empty}. *)
+
   val area : box3 -> float
   (** [area b] is the surface area of [b]. *)
 

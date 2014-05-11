@@ -2063,7 +2063,7 @@ module Box2_tests = struct
       >> C.success
            
   open Cv.Order
-  let () = test "b{l,m,r}, m{l,m,r}, t{l,m,r}" & fun r ->
+  let () = test "{b,m,l}{l,m,r}_pt" & fun r ->
       r 
       >> (Box2.bl_pt bt = V2.v 1. 2.)
       >> (Box2.bm_pt bt = V2.v 1.5 2.)
@@ -2128,6 +2128,20 @@ module Box3_tests = struct
       >> (Box3.midx bt = V3.x (Box3.mid bt))
       >> (Box3.midy bt = V3.y (Box3.mid bt))
       >> (Box3.midz bt = V3.z (Box3.mid bt))
+      >> C.success
+
+
+  open Cv.Order
+  let () = test "{f,n}{b,t}{l,r}_pt" & fun r ->
+      r 
+      >> (Box3.fbl_pt bt = V3.v 1. 2. 3.)
+      >> (Box3.fbr_pt bt = V3.v 2. 2. 3.)
+      >> (Box3.ftl_pt bt = V3.v 1. 4. 3.)
+      >> (Box3.ftr_pt bt = V3.v 2. 4. 3.)
+      >> (Box3.nbl_pt bt = V3.v 1. 2. 6.)
+      >> (Box3.nbr_pt bt = V3.v 2. 2. 6.)
+      >> (Box3.ntl_pt bt = V3.v 1. 4. 6.)
+      >> (Box3.ntr_pt bt = V3.v 2. 4. 6.)
       >> C.success
 
   open Cf.Order

@@ -2307,7 +2307,20 @@ module Box3 = struct
                                                 
   let midz = function
   | E -> err_e () | R (o, s) -> o.z +. 0.5 *. s.z
-                                                
+
+  let fbl_pt = min
+  let fbr_pt = function E -> err_e () | R (o, s) -> P3.v (o.x +. s.x) o.y o.z 
+  let ftl_pt = function E -> err_e () | R (o, s) -> P3.v o.x (o.y +. s.y) o.z
+  let ftr_pt = function E -> err_e () | R (o, s) -> 
+    P3.v (o.x +. s.x) (o.y +. s.y) o.z
+
+  let nbl_pt = function E -> err_e () | R (o, s) -> P3.v o.x o.y (o.z +. s.z)
+  let nbr_pt = function E -> err_e () | R (o, s) -> 
+    P3.v (o.x +. s.x) o.y (o.z +. s.z) 
+  let ntl_pt = function E -> err_e () | R (o, s) -> 
+    P3.v o.x (o.y +. s.y) (o.z +. s.z)
+  let ntr_pt = max
+                                              
   let area = function 
   | E -> 0. | R (_, s) -> 2. *. (s.x *. s.y +. s.y *. s.z +. s.z *. s.x)
                                 
