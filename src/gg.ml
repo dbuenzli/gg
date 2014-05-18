@@ -2959,7 +2959,7 @@ module Ba = struct
   let sub = Bigarray.Array1.sub
   let blit src si dst di len = 
     let src = if si = 0 && length src = len then src else sub src si len in
-    let dst = if di = 0 then dst else sub dst di len in
+    let dst = if di = 0 && length dst = len then dst else sub dst di len in
     Bigarray.Array1.blit src dst
 
   let fill = Bigarray.Array1.fill
