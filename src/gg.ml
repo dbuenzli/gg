@@ -3280,8 +3280,8 @@ module Raster = struct
     check_sub_index "depth" d 1 rd;
     let x_stride, y_stride, z_stride = scalar_strides r in
     let first' = r.first + z * z_stride + y * y_stride + x * x_stride in
-    let w_stride' = r.w_stride + (rw - w) in 
-    let h_stride' = r.h_stride + (rh - h) in 
+    let w_stride' = r.w_stride (* + (rw - w) *) in 
+    let h_stride' = r.h_stride (* + (rh - h) *) in 
     { res = r.res; first = first'; w_stride = w_stride'; h_stride = h_stride';
       size; sf = r.sf; buf = r.buf }
 
