@@ -3,10 +3,10 @@ description = "Basic types for computer graphics in OCaml"
 requires = "bigarray"
 archive(byte) = "gg.cma"
 archive(byte, plugin) = "gg.cma"
+archive(byte,toploop) += "gg_top.cma"
 archive(native) = "gg.cmxa"
 archive(native, plugin) = "gg.cmxs"
-archive(byte,toploop) += "gg_top.cma"
-archive(native,toploop) += "gg_top.cmxa"
+archive(native,toploop) += "gg_top.cmxs"
 exists_if = "gg.cma"
 
 package "top" (
