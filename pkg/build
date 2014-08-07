@@ -26,6 +26,7 @@ add lib src/gg_top.cma
 add lib src/gg_top.a
 add lib src/gg_top.cmxa
 add lib src/gg_top.cmxs
+add lib src/gg_top_init.ml
 
 add doc README.md
 add doc CHANGES.md

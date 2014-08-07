@@ -4,19 +4,20 @@
    %%PROJECTNAME%% release %%VERSION%%
   --------------------------------------------------------------------------*)
 
-let exec s =
-  let l = Lexing.from_string s in
-  let ph = !Toploop.parse_toplevel_phrase l in
-  assert(Toploop.execute_phrase false Format.err_formatter ph)
-;;
 
-(* Open Gg and install printers *)
+open Gg;;
+#install_printer V2.pp;;
+#install_printer V3.pp;;
+#install_printer V4.pp;;
+#install_printer M2.pp;;
+#install_printer M3.pp;;
+#install_printer M4.pp;;
+#install_printer Box2.pp;;
+#install_printer Box3.pp;;
+#install_printer Raster.pp_buffer;;
+#install_printer Raster.pp_sample_format;;
+#install_printer Raster.pp;;
 
-let setup () =
-  exec "open Gg;;";
-  exec "#use \"gg_top_init.ml\";;"
-
-let () = setup ()
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Daniel C. Bünzli
@@ -25,7 +26,7 @@ let () = setup ()
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-
+     
    1. Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
 

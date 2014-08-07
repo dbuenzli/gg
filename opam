@@ -3,7 +3,7 @@ maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
 homepage: "http://erratique.ch/software/gg"
 authors: ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
 doc: "http://erratique.ch/software/gg/doc/Gg"
-tags: [ "matrix" "vector" "color" "data-structure" "graphics" ]
+tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
 license: "BSD3"
 depends: ["ocamlfind" "base-bigarray"]
 ocaml-version: [>= "4.00.0"]
