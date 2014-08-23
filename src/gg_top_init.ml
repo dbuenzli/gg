@@ -4,8 +4,8 @@
    %%PROJECTNAME%% release %%VERSION%%
   --------------------------------------------------------------------------*)
 
-
 open Gg;;
+
 #install_printer V2.pp;;
 #install_printer V3.pp;;
 #install_printer V4.pp;;
@@ -14,10 +14,8 @@ open Gg;;
 #install_printer M4.pp;;
 #install_printer Box2.pp;;
 #install_printer Box3.pp;;
-#install_printer Raster.pp_buffer;;
-#install_printer Raster.pp_sample_format;;
 #install_printer Raster.pp;;
-
+#install_printer Raster.Sample.pp_format;;
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Daniel C. Bünzli
