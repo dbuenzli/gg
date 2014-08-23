@@ -2225,6 +2225,11 @@ module Size2 : sig
   val aspect : size2 -> float
   (** [aspect s] is [w s /. h s]. *)
 
+  val of_w : float -> aspect:float -> size2
+  (** [of_w w aspect] is [v w (w /. aspect)]. *)
+
+  val of_h : float -> aspect:float -> size2
+  (** [of_h h aspect] is [v (h *. aspect) h]. *)
 end
 
 module Size3 : sig
