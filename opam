@@ -8,7 +8,7 @@ bug-reports: "https://github.com/dbuenzli/gg/issues"
 tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
 license: "BSD3"
 depends: ["ocamlfind" "base-bigarray"]
-ocaml-version: [>= "4.00.1"]
+ocaml-version: [>= "4.01.0"]
 build: 
 [
   [ "ocaml" "pkg/git.ml" ]
