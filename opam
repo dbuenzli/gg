@@ -3,12 +3,15 @@ maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
 homepage: "http://erratique.ch/software/gg"
 authors: ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
 doc: "http://erratique.ch/software/gg/doc/Gg"
+dev-repo: "http://erratique.ch/repos/gg.git"
+bug-reports: "https://github.com/dbuenzli/gg/issues"
 tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
 license: "BSD3"
 depends: ["ocamlfind" "base-bigarray"]
-ocaml-version: [>= "4.00.0"]
+ocaml-version: [>= "4.00.1"]
 build: 
 [
-  ["./pkg/pkg-git" ] 
-  ["./pkg/build" "true" ]
+  [ "ocaml" "pkg/git.ml" ]
+  [ "ocaml" "pkg/build.ml" "native=%{ocaml-native}%"
+                           "native-dynlink=%{ocaml-native-dynlink}%" ]
 ]
