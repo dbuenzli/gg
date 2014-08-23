@@ -1215,12 +1215,20 @@ module M3 = struct
       0. 1. d.V2t.y
       0. 0. 1.
 
-  let rot2 theta =
+  let rot2 ?pt theta =
     let c = cos theta in
     let s = sin theta in
-    v c  (-. s) 0.
-      s  c      0.
-      0. 0.     1.
+    match pt with
+    | None ->
+        v c  (-. s) 0.
+          s  c      0.
+          0. 0.     1.
+    | Some pt ->
+        let px = P2.x pt in
+        let py = P2.y pt in
+        v c  (-. s) (-. c *. px +. s *. py +. px)
+          s  c      (-. s *. px -. c *. py +. py)
+          0. 0.     0.
 
   let scale2 s =
     v s.V2t.x 0.      0.
@@ -1566,13 +1574,22 @@ module M4 = struct
       0. 0. 1. 0.
       0. 0. 0. 1.
 
-  let rot2 theta =
+  let rot2 ?pt theta =
     let c = cos theta in
     let s = sin theta in
-    v c  (-. s) 0. 0.
-      s  c      0. 0.
-      0. 0.     1. 0.
-      0. 0.     0. 1.
+    match pt with
+    | None ->
+        v c  (-. s) 0. 0.
+          s  c      0. 0.
+          0. 0.     1. 0.
+          0. 0.     0. 1.
+    | Some pt ->
+        let px = P2.x pt in
+        let py = P2.y pt in
+        v c  (-. s) (-. c *. px +. s *. py +. px) 0.
+          s  c      (-. s *. px -. c *. py +. py) 0.
+          0. 0.     1.                            0.
+          0. 0.     0.                            1.
 
   let scale2 s =
     v s.V2t.x 0.      0. 0.

@@ -1765,8 +1765,9 @@ module M3 : sig
   (** [move2 d] translates 2D space in the x and y dimensions according
       to [d]. *)
 
-  val rot2 : float -> m3
-  (** See {!M2.rot2}. *)
+  val rot2 : ?pt:p2 -> float -> m3
+  (** [rot2 pt theta] rotates 2D space around the point [pt] by [theta].
+      [pt] defaults to {!P2.o}. *)
 
   val scale2 : v2 -> m3
   (** See {!M2.scale2}. *)
@@ -1971,8 +1972,8 @@ module M4 : sig
   val move2 : v2 -> m4
   (** See {!M3.move2}. *)
 
-  val rot2 : float -> m4
-  (** See {!M2.rot2}. *)
+  val rot2 : ?pt:p2 -> float -> m4
+  (** See {!M3.rot2}. *)
 
   val scale2 : v2 -> m4
   (** See {!M2.scale2}. *)
