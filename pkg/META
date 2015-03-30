@@ -11,8 +11,8 @@ exists_if = "gg.cma"
 
 package "top" (
  version = "%%VERSION%%"
- description = "Toplevel module for Gg."
- requires = "compiler-libs.toplevel bigarray"
+ description = "Gg toplevel support"
+ requires = "gg"
  archive(byte) = "gg_top.cma"
  archive(byte, plugin) = "gg_top.cma"
  archive(native) = "gg_top.cmxa"

@@ -4,19 +4,7 @@
    %%PROJECTNAME%% release %%VERSION%%
   --------------------------------------------------------------------------*)
 
-let exec s =
-  let l = Lexing.from_string s in
-  let ph = !Toploop.parse_toplevel_phrase l in
-  assert(Toploop.execute_phrase false Format.err_formatter ph)
-;;
-
-(* Open Gg and install printers *)
-
-let setup () =
-  exec "open Gg;;";
-  exec "#use \"gg_top_init.ml\";;"
-
-let () = setup ()
+let () = ignore (Toploop.use_file Format.err_formatter "gg_top_init.ml")
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 Daniel C. Bünzli
