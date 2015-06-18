@@ -1,6 +1,10 @@
 
 
 - Fix broken `Box{1,2,3}.subset` functions. Thanks to @Armael for the report.
+- Change toplevel support scheme, `#require "gg"` no longer automatically
+  opens `Gg` and install printers. You now have to `#require "gg.top"` for
+  that to happen.
+
 
 v0.9.0 2014-08-23 Cambridge (UK)
 --------------------------------
