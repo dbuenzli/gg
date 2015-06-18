@@ -2044,7 +2044,7 @@ module Box1 = struct
   let subset b b' = match b, b' with
   | b, E -> false
   | E, b -> true
-  | R (o, s), R (o', s') -> (o' <= o) && (s <= s')
+  | R (o, s), R (o', s') -> (o' <= o) && (o +. s <= o' +. s')
 
   let mem p = function
   | E -> false
@@ -2233,7 +2233,10 @@ module Box2 = struct
   | b, E -> false
   | E, b -> true
   | R (o, s), R (o', s') ->
-      (o'.x <= o.x) && (o'.y <= o.y) && (s.x <= s'.x) && (s.y <= s'.y)
+      (o'.x <= o.x) &&
+      (o'.y <= o.y) &&
+      (o.x +. s.x <= o'.x +. s'.x) &&
+      (o.y +. s.y <= o'.y +. s'.y)
 
   let mem p = function
   | E -> false
@@ -2489,8 +2492,12 @@ module Box3 = struct
   | b, E -> false
   | E, b -> true
   | R (o, s), R (o', s') ->
-      (o'.x <= o.x) && (o'.y <= o.y) && (o'.z <= o.z) &&
-      (s.x <= s'.x) && (s.y <= s'.y) && (s.z <= s'.z)
+      (o'.x <= o.x) &&
+      (o'.y <= o.y) &&
+      (o'.z <= o.z) &&
+      (o.x +. s.x <= o'.x +. s'.x) &&
+      (o.y +. s.y <= o'.y +. s'.y) &&
+      (o.z +. s.z <= o'.z +. s'.z)
 
   let mem p = function
   | E -> false

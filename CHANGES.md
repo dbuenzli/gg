@@ -1,4 +1,7 @@
 
+
+- Fix broken `Box{1,2,3}.subset` functions. Thanks to @Armael for the report.
+
 v0.9.0 2014-08-23 Cambridge (UK)
 --------------------------------
 

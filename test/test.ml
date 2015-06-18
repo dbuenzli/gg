@@ -1843,6 +1843,7 @@ module Box_tests
   let bcmp = Box.compare_f fcmp
   let vt = V.mapi (fun i _ -> float (i + 1)) V.zero
   let usize = V.mapi (fun i _ -> 1.) V.zero
+  let one = usize
   let bt = Box.v vt vt
   let bt_mid = Box.v_mid V.zero V.(2. * vt)
   module Cbox = C.Make (Box)
@@ -1944,6 +1945,14 @@ module Box_tests
         >> check Box.empty b b
         >> C.success
       end
+     >> begin fun r ->
+       let left = Box.v V.zero (V.smul 10. one) in
+       let right = Box.v (V.smul 100. one) one in
+       r
+       >> C.holds (C.neg subset) (right, left)
+       >> C.success
+     end
+     >> C.success
 
   open Cv.Order
   let () = test "inset, is_pt" & fun r ->
