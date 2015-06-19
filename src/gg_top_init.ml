@@ -12,6 +12,7 @@ open Gg;;
 #install_printer M2.pp;;
 #install_printer M3.pp;;
 #install_printer M4.pp;;
+#install_printer Box1.pp;;
 #install_printer Box2.pp;;
 #install_printer Box3.pp;;
 #install_printer Raster.pp;;

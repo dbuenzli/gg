@@ -2070,7 +2070,7 @@ module Box1 = struct
   let _print pp_f ppf b = match b with
   | E -> pp ppf "@[<1>(box1@ empty)@]"
   | R (o, s) ->
-      pp ppf "@[<1>(box2 %a@ %a)@]" pp_f o pp_f s
+      pp ppf "@[<1>(box1 %a@ %a)@]" pp_f o pp_f s
 
   let pp ppf b = _print (fun ppf f -> Format.fprintf ppf "%g" f) ppf b
   let pp_f pp_f ppf b = _print pp_f ppf b
