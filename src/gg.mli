@@ -1329,11 +1329,11 @@ module Quat : sig
   (** Unit quaternion for the rotation, see {!M3.rot3_zyx}. *)
 
   val to_rot3_axis : quat -> v3 * float
-  (** [to_rot3_axis q] is the rotation axis and angle of the {e unit}
-      quaternion [q].*)
+  (** [to_rot3_axis q] is the rotation axis and angle in radians of the {e
+      unit} quaternion [q].*)
 
   val to_rot3_zyx : quat -> v3
-  (** [to_rot_zyx q] is the x, y, z axis angles of the {e unit}
+  (** [to_rot_zyx q] is the x, y, z axis angles in radians of the {e unit}
       quaternion [q]. *)
 
   val apply3 : quat -> v3 -> v3
@@ -1590,7 +1590,7 @@ module M2 : sig
   (** {1:transformations2d 2D space transformations} *)
 
   val rot2 : float -> m2
-  (** [rot2 theta] rotates 2D space around the origin by [theta]. *)
+  (** [rot2 theta] rotates 2D space around the origin by [theta] radians. *)
 
   val scale2 : v2 -> m2
   (** [scale2 s] scales 2D space in the [x] and [y] dimensions
@@ -1766,15 +1766,15 @@ module M3 : sig
       to [d]. *)
 
   val rot2 : ?pt:p2 -> float -> m3
-  (** [rot2 pt theta] rotates 2D space around the point [pt] by [theta].
-      [pt] defaults to {!P2.o}. *)
+  (** [rot2 pt theta] rotates 2D space around the point [pt] by [theta]
+      radians. [pt] defaults to {!P2.o}. *)
 
   val scale2 : v2 -> m3
   (** See {!M2.scale2}. *)
 
   val rigid2 : move:v2 -> rot:float -> m3
   (** [rigid2 move theta] is the rigid body transformation of
-      2D space that rotates by [theta] and then translates by [move]. *)
+      2D space that rotates by [theta] radians and then translates by [move]. *)
 
   val srigid2 : move:v2 -> rot:float -> scale:v2 -> m3
   (** [srigid2 move theta scale] is like {!rigid2} but starts by
@@ -1787,13 +1787,13 @@ module M3 : sig
       the {e unit} vector [v]. *)
 
   val rot3_axis : v3 -> float -> m3
-  (** [rot_axis v theta] rotates 3D space by [theta] around
+  (** [rot_axis v theta] rotates 3D space by [theta] radians around
       the {e unit} vector [v]. *)
 
   val rot3_zyx : v3 -> m3
-  (** [rot3_zyx r] rotates 3D space first by [V3.x r] around the
-      x-axis, then by [V3.y r] around the y-axis and finally by [V3.z
-      r] around the z-axis. *)
+  (** [rot3_zyx r] rotates 3D space first by [V3.x r] radians around
+      the x-axis, then by [V3.y r] radians around the y-axis and
+      finally by [V3.z r] radians around the z-axis. *)
 
   val scale3 : v3 -> m3
   (** [scale3 s] scales 3D space in the [x], [y] and [z] dimensions
@@ -2004,7 +2004,7 @@ module M4 : sig
 
   val rigid3 : move:v3 -> rot:v3 * float -> m4
   (** [rigid3 move rot] is the rigid body transformation
-      of 3D space that rotates by the axis/angle [rot]
+      of 3D space that rotates by the axis/radian angle [rot]
       and then translates by [move]. *)
 
   val rigid3q : move:v3 -> rot:quat -> m4
