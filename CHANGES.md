@@ -1,10 +1,11 @@
-
+v0.9.1 2015-08-14 Cambridge (UK)
+--------------------------------
 
 - Fix `Box1.pp` and add to toplevel support.
 - Fix broken `Box{1,2,3}.subset` functions. Thanks to @Armael for the report.
 - Change toplevel support scheme, `#require "gg"` no longer automatically
-  opens `Gg` and install printers. You now have to `#require "gg.top"` for
-  that to happen.
+  opens `Gg` and installs printers. You now have to `#require "gg.top"` for
+  this to happen.
 
 
 v0.9.0 2014-08-23 Cambridge (UK)
