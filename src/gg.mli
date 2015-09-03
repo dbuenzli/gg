@@ -3890,13 +3890,11 @@ end
     types and modules in your scope, no values. Thus to use [Gg] start
     with : {[open Gg]}
 
-
-    In the toplevel, if you installed [Gg] with ocamlfind, requiring
-    [Gg]:
+    In the toplevel enter:
 {[
-> #require "gg";;
+> #require "gg.top";;
 ]}
-    automatically opens [Gg] and installs printers for the types.
+    to automatically open [Gg] and install printers for the types.
 
     {2:conventions Conventions}
 
