@@ -1798,6 +1798,13 @@ module Size2_tests = struct
       r
       >> (Size2.aspect (Size2.v 8. 2.) = 4.)
       >> C.success
+
+  open Cs.Order
+  let () = test "of_h, of_w" & fun r ->
+      r
+      >> (Size2.of_w 8. ~aspect:4. = Size2.v 8. 2.)
+      >> (Size2.of_h 2. ~aspect:4. = Size2.v 8. 2.)
+      >> C.success
 end
 
 module Size3_tests = struct

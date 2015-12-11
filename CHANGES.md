@@ -1,8 +1,12 @@
+
+- Fix `Size.of_w`. Thanks to @rand00 for the report and the fix.
+
 v0.9.1 2015-08-14 Cambridge (UK)
 --------------------------------
 
 - Fix `Box1.pp` and add to toplevel support.
-- Fix broken `Box{1,2,3}.subset` functions. Thanks to @Armael for the report.
+- Fix broken `Box{1,2,3}.subset` functions. Thanks to Armaël Guéneau
+  for the report.
 - Change toplevel support scheme, `#require "gg"` no longer automatically
   opens `Gg` and installs printers. You now have to `#require "gg.top"` for
   this to happen.
