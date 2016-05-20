@@ -3139,13 +3139,13 @@ module Color : sig
       a color value. *)
 
   val v_srgb : ?a:float -> float -> float -> float -> color
-  (** [v r g b ~a] is the sRGB color [(r, g, b, a)] converted to a color
-      value. *)
+  (** [v r g b ~a] is the sRGB color [(r, g, b, a)] converted to a
+      [Gg] color value. *)
 
   val v_srgbi : ?a:float -> int -> int -> int -> color
-  (** [v_srgbi r g b ~a] is the sRGB color [(r,g,b,a)] converted to
-      a color value by [(v_srgb (float r /. 255.) (float g /. 255.)
-      (float b /. 255.) ~a]) *)
+  (** [v_srgbi r g b ~a] is the 24-bit sRGB color [(r, g, b, a)]
+      converted to a [Gg] color value by [(v_srgb (float r /. 255.)
+      (float g /. 255.)  (float b /. 255.) ~a]) *)
 
   val r : color -> float
   (** [r c] is the red component of [c]. *)
@@ -3225,6 +3225,10 @@ module Color : sig
 
   val to_srgb : color -> srgb
   (** [to_srgb c] is the [Gg] color [c] as a sRGB color. *)
+
+  val to_srgbi : color -> (int * int * int * float)
+  (** [to_srgbi c] is the [Gg] color [c] as a 24-bit sRGB color
+      [(r, g, b, a)], see {!v_srgbi}. *)
 
   (** {2:luv CIE L*u*v*} *)
 
