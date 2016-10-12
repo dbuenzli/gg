@@ -2554,6 +2554,7 @@ module Color = struct
   let a = V4.w
   let void = v 0. 0. 0. 0.
   let black = v 0. 0. 0. 1.
+  let eigengrau = v 0.0859375 0.0859375 0.11328125 1.
   let white = v 1. 1. 1. 1.
   let red = v 1. 0. 0. 1.
   let green = v 0. 1. 0. 1.
