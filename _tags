@@ -1,4 +1,4 @@
-<**/*.{ml,mli}> : bin_annot, annot
+<**/*.{ml,mli}> : bin_annot, safe_string
 <src> : include
 <test> : include
 
