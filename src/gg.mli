@@ -2440,12 +2440,12 @@ end
 
 module Box1 : sig
 
-  type t
+  type t = box1
   (** The type for 1D boxes
       ({{:http://mathworld.wolfram.com/Interval.html}closed intervals}). *)
 
   val dim : int
-  (** [dim] is the dimension of the boxes of type {!box2}. *)
+  (** [dim] is the dimension of the boxes of type {!box1}, i.e., [1]. *)
 
   type v = float
   (** The type for 1D vectors. *)
