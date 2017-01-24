@@ -2443,7 +2443,7 @@ end
 
 module Box1 : sig
 
-  type t
+  type t = box1
   (** The type for 1D boxes
       ({{:http://mathworld.wolfram.com/Interval.html}closed intervals}). *)
 

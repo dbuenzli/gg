@@ -2698,7 +2698,7 @@ module Color = struct
     let b = V4t.(if c.z <= c0 then c1 *. c.z else (c3 *. (c.z +. c2)) ** c4) in
     v r g b c.V4t.w
 
-  let v_srgb ?(a = 1.) r' g' b' =  (* N.B. code duplication with of_srgba. *)
+  let v_srgb ?(a = 1.) r' g' b' =  (* N.B. code duplication with of_srgb. *)
     let r = V4t.(if r' <= c0 then c1 *. r' else (c3 *. (r' +. c2)) ** c4) in
     let g = V4t.(if g' <= c0 then c1 *. g' else (c3 *. (g' +. c2)) ** c4) in
     let b = V4t.(if b' <= c0 then c1 *. b' else (c3 *. (b' +. c2)) ** c4) in
