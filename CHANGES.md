@@ -1,5 +1,13 @@
+v0.9.2 2017-01-24 La Forclaz (VS)
+---------------------------------
 
+- Add `Box{1,2,3}.add_pt`. Thanks to Christophe Troestler for the suggestion.
+- `V{2,3,4}.norm` avoid {under,over}flows. Thanks to Christophe Troestler for
+  the report and guidance.
 - Fix `Size.of_w`. Thanks to @rand00 for the report and the fix.
+- Safe-string support.
+- Build depend on topkg.
+- Relicense from BSD3 to ISC.
 
 v0.9.1 2015-08-14 Cambridge (UK)
 --------------------------------
