@@ -3139,13 +3139,13 @@ module Color : sig
       a color value. *)
 
   val v_srgb : ?a:float -> float -> float -> float -> color
-  (** [v r g b ~a] is the sRGB color [(r, g, b, a)] converted to a color
-      value. *)
+  (** [v r g b ~a] is the {e non-linear} sRGB color [(r, g, b, a)]
+      converted to a (linear) [Gg] color value. *)
 
   val v_srgbi : ?a:float -> int -> int -> int -> color
-  (** [v_srgbi r g b ~a] is the sRGB color [(r,g,b,a)] converted to
-      a color value by [(v_srgb (float r /. 255.) (float g /. 255.)
-      (float b /. 255.) ~a]) *)
+  (** [v_srgbi r g b ~a] is the {e non-linear} sRGB color [(r,g,b,a)]
+      converted to a color value by [(v_srgb (float r /. 255.) (float g
+      /. 255.)  (float b /. 255.) ~a]) *)
 
   val r : color -> float
   (** [r c] is the red component of [c]. *)
@@ -3215,16 +3215,20 @@ module Color : sig
   (** {2:srgb sRGB} *)
 
   type srgb = v4
-  (** The type for colors in the
+  (** The type for colors in the non-linear
      {{:http://www.color.org/chardata/rgb/srgb.xalter}sRGB} color space
      with an alpha component. This is the color space used, for example,
      by CSS. *)
 
   val of_srgb : srgb -> color
-  (** [of_srgb c] is the sRGB color [c] as a [Gg] color. *)
+  (** [of_srgb c] is the {e non-linear} sRGB color [c] as a [Gg] color. *)
 
   val to_srgb : color -> srgb
-  (** [to_srgb c] is the [Gg] color [c] as a sRGB color. *)
+  (** [to_srgb c] is the [Gg] color [c] as a {e non-linear} sRGB color. *)
+
+  val to_srgbi : color -> (int * int * int * float)
+  (** [to_srgbi c] is the [Gg] color as the {e non-linear} sRGB color
+      [(r,g,b,a)].  It computes the inverse function of {!v_srgbi}. *)
 
   (** {2:luv CIE L*u*v*} *)
 

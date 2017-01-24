@@ -2722,6 +2722,13 @@ module Color = struct
     let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in
     v r g b c.V4t.w
 
+  let to_srgbi c =              (* Rem: duplicate code with [to_srgb]. *)
+    let r = V4t.(if c.x <= c0 then c1 *. c.x else c2 *. (c.x ** c3) -. c4) in
+    let g = V4t.(if c.y <= c0 then c1 *. c.y else c2 *. (c.y ** c3) -. c4) in
+    let b = V4t.(if c.z <= c0 then c1 *. c.z else c2 *. (c.z ** c3) -. c4) in
+    (truncate(255. *. r +. 0.5), truncate(255. *. g +. 0.5),
+     truncate(255. *. b +. 0.5), c.V4t.w)
+
   (* CIE Luv *)
 
   type luv = v4
