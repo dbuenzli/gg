@@ -24,7 +24,7 @@
 (** Floating point number utilities.
 
     This module defines a few useful {{!constants}constants},
-    {{!functions}functions}, {{!comparisons}predicates and
+    {{!functions}functions}, {{!preds}predicates and
     comparisons} on floating point numbers. The {{!printers}printers}
     output a lossless textual representation of floats.
 
@@ -202,7 +202,7 @@ module Float : sig
 
       @raise Invalid_argument if [x] is not a NaN. *)
 
-  (** {1:comparisons Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val is_zero : eps:float -> float -> bool
   (** [is_zero eps x] is [true] if [abs_float x < eps]
@@ -453,7 +453,7 @@ module type V = sig
   val iteri : (int -> float -> unit) ->  t -> unit
   (** [iteri f v] is [f 0 v]{_0}[; f 1 v]{_1}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> t -> bool
   (** [for_all p v] is [p v]{_0}[ && p v]{_1}[ &&] ...*)
@@ -665,7 +665,7 @@ module V2 : sig
   val iteri : (int -> float -> unit) ->  v2 -> unit
   (** [iteri f v] is [f 0 v]{_0}[; f 1 v]{_1}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> v2 -> bool
   (** [for_all p v] is [p v]{_0}[ && p v]{_1}[ &&] ...*)
@@ -893,7 +893,7 @@ module V3 : sig
   val iteri : (int -> float -> unit) ->  v3 -> unit
   (** [iteri f v] is [f 0 v]{_0}[; f 1 v]{_1}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> v3 -> bool
   (** [for_all p v] is [p v]{_0}[ && p v]{_1}[ &&] ...*)
@@ -1049,7 +1049,7 @@ module V4 : sig
       {{:http://mathworld.wolfram.com/LinearTransformation.html}linear
       transform} [mv]. *)
 
-  (** {1 Overridden [Pervasives] operators} *)
+  (** {1:ops Overridden [Pervasives] operators} *)
 
   val ( + ) : v4 -> v4 -> v4
   (** [u + v] is [add u v]. *)
@@ -1083,7 +1083,7 @@ module V4 : sig
   val iteri : (int -> float -> unit) ->  v4 -> unit
   (** [iteri f v] is [f 0 v]{_0}[; f 1 v]{_1}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> v4 -> bool
   (** [for_all p v] is [p v]{_0}[ && p v]{_1}[ &&] ...*)
@@ -1458,7 +1458,7 @@ module type M = sig
   val iteri : (int -> int -> float -> unit) ->  t -> unit
   (** [iteri f a] is [f 0 0 a]{_00}[; f 1 0 a]{_10}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> t -> bool
   (** [for_all p a] is [p a]{_00}[ && p a]{_10}[ &&] ...*)
@@ -1617,7 +1617,7 @@ module M2 : sig
   val iteri : (int -> int -> float -> unit) ->  m2 -> unit
   (** [iteri f a] is [f 0 0 a]{_00}[; f 1 0 a]{_10}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> m2 -> bool
   (** [for_all p a] is [p a]{_00}[ && p a]{_10}[ &&] ...*)
@@ -1820,7 +1820,7 @@ module M3 : sig
   val iteri : (int -> int -> float -> unit) ->  m3 -> unit
   (** [iteri f a] is [f 0 0 a]{_00}[; f 1 0 a]{_10}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> m3 -> bool
   (** [for_all p a] is [p a]{_00}[ && p a]{_10}[ &&] ...*)
@@ -2082,7 +2082,7 @@ module M4 : sig
   val iteri : (int -> int -> float -> unit) ->  m4 -> unit
   (** [iteri f a] is [f 0 0 a]{_00}[; f 1 0 a]{_10}[;] ... *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val for_all : (float -> bool) -> m4 -> bool
   (** [for_all p a] is [p a]{_00}[ && p a]{_10}[ &&] ...*)
@@ -2395,7 +2395,7 @@ module type Box = sig
   (** [map_f f b] is the box whose origin and size are those of [b] with
       their components mapped by [f]. Returns {!empty} on {!empty}. *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val is_empty : t -> bool
   (** [is_empty b] is [true] iff [b] is {!empty}. *)
@@ -2568,7 +2568,7 @@ module Box1 : sig
   (** [map_f f b] is the box whose origin and size are those of [b] with
       their components mapped by [f]. Returns {!empty} on {!empty}. *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val is_empty : box1 -> bool
   (** [is_empty b] is [true] iff [b] is {!empty}. *)
@@ -2793,7 +2793,7 @@ module Box2 : sig
   (** [map_f f b] is the box whose origin and size are those of [b] with
       their components mapped by [f]. Returns {!empty} on {!empty}. *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val is_empty : box2 -> bool
   (** [is_empty b] is [true] iff [b] is {!empty}. *)
@@ -3027,7 +3027,7 @@ module Box3 : sig
   (** [map_f f b] is the box whose origin and size are those of [b] with
       their components mapped by [f]. Returns {!empty} on {!empty}. *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val is_empty : box3 -> bool
   (** [is_empty b] is [true] iff [b] is {!empty}. *)
@@ -3169,7 +3169,7 @@ module Color : sig
   val blue : color
   (** [blue] is [(v 0. 0. 1. 1.)] *)
 
-  (** {1 Functions} *)
+  (** {1:functions Functions} *)
 
   val blend : color -> color -> color
   (** [blend src dst] is [src] blended over [dst] using
@@ -3275,7 +3275,7 @@ module Color : sig
   val to_lch_ab : color -> lch_ab
   (** [to_lch_ab c] is the [Gg] color [c] as a L*C*h{_ab}. *)
 
-  (** {1 Color spaces} *)
+  (** {1:colorspaces Color spaces} *)
 
   type space = [
     | `XYZ | `Lab | `Luv | `YCbr | `Yxy | `RGB | `Gray | `HSV | `HLS
@@ -3506,7 +3506,7 @@ module Ba : sig
   val get_4d : ('a, 'b) bigarray -> int -> ('a * 'a * 'a * 'a)
   (** [get_v4 b i] is the [i]th to [i+3]th scalars of [b]. *)
 
-  (** {2 int32 Bigarray} *)
+  (** {2:get_int32 int32 Bigarray} *)
 
   val geti_2d : (int32, 'b) bigarray -> int -> (int * int)
   (** [get_v2 b i] is the [i]th to [i+1]th scalars of [b]. The
@@ -3546,7 +3546,7 @@ module Ba : sig
   (** [set_4d b i s1 s2 s3 s4] sets the [i]th to [i+3]th scalar of [b]
       to [s1], [s2], [s3], [s4]. *)
 
-  (** {2 int32 Bigarray} *)
+  (** {2:set_int32 int32 Bigarray} *)
 
   val seti_2d : (int32, 'b) bigarray -> int -> int -> int -> unit
   (** [set_2d b i s1 s2] sets the [i]th to [i+1]th scalar of [b] to
@@ -3816,7 +3816,7 @@ module Raster : sig
       [(size3 meters r)]. If [mid] is [true] (defaults to [false]),
       [o] specifies the mid point of the box. [o] defaults to {!P3.o}. *)
 
-  (** {1 Functions} *)
+  (** {1:functions Functions} *)
 
   val dim : t -> int
   (** [dim r] is [r]'s index dimension from 1 to 3. Note that
@@ -3856,7 +3856,7 @@ module Raster : sig
       packed.
   *)
 
-  (** {1 Predicates and comparisons} *)
+  (** {1:preds Predicates and comparisons} *)
 
   val equal : t -> t -> bool
   (** [equal r r'] is [r = r']. *)
@@ -3864,7 +3864,7 @@ module Raster : sig
   val compare : t -> t -> int
   (** [compare r r'] is [Pervasives.compare r r']. *)
 
-  (** {1 Printers} *)
+  (** {1:printers Printers} *)
 
   val pp : Format.formatter -> t -> unit
   (** [pp ppf t] prints a textual represenation of [t] on [ppf]. Doesn't
