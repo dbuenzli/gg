@@ -591,6 +591,7 @@ module V_tests (V : V) = struct                            (* generic tests. *)
     >> (V.norm2 index = float (sq_sum (V.dim - 1)))
     >> (Ci.Order.(Float.compare_tol ~eps (V.norm index)
                     (sqrt (V.norm2 index)) = 0))
+    >> (V.norm V.zero = 0.)
     >> C.success
 
   let () = test "norm {over,under}flow" & fun r ->

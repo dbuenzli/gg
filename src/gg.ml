@@ -505,10 +505,13 @@ module V3 = struct
     let y = abs_float a.y in
     let z = abs_float a.z in
     let x, y, z =
-      if x >= y && x >= z then x, y /. x, z /. x else
-      if y >= z          then y, x /. y, z /. y else
-                             z, x /. z, y /. z
+      if x >= y && x >= z then x, y, z else
+      if y >= z           then y, x, z else
+                               z, x, y
     in
+    if x = 0. then 0. else
+    let y = y /. x in
+    let z = z /. x in
     x *. sqrt (1. +. y *. y +. z *. z)
 
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z
@@ -620,11 +623,15 @@ module V4 = struct
     let z = abs_float a.z in
     let w = abs_float a.w in
     let x, y, z, w =
-      if x >= y && x >= z && x >= w then x, y /. x, z /. x, w /. x else
-      if y >= z && y >=  w          then y, x /. y, z /. y, w /. y else
-      if z >= w                     then z, x /. z, y /. z, w /. z else
-                                         w, x /. w, y /. w, z /. w
+      if x >= y && x >= z && x >= w then x, y, z, w else
+      if y >= z && y >=  w          then y, x, z, w else
+      if z >= w                     then z, x, y, w else
+                                         w, x, y, z
     in
+    if x = 0. then 0. else
+    let y = y /. x in
+    let z = z /. x in
+    let w = w /. x in
     x *. sqrt (1. +. y *. y +. z *. z +. w *. w)
 
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z +. a.w *. a.w
