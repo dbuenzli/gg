@@ -9,7 +9,7 @@ doc: "http://erratique.ch/software/gg/doc/Gg"
 dev-repo: "http://erratique.ch/repos/gg.git"
 bug-reports: "https://github.com/dbuenzli/gg/issues"
 tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
-license: "BSD-3-Clause"
+license: "ISC"
 available:[ ocaml-version >= "4.02.2" ]
 depends: [
   "ocamlfind" {build}
