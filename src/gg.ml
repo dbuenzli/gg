@@ -400,7 +400,7 @@ module V2 = struct
   let smul s a = v (s *. a.x) (s *. a.y)
   let half a = smul 0.5 a
   let dot a b = a.x *. b.x +. a.y *. b.y
-  let norm a = sqrt (a.x *. a.x +. a.y *. a.y)
+  let norm a = hypot a.x a.y
   let norm2 a = a.x *. a.x +. a.y *. a.y
   let unit a = smul (1.0 /. (norm a)) a
   let polar r theta = v (r *. (cos theta)) ( r *. (sin theta))
@@ -500,7 +500,17 @@ module V3 = struct
       ((a.x *. b.y) -. (a.y *. b.x))
 
   let dot a b = a.x *. b.x +. a.y *. b.y +. a.z *. b.z
-  let norm a = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z)
+  let norm a = (* avoid {under,over}flows *)
+    let x = abs_float a.x in
+    let y = abs_float a.y in
+    let z = abs_float a.z in
+    let x, y, z =
+      if x > y && x > z then x, y /. x, z /. x else
+      if y > z          then y, x /. y, z /. y else
+                             z, x /. z, y /. z
+    in
+    x *. sqrt (1. +. y *. y +. z *. z)
+
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z
   let unit a = smul (1. /. (norm a)) a
   let spherical r theta phi =
@@ -604,7 +614,19 @@ module V4 = struct
   let smul s a = v (s *. a.x) (s *. a.y) (s *. a.z) (s *. a.w)
   let half a = smul 0.5 a
   let dot a b = (a.x *. b.x) +. (a.y *. b.y) +. (a.z *. b.z) +. (a.w *. b.w)
-  let norm a = sqrt (a.x *. a.x +. a.y *. a.y +. a.z *. a.z +. a.w *. a.w)
+  let norm a = (* avoid {under,over}flows *)
+    let x = abs_float a.x in
+    let y = abs_float a.y in
+    let z = abs_float a.z in
+    let w = abs_float a.w in
+    let x, y, z, w =
+      if x > y && x > z && x > w then x, y /. x, z /. x, w /. x else
+      if y > z && y > w          then y, x /. y, z /. y, w /. y else
+      if z > w                   then z, x /. z, y /. z, w /. z else
+                                      w, x /. w, y /. w, z /. w
+    in
+    x *. sqrt (1. +. y *. y +. z *. z +. w *. w)
+
   let norm2 a = a.x *. a.x +. a.y *. a.y +. a.z *. a.z +. a.w *. a.w
   let unit a = smul (1. /. (norm a)) a
   let homogene a =

@@ -519,6 +519,8 @@ module V_tests (V : V) = struct                            (* generic tests. *)
   let db_index = V.map (fun x -> 2. *. x) index
   let sq_index = V.map (fun x -> x *. x) index
 
+  let ones = V.map (fun _ -> 1.) V.zero
+
   module Cv = C.Make (V)
 
   (* Constructors, accessors and constants *)
@@ -587,8 +589,15 @@ module V_tests (V : V) = struct                            (* generic tests. *)
     r
     >> (V.dot index index = V.norm2 index)
     >> (V.norm2 index = float (sq_sum (V.dim - 1)))
-    >> (V.norm index = sqrt (V.norm2 index))
+    >> (Ci.Order.(Float.compare_tol ~eps (V.norm index)
+                    (sqrt (V.norm2 index)) = 0))
     >> C.success
+
+  let () = test "norm {over,under}flow" & fun r ->
+      r
+      >> (V.norm (V.smul 1e200 ones) = sqrt (float V.dim) *. 1e200)
+      >> (V.norm (V.smul 1e-200 ones) = sqrt (float V.dim) *. 1e-200)
+      >> C.success
 
   let () = test "unit" & fun r ->
     let unitable v = Pervasives.(<>) (V.norm v) 0. in
