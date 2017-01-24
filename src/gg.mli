@@ -3165,6 +3165,10 @@ module Color : sig
   val black : color
   (** [black] is [(v 0. 0. 0. 1.)] *)
 
+  val eigengrau : color
+  (** [eigengrau] is [(v 0.0859375 0.0859375 0.11328125 1.)], the color perceived
+      by the eyes in absolute darkness. *)
+
   val gray : ?a:float -> float -> color
   (** [gray a g] is the sRGB color [(g, g, g, a)] converted to color a
       value. *)
