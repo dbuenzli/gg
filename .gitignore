@@ -1,5 +1,6 @@
+*.install
 _build
 *~
 \.\#*
 \#*#
-CLOCK.org
+tmp

@@ -2,19 +2,17 @@ version = "%%VERSION%%"
 description = "Basic types for computer graphics in OCaml"
 requires = "bigarray"
 archive(byte) = "gg.cma"
-archive(byte, plugin) = "gg.cma"
 archive(native) = "gg.cmxa"
-archive(native, plugin) = "gg.cmxs"
-exists_if = "gg.cma"
+plugin(byte) = "gg.cma"
+plugin(native) = "gg.cmxs"
 
 package "top" (
  version = "%%VERSION%%"
  description = "Gg toplevel support"
  requires = "gg"
  archive(byte) = "gg_top.cma"
- archive(byte, plugin) = "gg_top.cma"
  archive(native) = "gg_top.cmxa"
- archive(native, plugin) = "gg_top.cmxs"
+ plugin(byte) = "gg_top.cma"
+ plugin(native) = "gg_top.cmxs"
  exists_if = "gg_top.cma"
 )
-

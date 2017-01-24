@@ -17,7 +17,7 @@
     Consult the {{!basics}basics}. Open the module to use it, this
     defines only modules and types in your scope.
 
-    {e Release %%VERSION%% - %%MAINTAINER%% } *)
+    {e %%VERSION%% - {{:%%PKG_HOMEPAGE%% }homepage}} *)
 
 (**    {1:float Floats} *)
 
