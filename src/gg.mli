@@ -3201,7 +3201,16 @@ module Color : sig
 
       {b Note.} In the following conversions all color spaces carry an
       alpha component.  The alpha component is always left untouched
-      by the conversions. *)
+      by the conversions.
+
+      {b WARNING.} Converting between color spaces may result in out
+      of gamut colors whose components are out of the destination
+      color space expected ranges. The client is responsible to handle
+      these; for values of type {!color} simply {!clamp}ing these is
+      one option. Currently some conversion do not even round trip
+      due to floating point inaccuracies, see
+      {{:https://github.com/dbuenzli/gg/issues/8}this issue}, so it is
+      a good idea to {!clamp} the conversions to {!color}. *)
 
   (** {2:srgb sRGB} *)
 
