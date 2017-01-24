@@ -2346,6 +2346,9 @@ module type Box = sig
   val of_pts : p -> p -> t
   (** [of_pts p p'] is the smallest box whose space contains [p] and [p']. *)
 
+  val add_pt : t -> p -> t
+  (** [add_pt b p] is the smallest box whose space contains [b] and [p]. *)
+
   (** {1:functions Functions} *)
 
   val min : t -> p
@@ -2499,6 +2502,9 @@ module Box1 : sig
 
   val of_pts : float -> float -> box1
   (** [of_pts p p'] is the smallest box whose space contains [p] and [p']. *)
+
+  val add_pt : box1 -> float -> box1
+  (** [add_pt b p] is the smallest box whose space contains [b] and [p]. *)
 
   (** {1:functions Functions} *)
 
@@ -2676,6 +2682,9 @@ module Box2 : sig
 
   val of_pts : p2 -> p2 -> box2
   (** [of_pts p p'] is the smallest box whose space contains [p] and [p']. *)
+
+  val add_pt : box2 -> p2 -> box2
+  (** [add_pt b p] is the smallest box whose space contains [b] and [p]. *)
 
   (** {1:functions Functions} *)
 
@@ -2911,6 +2920,9 @@ module Box3 : sig
 
   val of_pts : p3 -> p3 -> box3
   (** [of_pts p p'] is the smallest box whose space contains [p] and [p']. *)
+
+  val add_pt : box3 -> p3 -> box3
+  (** [add_pt b p] is the smallest box whose space contains [b] and [p]. *)
 
   (** {1:functions Functions} *)
 

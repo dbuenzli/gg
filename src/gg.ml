@@ -1936,6 +1936,7 @@ module type Box = sig
   val zero : t
   val unit : t
   val of_pts : p -> p -> t
+  val add_pt : t -> p -> t
 
   (* Functions *)
 
@@ -1992,6 +1993,14 @@ module Box1 = struct
   let zero = v 0. Size1.zero
   let unit = v 0. Size1.unit
   let of_pts p p' = if p < p' then v p (p' -. p) else v p' (p -. p')
+  let add_pt b p = match b with
+  | E -> v p Size1.zero
+  | R (o, s) as b ->
+      let min = o in
+      let max = o +. s in
+      if p < min then R (p, max -. p) else
+      if p > max then R (o, p -. min) else
+      b
 
   (* Functions *)
 
@@ -2129,6 +2138,26 @@ module Box2 = struct
     let ox, w = if p.x < p'.x then p.x, p'.x -. p.x else p'.x, p.x -. p'.x in
     let oy, h = if p.y < p'.y then p.y, p'.y -. p.y else p'.y, p.y -. p'.y in
     v (P2.v ox oy) (Size2.v w h)
+
+  let add_pt b p = match b with
+  | E -> v p Size2.zero
+  | R (o, s) as b ->
+      let minx = o.x in
+      let miny = o.y in
+      let maxx = o.x +. s.x in
+      let maxy = o.y +. s.y in
+      let ox, w =
+        if p.x < minx then p.x, maxx -. p.x else
+        if p.x > maxx then o.x, p.x -. o.x else
+        o.x, s.x
+      in
+      let oy, h =
+        if p.y < miny then p.y, maxy -. p.y else
+        if p.y > maxy then o.y, p.y -. o.y else
+        o.y, s.y
+      in
+      if ox = o.x && oy = o.y && w = s.x && h = s.y then b else
+      v (P2.v ox oy) (Size2.v w h)
 
   (* Functions *)
 
@@ -2328,6 +2357,34 @@ module Box3 = struct
     let oy, h = if p.y < p'.y then p.y, p'.y -. p.y else p'.y, p.y -. p'.y in
     let oz, d = if p.z < p'.z then p.z, p'.z -. p.z else p'.z, p.z -. p'.z in
     v (P3.v ox oy oz) (Size3.v w h d)
+
+  let add_pt b p = match b with
+  | E -> v p Size3.zero
+  | R (o, s) as b ->
+      let minx = o.x in
+      let miny = o.y in
+      let minz = o.z in
+      let maxx = o.x +. s.x in
+      let maxy = o.y +. s.y in
+      let maxz = o.z +. s.z in
+      let ox, w =
+        if p.x < minx then p.x, maxx -. p.x else
+        if p.x > maxx then o.x, p.x -. o.x else
+        o.x, s.x
+      in
+      let oy, h =
+        if p.y < miny then p.y, maxy -. p.y else
+        if p.y > maxy then o.y, p.y -. o.y else
+        o.y, s.y
+      in
+      let oz, d =
+        if p.z < minz then p.z, maxz -. p.z else
+        if p.z > maxz then o.z, p.z -. o.z else
+        o.z, s.z
+      in
+      if ox = o.x && oy = o.y && oz = o.z && w = s.x && h = s.y && d = s.z
+      then b
+      else v (P3.v ox oy oz) (Size3.v w h d)
 
   (* Functions *)
 

@@ -1860,6 +1860,8 @@ module Box_tests
   let vt = V.mapi (fun i _ -> float (i + 1)) V.zero
   let usize = V.mapi (fun i _ -> 1.) V.zero
   let one = usize
+  let vth = V.(0.5 * vt)
+  let vtb = Box.v P.o vt
   let bt = Box.v vt vt
   let bt_mid = Box.v_mid V.zero V.(2. * vt)
   module Cbox = C.Make (Box)
@@ -1895,6 +1897,20 @@ module Box_tests
       >> Cbox.raises_invalid_arg Box.min Box.empty
       >> Cbox.raises_invalid_arg Box.max Box.empty
       >> Cbox.raises_invalid_arg Box.mid Box.empty
+      >> C.success
+
+  open Cbox.Order
+  let () = test "add_pt" & fun r ->
+      r
+      >> (Box.add_pt Box.empty vt = Box.v vt Size.zero)
+      >> (List.fold_left Box.add_pt Box.empty [vt; vth] = Box.v vth vth)
+      >> (List.fold_left Box.add_pt Box.empty [vth; vt] = Box.v vth vth)
+      >> (List.fold_left Box.add_pt Box.empty [P.o; vth; vt] = vtb)
+      >> (List.fold_left Box.add_pt Box.empty [P.o; vt;  vth] = vtb)
+      >> (List.fold_left Box.add_pt Box.empty [vth; P.o; vt] = vtb)
+      >> (List.fold_left Box.add_pt Box.empty [vth; vt;  P.o] = vtb)
+      >> (List.fold_left Box.add_pt Box.empty [vt;  P.o; vth] = vtb)
+      >> (List.fold_left Box.add_pt Box.empty [vt;  vth; P.o] = vtb)
       >> C.success
 
   open Cf.Order
