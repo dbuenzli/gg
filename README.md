@@ -26,6 +26,6 @@ instructions and a complete specification of the dependencies.
 ## Documentation
 
 The documentation and API reference is automatically from the interfaces.
-It can be sonculted [online][doc] or via `odig doc gg`.
+It can be consulted [online][doc] or via `odig doc gg`.
 
 [doc]: http://erratique.ch/software/gg/doc/Gg
