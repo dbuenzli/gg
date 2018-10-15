@@ -1257,7 +1257,7 @@ module M3 = struct
         let py = P2.y pt in
         v c  (-. s) (-. c *. px +. s *. py +. px)
           s  c      (-. s *. px -. c *. py +. py)
-          0. 0.     0.
+          0. 0.     1.
 
   let scale2 s =
     v s.V2t.x 0.      0.
