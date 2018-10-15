@@ -165,10 +165,10 @@ module Float = struct
   (* Predicates and comparisons *)
 
   let is_zero ~eps x = abs_float x < eps
-  let is_nan x = x <> x
+  let is_nan : float -> bool = fun x -> x <> x
   let is_inf x = classify_float x = FP_infinite
   let is_int x = x -. (floor x) = 0.
-  let equal x y = x = y
+  let equal : float -> float -> bool = ( = )
   let equal_tol ~eps x y =          (* NOTE code duplicate with compare_tol. *)
     if compare x y = 0 then true else
     let ax = abs_float x in
@@ -178,7 +178,7 @@ module Float = struct
     if max = infinity then false else
     abs_float (x -. y) <= eps *. max
 
-  let compare = Pervasives.compare
+  let compare : float -> float -> int = Pervasives.compare
   let compare_tol ~eps x y =          (* NOTE code duplicate with equal_tol. *)
     let c = compare x y in
     if c = 0 then 0 else

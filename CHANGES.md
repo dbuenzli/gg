@@ -1,6 +1,8 @@
 
 
-
+- Add missing constraints on `Float.{is_nan,equal,compare}`. Polymorphic
+  equality was being used. Thanks to Christophe Troestler for the report
+  (#17).
 - Fix bug in `Gg.M3.rot2 ?pt:(Some _)` (#18).
 
 v0.9.2 2017-01-24 La Forclaz (VS)
