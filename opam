@@ -1,4 +1,4 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
 homepage: "http://erratique.ch/software/gg"
 authors: [
@@ -6,12 +6,12 @@ authors: [
   "Edwin Török"
 ]
 doc: "http://erratique.ch/software/gg/doc/Gg"
-dev-repo: "http://erratique.ch/repos/gg.git"
+dev-repo: "git+http://erratique.ch/repos/gg.git"
 bug-reports: "https://github.com/dbuenzli/gg/issues"
 tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
 license: "ISC"
-available:[ ocaml-version >= "4.02.2" ]
 depends: [
+  "ocaml" {>= "4.02.2"}
   "ocamlfind" {build}
   "ocamlbuild" {build}
   "topkg" {build}
