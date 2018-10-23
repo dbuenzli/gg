@@ -1,5 +1,8 @@
+v0.9.3 2018-10-23 Zagreb
+------------------------
 
-
+- Add `Color.to_srgbi` (inverse of `Color.v_srgbi`). Thanks to
+  Christophe Troestler for the patch.
 - Add missing constraints on `Float.{is_nan,equal,compare}`. Polymorphic
   equality was being used. Thanks to Christophe Troestler for the report
   (#17).
