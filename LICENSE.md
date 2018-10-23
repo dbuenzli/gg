@@ -1,4 +1,4 @@
-Copyright (c) 2013 Daniel C. Bünzli
+Copyright (c) 2013 The gg programmers
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13,7 +13,7 @@ are met:
    disclaimer in the documentation and/or other materials provided
    with the distribution.
 
-3. Neither the name of the Daniel C. Bünzli nor the names of
+3. Neither the name of the The gg programmers nor the names of
    contributors may be used to endorse or promote products derived
    from this software without specific prior written permission.
 
