@@ -3,3 +3,5 @@
   of this. But is it needless bureaucracy ?
 * Raster.sub, maybe add an optional ?copy argument to make a tight copy
   of the buffer data.
+
+* Size2.v_uniform 
