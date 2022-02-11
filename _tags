@@ -1,5 +1,4 @@
 true : bin_annot, safe_string
-true : package(bigarray)
 
 <src> : include
 <test> : include

@@ -1,3 +1,7 @@
+- Drop dependency on `bigarray`'s ocamlfind package (and thus
+  provide OCaml 5.00 support).
+
+
 v0.9.3 2018-10-23 Zagreb
 ------------------------
 
