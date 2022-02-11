@@ -177,7 +177,7 @@ module Float = struct
     if max = infinity then false else
     abs_float (x -. y) <= eps *. max
 
-  let compare : float -> float -> int = Pervasives.compare
+  let compare : float -> float -> int = Stdlib.compare
   let compare_tol ~eps x y =          (* NOTE code duplicate with equal_tol. *)
     let c = compare x y in
     if c = 0 then 0 else
@@ -331,7 +331,7 @@ module type V = sig
   val mix : t -> t -> float -> t
   val ltr : m -> t -> t
 
-  (* Overridden Pervasives operators. *)
+  (* Overridden Stdlib operators. *)
 
   val ( + ) : t -> t -> t
   val ( - ) : t -> t -> t
@@ -415,7 +415,7 @@ module V2 = struct
     let open M3t in
     v (m.e00 *. a.x +. m.e01 *. a.y) (m.e10 *. a.x +. m.e11 *. a.y)
 
-  (* Overridden Pervasives operators. *)
+  (* Overridden Stdlib operators. *)
 
   let ( + ) = add
   let ( - ) = sub
@@ -437,7 +437,7 @@ module V2 = struct
   let exists p a = p a.x || p a.y
   let equal = ( = )
   let equal_f eq a b = (eq a.x b.x) && (eq a.y b.y)
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.x b.x in if c <> 0 then c else
     let c = cmp a.y b.y in c
@@ -543,7 +543,7 @@ module V3 = struct
       (m.e10 *. a.x +. m.e11 *. a.y +. m.e12 *. a.z)
       (m.e20 *. a.x +. m.e21 *. a.y +. m.e22 *. a.z)
 
-  (* Overridden Pervasives operators. *)
+  (* Overridden Stdlib operators. *)
 
   let ( + ) = add
   let ( - ) = sub
@@ -565,7 +565,7 @@ module V3 = struct
   let exists p a = p a.x || p a.y || p a.z
   let equal = ( = )
   let equal_f eq a b = (eq a.x b.x) && (eq a.y b.y) && (eq a.z b.z)
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.x b.x in if c <> 0 then c else
     let c = cmp a.y b.y in if c <> 0 then c else
@@ -651,7 +651,7 @@ module V4 = struct
       (m.e20 *. a.x +. m.e21 *. a.y +. m.e22 *. a.z +. m.e23 *. a.w)
       (m.e30 *. a.x +. m.e31 *. a.y +. m.e32 *. a.z +. m.e33 *. a.w)
 
-  (* Overridden Pervasives operators. *)
+  (* Overridden Stdlib operators. *)
 
   let ( + ) = add
   let ( - ) = sub
@@ -675,7 +675,7 @@ module V4 = struct
   let equal_f eq a b =
     (eq a.x b.x) && (eq a.y b.y) && (eq a.z b.z) && (eq a.w b.w)
 
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.x b.x in if c <> 0 then c else
     let c = cmp a.y b.y in if c <> 0 then c else
@@ -1085,7 +1085,7 @@ module M2 = struct
   let equal_f eq a b =
     eq a.e00 b.e00 && eq a.e10 b.e10 && eq a.e01 b.e01 && eq a.e11 b.e11
 
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.e00 b.e00 in if c <> 0 then c else
     let c = cmp a.e10 b.e10 in if c <> 0 then c else
@@ -1368,7 +1368,7 @@ module M3 = struct
     eq a.e01 b.e01 && eq a.e11 b.e11 && eq a.e21 b.e21 &&
     eq a.e02 b.e02 && eq a.e12 b.e12 && eq a.e22 b.e22
 
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.e00 b.e00 in if c <> 0 then c else
     let c = cmp a.e10 b.e10 in if c <> 0 then c else
@@ -1809,7 +1809,7 @@ module M4 = struct
     eq a.e02 b.e02 && eq a.e12 b.e12 && eq a.e22 b.e22 && eq a.e32 b.e32 &&
     eq a.e03 b.e03 && eq a.e13 b.e13 && eq a.e23 b.e23 && eq a.e33 b.e33
 
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let compare_f cmp a b =
     let c = cmp a.e00 b.e00 in if c <> 0 then c else
     let c = cmp a.e10 b.e10 in if c <> 0 then c else
@@ -2093,7 +2093,7 @@ module Box1 = struct
   | E, _ | _, E -> false
   | R (o, s), R (o', s') -> eq o o' && eq s s'
 
-  let compare b b' = Pervasives.compare b b'
+  let compare b b' = Stdlib.compare b b'
   let compare_f cmp  b b' = match b, b' with
   | E, E -> 0
   | E, _ -> -1
@@ -2307,7 +2307,7 @@ module Box2 = struct
   | E, _ | _, E -> false
   | R (o, s), R (o', s') -> V2.equal_f eq o o' && V2.equal_f eq s s'
 
-  let compare b b' = Pervasives.compare b b'
+  let compare b b' = Stdlib.compare b b'
   let compare_f cmp  b b' = match b, b' with
   | E, E -> 0
   | E, _ -> -1
@@ -2597,7 +2597,7 @@ module Box3 = struct
   | E, _ | _, E -> false
   | R (o, s), R (o', s') -> V3.equal_f eq o o' && V3.equal_f eq s s'
 
-  let compare b b' = Pervasives.compare b b'
+  let compare b b' = Stdlib.compare b b'
   let compare_f cmp  b b' = match b, b' with
   | E, E -> 0
   | E, _ -> -1
@@ -3404,7 +3404,7 @@ module Raster = struct
       size; sf = r.sf; buf = r.buf }
 
   let equal r r' = r = r'
-  let compare r r' = Pervasives.compare r r'
+  let compare r r' = Stdlib.compare r r'
   let pp ppf r =
     pp ppf "@[<1>(raster@ %a@ %a@ %a)@]"
       V3.pp (size3 r) Sample.pp_format r.sf Ba.Buffer.pp r.buf

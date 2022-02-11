@@ -1,3 +1,6 @@
+
+- Handle `Pervasives`'s deprecation (and thus provide OCaml
+  5.00 support).
 - Drop dependency on `bigarray`'s ocamlfind package (and thus
   provide OCaml 5.00 support).
 

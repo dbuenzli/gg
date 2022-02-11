@@ -357,7 +357,7 @@ module Float_tests = struct
     r
     >> Cf.holds Float.is_nan n
     >> (Float.nan_payload n = magic_payload)
-    >> (Float.nan_payload (Pervasives.nan) = 0x1)
+    >> (Float.nan_payload (Stdlib.nan) = 0x1)
     >> Cf.raises_invalid_arg Float.nan_payload 567.
     >> Cf.raises_invalid_arg Float.nan_payload max_float
     >> Cf.raises_invalid_arg Float.nan_payload neg_infinity
@@ -368,7 +368,7 @@ module Float_tests = struct
   let () = test "is_zero" & fun r ->
       r
       >> Cf.holds (C.neg (Float.is_zero ~eps)) infinity
-      >> Cf.holds (C.neg (Float.is_zero ~eps)) Pervasives.nan
+      >> Cf.holds (C.neg (Float.is_zero ~eps)) Stdlib.nan
       >> Cf.holds (C.neg (Float.is_zero ~eps)) (Float.nan magic_payload)
       >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-8
       >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-9
@@ -380,7 +380,7 @@ module Float_tests = struct
       r
       >> Cf.holds Float.is_inf infinity
       >> Cf.holds Float.is_inf neg_infinity
-      >> Cf.holds (C.neg Float.is_inf) Pervasives.nan
+      >> Cf.holds (C.neg Float.is_inf) Stdlib.nan
       >> Cf.holds (C.neg Float.is_inf) (Float.nan magic_payload)
       >> Cf.holds (C.neg Float.is_inf) 0.
       >> Cf.holds (C.neg Float.is_inf) 3.
@@ -403,7 +403,7 @@ module Float_tests = struct
       >> Cf.holds Float.is_int (-. Float.max_int_arith)
       >> Cf.for_all uint_float begin fun x r ->
         let frac_neighbours x r =
-          if Pervasives.(>) x Float.max_frac_float then r else
+          if Stdlib.(>) x Float.max_frac_float then r else
           r >> Cf.holds (C.neg Float.is_int) (Float.pred x)
           >> Cf.holds (C.neg Float.is_int) (Float.succ x)
           >> C.success
@@ -600,7 +600,7 @@ module V_tests (V : V) = struct                            (* generic tests. *)
       >> C.success
 
   let () = test "unit" & fun r ->
-    let unitable v = Pervasives.(<>) (V.norm v) 0. in
+    let unitable v = Stdlib.(<>) (V.norm v) 0. in
     r
     >> Cv.for_all ~cond:unitable g_v
       begin fun v r -> r
@@ -613,7 +613,7 @@ module V_tests (V : V) = struct                            (* generic tests. *)
       let h = V.homogene index in
       let imax = V.dim - 1 in
       let check r i =
-        if Pervasives.(=) i imax then r >> (V.comp i h = 1.) >> C.success else
+        if Stdlib.(=) i imax then r >> (V.comp i h = 1.) >> C.success else
         r >> (V.comp i h = (V.comp i index) /. (V.comp imax index)) >> C.success
       in
       List.fold_left check r indices >> C.success
@@ -668,7 +668,7 @@ module V_tests (V : V) = struct                            (* generic tests. *)
   (* Predicates and comparisons *)
 
   let () = test "for_all" & fun r ->
-    let eq = Pervasives.(=) in
+    let eq = Stdlib.(=) in
     r
     >> Cv.holds (V.for_all (fun x -> eq x 0.)) V.zero
     >> Cv.holds (V.for_all (fun x -> eq x infinity)) V.infinity
@@ -677,7 +677,7 @@ module V_tests (V : V) = struct                            (* generic tests. *)
 
   let () = test "exists" & fun r ->
       let check r i =
-      let p v = (V.exists (fun c -> Pervasives.(=) c (float i))) v in
+      let p v = (V.exists (fun c -> Stdlib.(=) c (float i))) v in
       r >> Cv.holds p index >> C.success
       in
       List.fold_left check r indices >> C.success
@@ -687,8 +687,8 @@ module V_tests (V : V) = struct                            (* generic tests. *)
       r
       >> C.for_all (Gen.t2 g_v g_v)
         begin fun (v, v') r -> r
-          >> (V.equal v v = V.equal_f Pervasives.(=) v v)
-          >> (V.equal v v' = V.equal_f Pervasives.(=) v v')
+          >> (V.equal v v = V.equal_f Stdlib.(=) v v)
+          >> (V.equal v v' = V.equal_f Stdlib.(=) v v')
           >> C.success
         end
       >> C.success
@@ -698,8 +698,8 @@ module V_tests (V : V) = struct                            (* generic tests. *)
       r
       >> C.for_all (Gen.t2 g_v g_v)
         begin fun (v, v') r -> r
-          >> (V.compare v v = V.compare_f Pervasives.compare v v)
-          >> (V.compare v v' = V.compare_f Pervasives.compare v v')
+          >> (V.compare v v = V.compare_f Stdlib.compare v v)
+          >> (V.compare v v' = V.compare_f Stdlib.compare v v')
           >> C.success
         end
       >> C.success
@@ -1040,7 +1040,7 @@ module P_tests (P : P) (V : Gg.V with type t = P.t) = struct (* generic tests.*)
   open Cp.Order
 
   let () = test "o" & fun r ->
-      r >> Cp.holds (V.for_all (fun c -> Pervasives.(=) c 0.)) P.o >> C.success
+      r >> Cp.holds (V.for_all (fun c -> Stdlib.(=) c 0.)) P.o >> C.success
 
   let () = test "mid" & fun r ->
       r
@@ -1232,7 +1232,7 @@ module M_tests (M : M) = struct                            (* generic tests. *)
 
   open Cm.Order
   let () = test "inv" & fun r ->
-      let invertible m = Pervasives.(<>) (Float.round_zero ~eps (M.det m)) 0. in
+      let invertible m = Stdlib.(<>) (Float.round_zero ~eps (M.det m)) 0. in
       r >> (M.inv M.id = M.id)
       >> Cm.for_all ~cond:invertible g_m
         begin fun m r ->
@@ -1286,12 +1286,12 @@ module M_tests (M : M) = struct                            (* generic tests. *)
   (* Predicates and comparisons *)
 
   let () = test "for_all" & fun r ->
-      r >> Cm.holds (M.for_all (fun x -> Pervasives.(=) x 0.)) M.zero
+      r >> Cm.holds (M.for_all (fun x -> Stdlib.(=) x 0.)) M.zero
       >> C.success
 
   let () = test "exists" & fun r ->
       let check r (_, _, li) =
-        let p m = (M.exists (fun e -> Pervasives.(=) e (float li))) m in
+        let p m = (M.exists (fun e -> Stdlib.(=) e (float li))) m in
         r >> Cm.holds p lindex >> C.success
       in
       List.fold_left check r indices >> C.success
@@ -1302,8 +1302,8 @@ module M_tests (M : M) = struct                            (* generic tests. *)
       >> C.for_all (Gen.t2 g_m g_m)
         begin fun (m, m') r ->
           r
-          >> (M.equal m m = M.equal_f Pervasives.(=) m m)
-          >> (M.equal m m' = M.equal_f Pervasives.(=) m m')
+          >> (M.equal m m = M.equal_f Stdlib.(=) m m)
+          >> (M.equal m m' = M.equal_f Stdlib.(=) m m')
           >> C.success
         end
       >> C.success
@@ -1314,8 +1314,8 @@ module M_tests (M : M) = struct                            (* generic tests. *)
       >> C.for_all (Gen.t2 g_m g_m)
         begin fun (m, m') r ->
           r
-          >> (M.compare m m = M.compare_f Pervasives.compare m m)
-          >> (M.compare m m' = M.compare_f Pervasives.compare m m')
+          >> (M.compare m m = M.compare_f Stdlib.compare m m)
+          >> (M.compare m m' = M.compare_f Stdlib.compare m m')
           >> C.success
         end
       >> C.success
@@ -1776,12 +1776,12 @@ module Size_tests (Size : Size) (V : Gg.V with type t = Size.t) = struct
   open Cs.Order
   let () = test "zero" & fun r ->
     r
-    >> Cs.holds (V.for_all (fun c -> Pervasives.(=) c 0.)) Size.zero
+    >> Cs.holds (V.for_all (fun c -> Stdlib.(=) c 0.)) Size.zero
     >> C.success
 
   let () = test "unit" & fun r ->
     r
-    >> Cs.holds (V.for_all (fun c -> Pervasives.(=) c 1.)) Size.unit
+    >> Cs.holds (V.for_all (fun c -> Stdlib.(=) c 1.)) Size.unit
     >> C.success
 end
 
@@ -1915,7 +1915,7 @@ module Box_tests
 
   open Cf.Order
   let () = test "area" & fun r ->
-      let rec fact n = if Pervasives.(<=) n 0 then 1 else n * fact (n - 1) in
+      let rec fact n = if Stdlib.(<=) n 0 then 1 else n * fact (n - 1) in
       let choices n k = (fact n) / (fact k) * (fact (n - k )) in
       let usides = (choices Box.dim 2) * (1 lsl (Box.dim - 2)) in
       r >> (Box.area Box.unit = (float usides) *. 1.) >> C.success
@@ -2025,7 +2025,7 @@ module Box_tests
   let () = test "mem" & fun r ->
       let mem (p, b) = Box.mem p b in
       let rec basis i r =
-        if Pervasives.(<) i 0 then C.success r else
+        if Stdlib.(<) i 0 then C.success r else
         let v = V.basis i in
         r
         >> (C.holds mem (v, Box.unit))
@@ -2047,8 +2047,8 @@ module Box_tests
       r
       >> C.for_all (Gen.t2 g_box g_box)
         begin fun (v, v') r ->
-          r >> (Box.equal v v = Box.equal_f Pervasives.(=) v v)
-          >> (Box.equal v v' = Box.equal_f Pervasives.(=) v v')
+          r >> (Box.equal v v = Box.equal_f Stdlib.(=) v v)
+          >> (Box.equal v v' = Box.equal_f Stdlib.(=) v v')
           >> C.success
         end
       >> C.success
@@ -2060,10 +2060,10 @@ module Box_tests
       begin fun (v, v') r ->
         let e = Box.empty in
         r
-        >> (Box.compare v v = Box.compare_f Pervasives.compare v v)
-        >> (Box.compare v v' = Box.compare_f Pervasives.compare v v')
-        >> (Box.compare v e = Box.compare_f Pervasives.compare v e)
-        >> (Box.compare e v = Box.compare_f Pervasives.compare e v)
+        >> (Box.compare v v = Box.compare_f Stdlib.compare v v)
+        >> (Box.compare v v' = Box.compare_f Stdlib.compare v v')
+        >> (Box.compare v e = Box.compare_f Stdlib.compare v e)
+        >> (Box.compare e v = Box.compare_f Stdlib.compare e v)
         >> C.success
       end
     >> C.success

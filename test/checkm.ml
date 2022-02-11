@@ -284,7 +284,7 @@ module Test = struct
 	gen_falsifiers : int }
 
   let run_conf =
-    { selectors = []; sort = Some Pervasives.compare; no_exec = false;
+    { selectors = []; sort = Some Stdlib.compare; no_exec = false;
       fail_stop = false; verbose = 1; gen_seed = None; gen_size = 100;
       gen_kill = None; gen_success = 1000; gen_falsifiers = 3; }
 
@@ -497,7 +497,7 @@ module C = struct
     | Some pr -> `Comparison (id, c, Some (arg pr x, arg pr y))
 
 
-    let compare ?(cmp = Pervasives.compare) ?id ?pr x c y r =
+    let compare ?(cmp = Stdlib.compare) ?id ?pr x c y r =
       let success = match cmp x y with
       | 0 -> (match c with `Eq | `Geq | `Leq -> true | _ -> false)
       | 1 -> (match c with `Gt | `Geq | `Neq-> true | _ -> false)
@@ -586,31 +586,31 @@ module C = struct
     module Bool = struct
       type t = bool
       let pp = Format.pp_print_bool
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end
 
     module Char = struct
       type t = char
       let pp ppf c = Format.fprintf ppf "%C" c
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end
 
     module Int = struct
       type t = int
       let pp = Format.pp_print_int
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end
 
     module Float = struct
       type t = float
       let pp = Format.pp_print_float
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end
 
     module String = struct
       type t = string
       let pp ppf s = Format.fprintf ppf "%S" s
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end
 
     module Cb = Make (Bool)

@@ -294,7 +294,7 @@ module C : sig
       use the functor to specialize the predicates on a type.
 
       All these combinators except the physical ones use
-      [Pervasives.compare]. Use the functor if you need another
+      [Stdlib.compare]. Use the functor if you need another
       comparison function. *)
   module Order : sig
 

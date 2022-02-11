@@ -227,11 +227,11 @@ module Float : sig
       large magnitudes. *)
 
   val compare : float -> float -> int
-  (** [compare x y] is [Pervasives.compare x y]. *)
+  (** [compare x y] is [Stdlib.compare x y]. *)
 
   val compare_tol : eps:float -> float -> float -> int
   (** [compare_tol ~eps x y] is [0] iff [equal_tol ~eps x y] is [true]
-      and [Pervasives.compare x y] otherwise. *)
+      and [Stdlib.compare x y] otherwise. *)
 
   (** {1:printers Printers} *)
 
@@ -278,8 +278,8 @@ s      2047           t <> 0        NaN                         not a number
 v}
 
      There are two zeros, a positive and a negative one but both are
-     deemed equal by [=] and [Pervasives.compare]. A NaN is never equal
-     (=) to {e itself} or to another NaN however [Pervasives.compare]
+     deemed equal by [=] and [Stdlib.compare]. A NaN is never equal
+     (=) to {e itself} or to another NaN however [Stdlib.compare]
      asserts any NaN to be equal to itself and to any other NaN.
 
      The bit layout of a [float] can be converted to an [int64] and
@@ -418,7 +418,7 @@ module type V = sig
       {{:http://mathworld.wolfram.com/LinearTransformation.html}linear
       transform} [mv]. *)
 
-  (** {1:ops Overridden [Pervasives] operators} *)
+  (** {1:ops Overridden [Stdlib] operators} *)
 
   val ( + ) : t -> t -> t
   (** [u + v] is [add u v]. *)
@@ -468,7 +468,7 @@ module type V = sig
       uses [eq] to test floating point values. *)
 
   val compare : t -> t -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> t -> t -> int
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
@@ -630,7 +630,7 @@ module V2 : sig
       and is thus translationally invariant. Use {!P2.tr} to
       transform finite points. *)
 
-  (** {1:ops Overridden [Pervasives] operators} *)
+  (** {1:ops Overridden [Stdlib] operators} *)
 
   val ( + ) : v2 -> v2 -> v2
   (** [u + v] is [add u v]. *)
@@ -680,7 +680,7 @@ module V2 : sig
       uses [eq] to test floating point values. *)
 
   val compare : v2 -> v2 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> v2 -> v2 -> int
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
@@ -858,7 +858,7 @@ module V3 : sig
       and is thus translationally invariant. Use {!P3.tr} to
       transform finite points. *)
 
-  (** {1:ops Overridden [Pervasives] operators} *)
+  (** {1:ops Overridden [Stdlib] operators} *)
 
   val ( + ) : v3 -> v3 -> v3
   (** [u + v] is [add u v]. *)
@@ -908,7 +908,7 @@ module V3 : sig
       uses [eq] to test floating point values. *)
 
   val compare : v3 -> v3 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> v3 -> v3 -> int
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
@@ -1048,7 +1048,7 @@ module V4 : sig
       {{:http://mathworld.wolfram.com/LinearTransformation.html}linear
       transform} [mv]. *)
 
-  (** {1:ops Overridden [Pervasives] operators} *)
+  (** {1:ops Overridden [Stdlib] operators} *)
 
   val ( + ) : v4 -> v4 -> v4
   (** [u + v] is [add u v]. *)
@@ -1098,7 +1098,7 @@ module V4 : sig
       uses [eq] to test floating point values. *)
 
   val compare : v4 -> v4 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> v4 -> v4 -> int
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
@@ -1473,7 +1473,7 @@ module type M = sig
       uses [eq] to test floating point values. *)
 
   val compare : t -> t -> int
-  (** [compare a b] is [Pervasives.compare a b]. That is
+  (** [compare a b] is [Stdlib.compare a b]. That is
       lexicographic comparison in column-major order. *)
 
   val compare_f : (float -> float -> int) -> t -> t -> int
@@ -1632,7 +1632,7 @@ module M2 : sig
       uses [eq] to test floating point values. *)
 
   val compare : m2 -> m2 -> int
-  (** [compare a b] is [Pervasives.compare a b]. That is
+  (** [compare a b] is [Stdlib.compare a b]. That is
       lexicographic comparison in column-major order. *)
 
   val compare_f : (float -> float -> int) -> m2 -> m2 -> int
@@ -1835,7 +1835,7 @@ module M3 : sig
       uses [eq] to test floating point values. *)
 
   val compare : m3 -> m3 -> int
-  (** [compare a b] is [Pervasives.compare a b]. That is
+  (** [compare a b] is [Stdlib.compare a b]. That is
       lexicographic comparison in column-major order. *)
 
   val compare_f : (float -> float -> int) -> m3 -> m3 -> int
@@ -2097,7 +2097,7 @@ module M4 : sig
       uses [eq] to test floating point values. *)
 
   val compare : m4 -> m4 -> int
-  (** [compare a b] is [Pervasives.compare a b]. That is
+  (** [compare a b] is [Stdlib.compare a b]. That is
       lexicographic comparison in column-major order. *)
 
   val compare_f : (float -> float -> int) -> m4 -> m4 -> int
@@ -2423,7 +2423,7 @@ module type Box = sig
       but uses [eq] to test floating point values. *)
 
   val compare : t -> t -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> t -> t -> int
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
@@ -2599,7 +2599,7 @@ module Box1 : sig
       but uses [eq] to test floating point values. *)
 
   val compare : box1 -> box1 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> box1 -> box1 -> int
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
@@ -2831,7 +2831,7 @@ module Box2 : sig
       but uses [eq] to test floating point values. *)
 
   val compare : box2 -> box2 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> box2 -> box2 -> int
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
@@ -3072,7 +3072,7 @@ module Box3 : sig
       but uses [eq] to test floating point values. *)
 
   val compare : box3 -> box3 -> int
-  (** [compare u v] is [Pervasives.compare u v]. *)
+  (** [compare u v] is [Stdlib.compare u v]. *)
 
   val compare_f : (float -> float -> int) -> box3 -> box3 -> int
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
@@ -3886,7 +3886,7 @@ module Raster : sig
   (** [equal r r'] is [r = r']. *)
 
   val compare : t -> t -> int
-  (** [compare r r'] is [Pervasives.compare r r']. *)
+  (** [compare r r'] is [Stdlib.compare r r']. *)
 
   (** {1:printers Printers} *)
 
@@ -4017,7 +4017,7 @@ end
        floats.  While the actual format is subject to change it will
        remain compatible with [float_of_string].}
     {- All modules can be directly given as arguments to [Set.Make]
-       and [Map.Make]. However this will use [Pervasives.compare] and
+       and [Map.Make]. However this will use [Stdlib.compare] and
        thus binary comparison between floats. Depending on the intended
        use this may be sensible or not. Comparisons with alternate functions
        to compare floats can be defined by using the functions named
