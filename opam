@@ -1,20 +1,29 @@
 opam-version: "2.0"
+name: "gg"
+synopsis: "Basic types for computer graphics in OCaml"
+description: """\
+Gg is an OCaml module providing basic types for computer graphics.
+
+It defines types and functions for floats, vectors, points, sizes,
+matrices, quaternions, axis-aligned boxes, colors, color spaces, and
+raster data.
+
+Gg is made of a single module, and is distributed under the ISC
+license.
+
+Home page: <http://erratique.ch/software/gg>"""
 maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
-homepage: "http://erratique.ch/software/gg"
-authors: [ "The gg programmers" ]
-doc: "http://erratique.ch/software/gg/doc/Gg"
-dev-repo: "git+http://erratique.ch/repos/gg.git"
-bug-reports: "https://github.com/dbuenzli/gg/issues"
-tags: [ "matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
+authors: "The gg programmers"
 license: "ISC"
+tags: ["matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
+homepage: "https://erratique.ch/software/gg"
+doc: "https://erratique.ch/software/gg/doc/"
+bug-reports: "https://github.com/dbuenzli/gg/issues"
 depends: [
-  "ocaml" {>= "4.02.2"}
+  "ocaml" {>= "4.08.0"}
   "ocamlfind" {build}
   "ocamlbuild" {build}
-  "topkg" {build}
-  "base-bigarray"
-  "unmark" {with-test}
+  "topkg" {build & >= "1.0.3"}
 ]
-build: [[
-  "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
-]]
+build: ["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]
+dev-repo: "git+https://erratique.ch/repos/gg.git"

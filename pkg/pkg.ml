@@ -8,5 +8,5 @@ let () =
   Ok [ Pkg.mllib "src/gg.mllib";
        Pkg.mllib ~api:[] "src/gg_top.mllib";
        Pkg.lib "src/gg_top_init.ml";
-       Pkg.test "test/benchmark";
+(*       Pkg.test "test/benchmark"; *)
        Pkg.test "test/test"; ]
