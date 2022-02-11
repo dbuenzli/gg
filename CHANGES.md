@@ -1,11 +1,16 @@
 
+- Handle `Pervasives`'s deprecation (and thus provide OCaml
+  5.00 support).
+
+- Drop dependency on `bigarray`'s ocamlfind package (and thus
+  provide OCaml 5.00 support).
 
 - The `Gg.Float` module now includes `Stdlib.Float` (#19). Some values
   initially implemented in `Gg.Float` now use `Stdlib.Float`'s
   definition or are deprecated in favour of corresponding
   functionality named differently. Implementations may differ but this
   shouldn't matter most of the time except for the first three items
-  in the list:
+  in this list:
 
   * **WARNING** `Gg.Float.equal` is deleted in favour of `Stdlib.Float.equal`
     The implemention differs, it moves from `x = y`
@@ -42,12 +47,6 @@
   * `Gg.Float.nan` is renamed to `Gg.Float.nan_with_payload` 
     to leave room for `Stdlib.Float.nan`'s constant.
     
-- Handle `Pervasives`'s deprecation (and thus provide OCaml
-  5.00 support).
-
-- Drop dependency on `bigarray`'s ocamlfind package (and thus
-  provide OCaml 5.00 support).
-
 
 v0.9.3 2018-10-23 Zagreb
 ------------------------

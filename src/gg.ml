@@ -48,8 +48,6 @@ module Float = struct
 
   include Stdlib.Float
 
-  type t = float
-
   (* See the .mli for a quick recall on OCaml's float representation. *)
 
   let bfloat_sign = 0x80_00_00_00_00_00_00_00L             (* sign bit mask. *)
