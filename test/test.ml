@@ -169,32 +169,32 @@ module Float_tests = struct
 
   let () = test "clamp" & fun r ->
       r
-      >> (Float.clamp 1. 3. (-1.) = 1.)
-      >> (Float.clamp 1. 3. 1. = 1.)
-      >> (Float.clamp 1. 3. 2. = 2.)
-      >> (Float.clamp 1. 3. 3. = 3.)
-      >> (Float.clamp 1. 3. 4. = 3.)
+      >> (Float.clamp ~min:1. ~max:3. (-1.) = 1.)
+      >> (Float.clamp ~min:1. ~max:3. 1. = 1.)
+      >> (Float.clamp ~min:1. ~max:3. 2. = 2.)
+      >> (Float.clamp ~min:1. ~max:3. 3. = 3.)
+      >> (Float.clamp ~min:1. ~max:3. 4. = 3.)
       >> C.success
 
   let () = test "remap" & fun r ->
       r
-      >> (Float.remap 4. 8. 2. 4. 0. = 0.)
-      >> (Float.remap 4. 8. 2. 4. 2. = 1.)
-      >> (Float.remap 4. 8. 2. 4. 4. = 2.)
-      >> (Float.remap 4. 8. 2. 4. 6. = 3.)
-      >> (Float.remap 4. 8. 2. 4. 8. = 4.)
-      >> (Float.remap 4. 8. 2. 4. 10. = 5.)
-      >> (Float.remap 4. 8. 2. 4. 12. = 6.)
-      >> (Float.remap 1. 1. 4. 5. 6. = 4.)
-      >> (Float.remap 1. 1. 5. 4. 6. = 5.)
-      >> (Float.remap 2. 4. 4. 2. 3. = 3.)
-      >> (Float.remap 2. 4. 4. 2. 2. = 4.)
-      >> (Float.remap 2. 4. 4. 2. 4. = 2.)
-      >> Cf.holds Float.is_nan (Float.remap nan 8. 2. 4. 4.)
-      >> Cf.holds Float.is_nan (Float.remap 4. nan 2. 4. 4.)
-      >> Cf.holds Float.is_nan (Float.remap 4. 8. nan 4. 4.)
-      >> Cf.holds Float.is_nan (Float.remap 4. 8. 2. nan 4.)
-      >> Cf.holds Float.is_nan (Float.remap 4. 8. 2. 4. nan)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 0. = 0.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 2. = 1.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 4. = 2.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 6. = 3.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 8. = 4.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 10. = 5.)
+      >> (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. 12. = 6.)
+      >> (Float.remap ~x0:1. ~x1:1. ~y0:4. ~y1:5. 6. = 4.)
+      >> (Float.remap ~x0:1. ~x1:1. ~y0:5. ~y1:4. 6. = 5.)
+      >> (Float.remap ~x0:2. ~x1:4. ~y0:4. ~y1:2. 3. = 3.)
+      >> (Float.remap ~x0:2. ~x1:4. ~y0:4. ~y1:2. 2. = 4.)
+      >> (Float.remap ~x0:2. ~x1:4. ~y0:4. ~y1:2. 4. = 2.)
+      >> Cf.holds Float.is_nan (Float.remap ~x0:nan ~x1:8. ~y0:2. ~y1:4. 4.)
+      >> Cf.holds Float.is_nan (Float.remap ~x0:4. ~x1:nan ~y0:2. ~y1:4. 4.)
+      >> Cf.holds Float.is_nan (Float.remap ~x0:4. ~x1:8. ~y0:nan ~y1:4. 4.)
+      >> Cf.holds Float.is_nan (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:nan 4.)
+      >> Cf.holds Float.is_nan (Float.remap ~x0:4. ~x1:8. ~y0:2. ~y1:4. nan)
       >> C.success
 
   let () = test "round" & fun r ->
@@ -270,34 +270,34 @@ module Float_tests = struct
   let () = test "round_zero" & fun r ->
       let eps = 0.005 in
       r
-      >> (Float.round_zero eps (-0.0051) = -0.0051)
-      >> (Float.round_zero eps (-0.0050) = -0.0050)
-      >> (Float.round_zero eps (-0.0049) = -0.)
-      >> (Float.round_zero eps 0. = 0.)
-      >> (Float.round_zero eps 0.0049 = 0.)
-      >> (Float.round_zero eps 0.0050 = 0.0050)
-      >> (Float.round_zero eps 0.0051 = 0.0051)
-      >> (Float.round_zero eps infinity = infinity)
-      >> (Float.round_zero eps neg_infinity = neg_infinity)
-      >> Cf.holds Float.is_nan (Float.round_zero eps nan)
+      >> (Float.round_zero ~eps (-0.0051) = -0.0051)
+      >> (Float.round_zero ~eps (-0.0050) = -0.0050)
+      >> (Float.round_zero ~eps (-0.0049) = -0.)
+      >> (Float.round_zero ~eps 0. = 0.)
+      >> (Float.round_zero ~eps 0.0049 = 0.)
+      >> (Float.round_zero ~eps 0.0050 = 0.0050)
+      >> (Float.round_zero ~eps 0.0051 = 0.0051)
+      >> (Float.round_zero ~eps infinity = infinity)
+      >> (Float.round_zero ~eps neg_infinity = neg_infinity)
+      >> Cf.holds Float.is_nan (Float.round_zero ~eps nan)
       >> C.success
 
   let () = test "chop" & fun r ->
       let eps = 0.0005 in
       r
-      >> (Float.chop 0.6 2.5 = 3.)
-      >> (Float.chop 0.6 (-2.5) = -2.)
-      >> (Float.chop eps (-2.00051) = -2.00051)
-      >> (Float.chop eps (-2.00050) = -2.00050)
-      >> (Float.chop eps (-2.00049) = -2.)
-      >> (Float.chop eps (-2.) = -2.)
-      >> (Float.chop eps 2. = 2.)
-      >> (Float.chop eps 2.00049 =  2.)
-      >> (Float.chop eps 2.00050 =  2.00050)
-      >> (Float.chop eps 2.00051 =  2.00051)
-      >> (Float.chop eps infinity = infinity)
-      >> (Float.chop eps neg_infinity = neg_infinity)
-      >> Cf.holds Float.is_nan (Float.chop eps nan)
+      >> (Float.chop ~eps:0.6 2.5 = 3.)
+      >> (Float.chop ~eps:0.6 (-2.5) = -2.)
+      >> (Float.chop ~eps (-2.00051) = -2.00051)
+      >> (Float.chop ~eps (-2.00050) = -2.00050)
+      >> (Float.chop ~eps (-2.00049) = -2.)
+      >> (Float.chop ~eps (-2.) = -2.)
+      >> (Float.chop ~eps 2. = 2.)
+      >> (Float.chop ~eps 2.00049 =  2.)
+      >> (Float.chop ~eps 2.00050 =  2.00050)
+      >> (Float.chop ~eps 2.00051 =  2.00051)
+      >> (Float.chop ~eps infinity = infinity)
+      >> (Float.chop ~eps neg_infinity = neg_infinity)
+      >> Cf.holds Float.is_nan (Float.chop ~eps nan)
       >> C.success
 
   let () = test "sign" & fun r ->
@@ -1225,7 +1225,7 @@ module M_tests (M : M) = struct                            (* generic tests. *)
         begin fun m r ->
           let eps = 1e-6 in
           r
-          >> (Float.round_zero eps ((M.det (M.transpose m)) -. M.det m) = 0.)
+          >> (Float.round_zero ~eps ((M.det (M.transpose m)) -. M.det m) = 0.)
           >> C.success
         end
       >> C.success
@@ -1454,9 +1454,9 @@ module M3_tests = struct
 
   let () = test "rigid2" & fun r ->
       let chop v = V2.map (Float.chop ~eps) v in
-      let m = (M3.rigid2 (V2.v 2. 3.) Float.pi_div_4) in
+      let m = (M3.rigid2 ~move:(V2.v 2. 3.) ~rot:Float.pi_div_4) in
       let m' = (M3.mul (M3.move2 (V2.v 2. 3.)) (M3.rot2 Float.pi_div_4)) in
-      let ri = (M3.rigid2 (V2.v 1. 2.) Float.pi_div_2) in
+      let ri = (M3.rigid2 ~move:(V2.v 1. 2.) ~rot:Float.pi_div_2) in
       r
       >> Cm.Order.(=) m m'
       >> (chop (V2.tr ri V2.ox) = V2.oy)
@@ -1464,7 +1464,9 @@ module M3_tests = struct
       >> C.success
 
   let () = test "srigid2" & fun r ->
-      let m = M3.srigid2 (V2.v 2. 3.) Float.pi_div_4 (V2.v 2. 3.) in
+      let m =
+        M3.srigid2 ~move:(V2.v 2. 3.) ~rot:Float.pi_div_4 ~scale:(V2.v 2. 3.)
+      in
       let ri = M3.mul (M3.move2 (V2.v 2. 3.)) (M3.rot2 Float.pi_div_4) in
       let m' = M3.mul ri (M3.scale2 (V2.v 2. 3.)) in
       let cmp = M3.compare_f (Float.compare_tol ~eps) in
@@ -1589,9 +1591,9 @@ module M4_tests = struct
 
   let () = test "rigid2" & fun r ->
     let chop v = V3.map (Float.chop ~eps) v in
-    let m = (M4.rigid2 (V2.v 2. 3.) Float.pi_div_4) in
+    let m = (M4.rigid2 ~move:(V2.v 2. 3.) ~rot:Float.pi_div_4) in
     let m' = (M4.mul (M4.move2 (V2.v 2. 3.)) (M4.rot2 Float.pi_div_4)) in
-    let ri = (M4.rigid2 (V2.v 1. 2.) Float.pi_div_2) in
+    let ri = (M4.rigid2 ~move:(V2.v 1. 2.) ~rot:Float.pi_div_2) in
     r
     >> Cm.Order.(=) m m'
     >> (chop (V3.tr ri V3.ox) = V3.oy)
@@ -1599,7 +1601,9 @@ module M4_tests = struct
     >> C.success
 
   let () = test "srigid2" & fun r ->
-    let m = M4.srigid2 (V2.v 2. 3.) Float.pi_div_4 (V2.v 2. 3.) in
+      let m =
+        M4.srigid2 ~move:(V2.v 2. 3.) ~rot:Float.pi_div_4 ~scale:(V2.v 2. 3.)
+      in
     let ri = M4.mul (M4.move2 (V2.v 2. 3.)) (M4.rot2 Float.pi_div_4) in
     let m' = M4.mul ri (M4.scale2 (V2.v 2. 3.)) in
     let cmp = M4.compare_f (Float.compare_tol ~eps) in
@@ -1659,8 +1663,8 @@ module M4_tests = struct
   let () = test "rigid3, rigid3q" & fun r ->
       let v = V3.v 2. 3. 4. in
       let a = Float.pi_div_4 in
-      let m = M4.rigid3 v (V3.ox, a) in
-      let mq = M4.rigid3q v (Quat.rot3_axis V3.ox a) in
+      let m = M4.rigid3 ~move:v ~rot:(V3.ox, a) in
+      let mq = M4.rigid3q ~move:v ~rot:(Quat.rot3_axis V3.ox a) in
       let m' = M4.mul (M4.move3 v) (M4.rot3_axis V3.ox a) in
       let cmp = M4.compare_f (Float.compare_tol ~eps) in
       r
@@ -1671,8 +1675,8 @@ module M4_tests = struct
   let () = test "srigid3, srigid3q" & fun r ->
       let v = V3.v 2. 3. 4. in
       let a = Float.pi_div_4 in
-      let m = M4.srigid3 v (V3.ox, a) v in
-      let mq = M4.srigid3q v (Quat.rot3_axis V3.ox a) v in
+      let m = M4.srigid3 ~move:v ~rot:(V3.ox, a) ~scale:v in
+      let mq = M4.srigid3q ~move:v ~rot:(Quat.rot3_axis V3.ox a) ~scale:v in
       let ri = M4.mul (M4.move3 v) (M4.rot3_axis V3.ox a) in
       let m' = M4.mul ri (M4.scale3 v) in
       let cmp = M4.compare_f (Float.compare_tol ~eps) in
@@ -2120,7 +2124,7 @@ module Box2_tests = struct
   open Cbox.Order
   let () = test "ltr, tr" & fun r ->
       let ml = M2.rot2 Float.pi_div_2 in
-      let mh = M3.rigid2 (V2.v (4.) (-1.)) Float.pi_div_2 in
+      let mh = M3.rigid2 ~move:(V2.v (4.) (-1.)) ~rot:Float.pi_div_2 in
       let lb = Box2.v (P2.v  (-4.) 1.) (Size2.v 2. 1.) in
       let hb = Box2.v P2.o (Size2.v 2. 1.) in
       r
@@ -2196,7 +2200,7 @@ module Box3_tests = struct
   let () = test "ltr, tr" & fun r ->
     let theta = Float.pi_div_2 in
     let ml = M3.rot3_zyx (V3.v theta theta 0.) in
-    let mh = M4.rigid3 (V3.v 0. (-1.) 0.) (V3.oy, -. Float.pi) in
+    let mh = M4.rigid3 ~move:(V3.v 0. (-1.) 0.) ~rot:(V3.oy, -. Float.pi) in
     let lb = Box3.v (P3.v  (0.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
     let hb = Box3.v (P3.v (-1.) (-1.) (-1.)) (Size3.v 1. 1. 1.) in
     r
