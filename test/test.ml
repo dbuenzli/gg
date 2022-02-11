@@ -56,17 +56,17 @@ module Float_tests = struct
 
   let () = test "max_frac_float" & fun r ->
       r
-      >> Cf.holds (C.neg Float.is_int) Float.max_frac_float
-      >> Cf.holds (C.neg Float.is_int) (-. Float.max_frac_float)
-      >> Cf.holds Float.is_int (Float.max_frac_float +. 1.)
-      >> Cf.holds Float.is_int (-. Float.max_frac_float -. 1.)
+      >> Cf.holds (C.neg Float.is_integer) Float.max_frac_float
+      >> Cf.holds (C.neg Float.is_integer) (-. Float.max_frac_float)
+      >> Cf.holds Float.is_integer (Float.max_frac_float +. 1.)
+      >> Cf.holds Float.is_integer (-. Float.max_frac_float -. 1.)
       >> C.success
 
   let () = test "max_int_arith" & fun r ->
       r
       >> (ldexp 1. 53 = Float.max_int_arith)
       >> (Float.max_int_arith <> Float.max_int_arith -. 1.)
-      >> Cf.holds Float.is_int (Float.max_int_arith -. 1.)
+      >> Cf.holds Float.is_integer (Float.max_int_arith -. 1.)
       >> (Float.max_int_arith +. 1. = Float.max_int_arith) (* rnd mode dep ? *)
       >> (Float.max_int_arith +. 2. = Float.succ Float.max_int_arith)
       >> C.success
@@ -86,7 +86,7 @@ module Float_tests = struct
       >> C.success
 
   let () = test "wrap_angle" & fun r ->
-    let is_num f = not (Float.is_nan f || Float.is_inf f) in
+    let is_num f = not (Float.is_nan f || Float.is_infinite f) in
     r
     >> (abs_float (Float.wrap_angle 0.) < 1e-10)
     >> (abs_float (Float.wrap_angle (2. *. Float.pi)) < 1e-10)
@@ -149,22 +149,22 @@ module Float_tests = struct
       >> (Float.smooth_step 2. 4. 5. = 1.)
       >> C.success
 
-  let () = test "fmax" & fun r ->
+  let () = test "max_num" & fun r ->
       r
-      >> (Float.fmax 2. 3. = 3.)
-      >> (Float.fmax 3. 2. = 3.)
-      >> (Float.fmax nan 3. = 3.)
-      >> (Float.fmax 3. nan = 3.)
-      >> Cf.holds Float.is_nan (Float.fmax nan nan)
+      >> (Float.max_num 2. 3. = 3.)
+      >> (Float.max_num 3. 2. = 3.)
+      >> (Float.max_num nan 3. = 3.)
+      >> (Float.max_num 3. nan = 3.)
+      >> Cf.holds Float.is_nan (Float.max_num nan nan)
       >> C.success
 
-  let () = test "fmin" & fun r ->
+  let () = test "min_num" & fun r ->
       r
-      >> (Float.fmin 2. 3. = 2.)
-      >> (Float.fmin 3. 2. = 2.)
-      >> (Float.fmin nan 2. = 2.)
-      >> (Float.fmin 2. nan = 2.)
-      >> Cf.holds Float.is_nan (Float.fmin nan nan)
+      >> (Float.min_num 2. 3. = 2.)
+      >> (Float.min_num 3. 2. = 2.)
+      >> (Float.min_num nan 2. = 2.)
+      >> (Float.min_num 2. nan = 2.)
+      >> Cf.holds Float.is_nan (Float.min_num nan nan)
       >> C.success
 
   let () = test "clamp" & fun r ->
@@ -200,7 +200,7 @@ module Float_tests = struct
   let () = test "round" & fun r ->
       r
       >> (Float.round (-2.8) = -3.)
-      >> (Float.round (-2.5) = -2.)
+      >> (Float.round (-2.5) = -3.)
       >> (Float.round (-2.2) = -2.)
       >> (Float.round 0. = 0.)
       >> (Float.round 2.2 = 2.)
@@ -215,7 +215,7 @@ module Float_tests = struct
   let () = test "int_of_round" & fun r ->
       r
       >> (Float.int_of_round (-2.8) = -3)
-      >> (Float.int_of_round (-2.5) = -2)
+      >> (Float.int_of_round (-2.5) = -3)
       >> (Float.int_of_round (-2.2) = -2)
       >> (Float.int_of_round 0. = 0)
       >> (Float.int_of_round 2.2 = 2)
@@ -353,7 +353,7 @@ module Float_tests = struct
 
   open Ci.Order
   let () = test "nan_nan_payload" & fun r ->
-    let n = Float.nan magic_payload in
+    let n = Float.nan_with_payload magic_payload in
     r
     >> Cf.holds Float.is_nan n
     >> (Float.nan_payload n = magic_payload)
@@ -369,47 +369,50 @@ module Float_tests = struct
       r
       >> Cf.holds (C.neg (Float.is_zero ~eps)) infinity
       >> Cf.holds (C.neg (Float.is_zero ~eps)) Stdlib.nan
-      >> Cf.holds (C.neg (Float.is_zero ~eps)) (Float.nan magic_payload)
+      >> Cf.holds (C.neg (Float.is_zero ~eps))
+        (Float.nan_with_payload magic_payload)
       >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-8
       >> Cf.holds (C.neg (Float.is_zero ~eps)) 1e-9
       >> Cf.holds (Float.is_zero ~eps) 1e-10
       >> Cf.holds (Float.is_zero ~eps) 1e-11
       >> C.success
 
-  let () = test "is_inf" & fun r ->
+  let () = test "is_infinite" & fun r ->
       r
-      >> Cf.holds Float.is_inf infinity
-      >> Cf.holds Float.is_inf neg_infinity
-      >> Cf.holds (C.neg Float.is_inf) Stdlib.nan
-      >> Cf.holds (C.neg Float.is_inf) (Float.nan magic_payload)
-      >> Cf.holds (C.neg Float.is_inf) 0.
-      >> Cf.holds (C.neg Float.is_inf) 3.
+      >> Cf.holds Float.is_infinite infinity
+      >> Cf.holds Float.is_infinite neg_infinity
+      >> Cf.holds (C.neg Float.is_infinite) Stdlib.nan
+      >> Cf.holds (C.neg Float.is_infinite)
+        (Float.nan_with_payload magic_payload)
+      >> Cf.holds (C.neg Float.is_infinite) 0.
+      >> Cf.holds (C.neg Float.is_infinite) 3.
       >> C.success
 
-  let () = test "is_int" & fun r ->
+  let () = test "is_integer" & fun r ->
       r
-      >> Cf.holds (C.neg Float.is_int) nan
-      >> Cf.holds (C.neg Float.is_int) (Float.nan magic_payload)
-      >> Cf.holds (C.neg Float.is_int) infinity
-      >> Cf.holds (C.neg Float.is_int) neg_infinity
-      >> Cf.holds (C.neg Float.is_int) Float.max_sub_float
-      >> Cf.holds (C.neg Float.is_int) Float.min_sub_float
-      >> Cf.holds (C.neg Float.is_int) Float.max_frac_float
-      >> Cf.holds Float.is_int max_float
-      >> Cf.holds Float.is_int Float.max_int_arith
-      >> Cf.holds Float.is_int 0.
-      >> Cf.holds Float.is_int (-0.)
-      >> Cf.holds Float.is_int (-. max_float)
-      >> Cf.holds Float.is_int (-. Float.max_int_arith)
+      >> Cf.holds (C.neg Float.is_integer) nan
+      >> Cf.holds (C.neg Float.is_integer)
+        (Float.nan_with_payload magic_payload)
+      >> Cf.holds (C.neg Float.is_integer) infinity
+      >> Cf.holds (C.neg Float.is_integer) neg_infinity
+      >> Cf.holds (C.neg Float.is_integer) Float.max_sub_float
+      >> Cf.holds (C.neg Float.is_integer) Float.min_sub_float
+      >> Cf.holds (C.neg Float.is_integer) Float.max_frac_float
+      >> Cf.holds Float.is_integer max_float
+      >> Cf.holds Float.is_integer Float.max_int_arith
+      >> Cf.holds Float.is_integer 0.
+      >> Cf.holds Float.is_integer (-0.)
+      >> Cf.holds Float.is_integer (-. max_float)
+      >> Cf.holds Float.is_integer (-. Float.max_int_arith)
       >> Cf.for_all uint_float begin fun x r ->
         let frac_neighbours x r =
           if Stdlib.(>) x Float.max_frac_float then r else
-          r >> Cf.holds (C.neg Float.is_int) (Float.pred x)
-          >> Cf.holds (C.neg Float.is_int) (Float.succ x)
+          r >> Cf.holds (C.neg Float.is_integer) (Float.pred x)
+          >> Cf.holds (C.neg Float.is_integer) (Float.succ x)
           >> C.success
         in
-        r >> C.holds Float.is_int x
-        >> Cf.holds Float.is_int (-. x)
+        r >> C.holds Float.is_integer x
+        >> Cf.holds Float.is_integer (-. x)
         >> frac_neighbours x
         >> C.success
       end

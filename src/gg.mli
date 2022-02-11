@@ -39,8 +39,16 @@ type m4
     output a lossless textual representation of floats.
 
     {{!Float.floatrecall}Quick recall} on OCaml's floating
-    point representation. *)
+    point representation.
+
+    {b Warning.} This module was introduced before {!Stdlib.Float} was
+    in OCaml 4.07.0. Since [Gg] 1.0.0, the module now includes
+    [Stdlib.Float] and some values initially provided by [Gg] are now
+    taken from [Stdlib.Float], see the release notes for a precise
+    account of the changes. *)
 module Float : sig
+
+  include (module type of Stdlib.Float)
 
   type t = float
   (** The type for floating point numbers. *)
@@ -50,11 +58,8 @@ module Float : sig
   val e : float
   (** The constant {{:http://mathworld.wolfram.com/e.html}e}. *)
 
-  val pi : float
-  (** The constant {{:http://mathworld.wolfram.com/Pi.html}pi}. *)
-
   val two_pi : float
-  (** [2 *. pi] *)
+  (** [2 *. pi], two times {{:http://mathworld.wolfram.com/Pi.html}pi}. *)
 
   val pi_div_2 : float
   (** [pi /. 2]. *)
@@ -128,12 +133,12 @@ module Float : sig
       result is undefined on NaNs. *)
 
   val fmax : float -> float -> float
-  (** [fmax x y] is [y] if [x < y] and [x] otherwise. If [x] or [y] is
-      NaN returns the other argument. If both are NaNs returns NaN. *)
+  [@@ocaml.deprecated "Use Float.max_num instead."]
+  (** Deprecated use {!max_num}. *)
 
   val fmin : float -> float -> float
-  (** [fmin x y] is [x] if [x < y] and [y] otherwise. If [x] or [y] is
-      NaN returns the other argument. If both are NaNs returns NaN. *)
+  [@@ocaml.deprecated "Use Float.min_num instead."]
+  (** Deprecated use {!min_num}. *)
 
   val clamp : min:float -> max:float -> float -> float
   (** [clamp min max x] is [min] if [x < min], [max] if [x > max] and
@@ -147,13 +152,6 @@ module Float : sig
       transform} that maps [x0] to [y0] and [x1] to [y1]. If the
       transform is undefined ([x0 = x1] and [y0 <> y1]) the function
       returns [y0] for any [v]. *)
-
-  val round : float -> float
-  (** [round x] is the integer nearest to [x]. Ties are rounded
-      towards positive infinity. If [x] is an infinity, returns [x].
-
-      {b Note.} If the absolute magnitude of [x] is an integer strictly
-      greater than {!max_frac_float}, [round x = x] may be [false].  *)
 
   val int_of_round : float -> int
   (** [int_of_round x] is [truncate (round v)]. The result is
@@ -185,24 +183,8 @@ module Float : sig
   val sign : float -> float
   (** [sign x] is [1.] if [x > 0.], [0.] if [x = 0.], [-1.] if [x < 0.] *)
 
-  val sign_bit : float -> bool
-  (** [sign_bit x] is [true] iff the sign bit is set in [x]. *)
-
-  val succ : float -> float
-  (** [succ x] is the floating point value just after [x] towards positive
-      infinity. Returns in particular :
-      {ul
-      {- NaN on NaNs.}
-      {- [infinity] on [infinity].}
-      {- [-max_float] on [neg_infinity].}
-      {- [min_sub_float] on [0.] {b or} [-0.].}} *)
-
-  val pred : float -> float
-  (** [pred x] is [-. succ (-.x)], i.e. the floating point value before
-      [x] towards negative infinity. *)
-
-  val nan : int -> float
-  (** [nan payload] is a NaN whose 51 lower significand bits are
+  val nan_with_payload : int -> float
+  (** [nan_with_payload payload] is a NaN whose 51 lower significand bits are
       defined by the 51 lower (or less, as [int] allows) bits of
       [payload]. *)
 
@@ -218,14 +200,13 @@ module Float : sig
   (** [is_zero eps x] is [true] if [abs_float x < eps]
       and [false] otherwise. The result is undefined if [eps] is NaN. *)
 
-  val is_nan : float -> bool
-  (** [is_nan x] is [true] iff [x] is a NaN. *)
-
   val is_inf : float -> bool
-  (** [is_inf x] is [true] iff [x] is [infinity] or [neg_infinity]. *)
+  [@@ocaml.deprecated "Use Float.is_infinite instead."]
+  (** Deprecated use {!is_infinite}. *)
 
   val is_int : float -> bool
-  (** [is_int x] is [true] iff [x] is an integer. *)
+  [@@ocaml.deprecated "Use Float.is_integer instead."]
+  (** Deprecated use {!is_integer}. *)
 
   val equal : float -> float -> bool
   (** [equal x y] is [x = y]. *)

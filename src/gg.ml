@@ -45,11 +45,14 @@ let gg_eps = 1e-9
 (* Floating point utilities. *)
 
 module Float = struct
+
+  include Stdlib.Float
+
   type t = float
 
   (* See the .mli for a quick recall on OCaml's float representation. *)
 
-  let bfloat_sign = 0x80_00_00_00_00_00_00_00L            (* sign  bit mask. *)
+  let bfloat_sign = 0x80_00_00_00_00_00_00_00L             (* sign bit mask. *)
   let bfloat_exp  = 0x7F_F0_00_00_00_00_00_00L      (* biased exponent mask. *)
   let bfloat_frac = 0x00_0F_FF_FF_FF_FF_FF_FFL          (* significand mask. *)
   let bfloat_nanp = 0x00_07_FF_FF_FF_FF_FF_FFL          (* nan payload mask. *)
@@ -58,7 +61,6 @@ module Float = struct
   (* Constants *)
 
   let e = 2.7182818284590452353602874713526625        (* values from math.h. *)
-  let pi = 3.1415926535897932384626433832795029
   let two_pi = 2. *. pi
   let pi_div_2 = 1.5707963267948966192313216916397514
   let pi_div_4 = 0.7853981633974483096156608458198757
@@ -101,13 +103,8 @@ module Float = struct
     let t = (x -. e0) /. (e1 -. e0) in
     t *. t *. (3. -. 2. *. t)
 
-  let fmax : float -> float -> float = fun x y ->
-    if x <> x then (* x is NaN *) y else
-    if x < y then y else (* x >= y or y = NaN *) x
-
-  let fmin : float -> float -> float = fun x y ->
-    if x <> x then (* x is NaN *) y else
-    if y < x then y else (* x <= y or y = NaN *) x
+  let fmax = Float.max_num
+  let fmin = Float.min_num
 
   let clamp : min:float -> max:float -> float -> float = fun ~min ~max x ->
     if x < min then min else
@@ -117,7 +114,6 @@ module Float = struct
     if x0 = x1 then y0 else
     y0 +. ((v -. x0) /. (x1 -. x0)) *. (y1 -. y0)
 
-  let round x = floor (x +. 0.5)
   let int_of_round x = truncate (round x)
   let round_dfrac d x =
     if x -. (round x) = 0. then x else                   (* x is an integer. *)
@@ -136,24 +132,8 @@ module Float = struct
     if (abs_float (x -. xi)) < eps then xi else x
 
   let sign x = if x > 0. then 1. else (if x < 0. then -1. else x)
-  let sign_bit x = (Int64.logand (Int64.bits_of_float x) bfloat_sign) <> 0L
-  let succ x = match classify_float x with
-  | FP_normal | FP_subnormal ->
-      if x > 0. then Int64.float_of_bits (Int64.add (Int64.bits_of_float x) 1L)
-      else Int64.float_of_bits (Int64.sub (Int64.bits_of_float x) 1L)
-  | FP_zero -> min_sub_float
-  | FP_infinite -> if x = neg_infinity then -. max_float else infinity
-  | FP_nan -> x
 
-  let pred x = match classify_float x with
-  | FP_normal | FP_subnormal ->
-      if x > 0. then Int64.float_of_bits (Int64.sub (Int64.bits_of_float x) 1L)
-      else Int64.float_of_bits (Int64.add (Int64.bits_of_float x) 1L)
-  | FP_zero -> -. min_sub_float
-  | FP_infinite -> if x = infinity then max_float else neg_infinity
-  | FP_nan -> x
-
-  let nan p =
+  let nan_with_payload p =
     let p = (Int64.logand (Int64.of_int p) bfloat_nanp) in
     Int64.float_of_bits (Int64.logor bfloat_qnan p)
 
@@ -164,10 +144,8 @@ module Float = struct
   (* Predicates and comparisons *)
 
   let is_zero ~eps x = abs_float x < eps
-  let is_nan : float -> bool = fun x -> x <> x
-  let is_inf x = classify_float x = FP_infinite
-  let is_int x = x -. (floor x) = 0.
-  let equal : float -> float -> bool = ( = )
+  let is_inf = is_infinite
+  let is_int = is_integer
   let equal_tol ~eps x y =          (* NOTE code duplicate with compare_tol. *)
     if compare x y = 0 then true else
     let ax = abs_float x in
@@ -177,7 +155,6 @@ module Float = struct
     if max = infinity then false else
     abs_float (x -. y) <= eps *. max
 
-  let compare : float -> float -> int = Stdlib.compare
   let compare_tol ~eps x y =          (* NOTE code duplicate with equal_tol. *)
     let c = compare x y in
     if c = 0 then 0 else

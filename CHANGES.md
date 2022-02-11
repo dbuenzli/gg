@@ -1,6 +1,50 @@
 
+
+- The `Gg.Float` module now includes `Stdlib.Float` (#19). Some values
+  initially implemented in `Gg.Float` now use `Stdlib.Float`'s
+  definition or are deprecated in favour of corresponding
+  functionality named differently. Implementations may differ but this
+  shouldn't matter most of the time except for the first three items in the
+  list:
+
+  * **WARNING** `Gg.Float.equal` is deleted in favour of `Stdlib.Float.equal`
+    The implemention differs, it moves from `x = y`
+    to `compare x y = 0` which differs on nan values. 
+    `Stdlib.Float.equal` treats them as equal `Gg.Float.equal` does not.
+  * **WARNING** `Gg.Float.round` is deleted and becomes `Stdlib.Float.round`.
+    The implementation and behaviour on negative numbers differs. 
+    `Gg.Float.round` always rounded towards positive infinity on ties (`-2.` 
+    on `-2.5`). Stdlib.Float.rounds away from zero on ties (`-3.` on `-2.5`).
+  * **WARNING** `Gg.Float.round_to_int` is affected by the new `round`
+    implementation (see previous point).
+  * `Gg.Float.compare` is deleted and becomes `Stdlib.Float.compare`
+    (same implementation).
+  * `Gg.Float.pi` is deleted and becomes `Stdlib.Float.pi`, the bit pattern
+    of the value is unchanged.
+  * `Gg.Float.is_inf` is implemented by `Stdlib.Float.is_infinite` 
+    and deprecated in favour of it (different implementation). 
+  * `Gg.Float.is_int` is implemented by `Stdlib.Float.is_integer`
+    and deprecated in favour of it (different implementation).
+  * `Gg.Float.is_nan` is deleted and becomes `Stdlib.Float.is_nan` 
+    (same implementation)
+  * `Gg.Float.fmax` is implemented by `Stdlib.Float.max_num` and
+    deprecated in favour of it. The result of `Gg.Float.fmax (-0.)
+    (+0.)` is changed, it returns `+0.` instead of `-0.`.
+  * `Gg.Float.fmin` is implemented by `Stdlib.Float.min_num` and
+    deprecated in favour of it. The result of `Gg.Float.fmin (+0.)
+    (-0.)` is changed, it returns `-0.` instead of `+0.`.
+  * `Gg.Float.sign_bit` is deleted and becomes `Stdlib.Float.sign_bit`
+    (different implementation).
+  * `Gg.Float.succ` is deleted and becomes `Stdlib.Float.succ` 
+    (different implementation). 
+  * `Gg.Float.pred` is deleted and becomes `Stdlib.Float.pred` 
+    (different implementation). 
+  * `Gg.Float.nan` is renamed to `Gg.Float.nan_with_payload` 
+    to leave room for `Stdlib.Float.nan`'s constant.
+    
 - Handle `Pervasives`'s deprecation (and thus provide OCaml
   5.00 support).
+
 - Drop dependency on `bigarray`'s ocamlfind package (and thus
   provide OCaml 5.00 support).
 
