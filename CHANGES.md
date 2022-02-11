@@ -4,8 +4,8 @@
   initially implemented in `Gg.Float` now use `Stdlib.Float`'s
   definition or are deprecated in favour of corresponding
   functionality named differently. Implementations may differ but this
-  shouldn't matter most of the time except for the first three items in the
-  list:
+  shouldn't matter most of the time except for the first three items
+  in the list:
 
   * **WARNING** `Gg.Float.equal` is deleted in favour of `Stdlib.Float.equal`
     The implemention differs, it moves from `x = y`
@@ -14,7 +14,7 @@
   * **WARNING** `Gg.Float.round` is deleted and becomes `Stdlib.Float.round`.
     The implementation and behaviour on negative numbers differs. 
     `Gg.Float.round` always rounded towards positive infinity on ties (`-2.` 
-    on `-2.5`). Stdlib.Float.rounds away from zero on ties (`-3.` on `-2.5`).
+    on `-2.5`). `Stdlib.Float.round`s away from zero on ties (`-3.` on `-2.5`).
   * **WARNING** `Gg.Float.round_to_int` is affected by the new `round`
     implementation (see previous point).
   * `Gg.Float.compare` is deleted and becomes `Stdlib.Float.compare`

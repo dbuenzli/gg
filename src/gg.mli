@@ -208,18 +208,12 @@ module Float : sig
   [@@ocaml.deprecated "Use Float.is_integer instead."]
   (** Deprecated use {!is_integer}. *)
 
-  val equal : float -> float -> bool
-  (** [equal x y] is [x = y]. *)
-
   val equal_tol : eps:float -> float -> float -> bool
   (** [equal_tol eps x y] is [true] iff |[x - y]| <= [eps] * max
       (1,|[x]|,|[y]|). On special values the function behaves like
       [compare x y = 0].  The condition turns into an absolute tolerance
       test for small magnitudes and a relative tolerance test for
       large magnitudes. *)
-
-  val compare : float -> float -> int
-  (** [compare x y] is [Stdlib.compare x y]. *)
 
   val compare_tol : eps:float -> float -> float -> int
   (** [compare_tol ~eps x y] is [0] iff [equal_tol ~eps x y] is [true]
