@@ -3244,7 +3244,7 @@ module Color : sig
      {ul
      {- L* is the lightness in the range [0.] to [100.]}
      {- C* represents chroma, in the range [0.] to [260.77] in practice.}
-     {- h represents hue in degrees in the range [0.] to [2pi].}} *)
+     {- h represents hue in radians in the range [0.] to [2pi].}} *)
 
   val of_lch_uv : lch_uv -> color
   (** [of_lch_uv c] is the L*C*h{_uv} color [c] as a [Gg] color. *)
