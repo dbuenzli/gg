@@ -1,8 +1,7 @@
 {0 Gg {%html: <span class="version">%%VERSION%%</span>%}}
 
-Gg is an OCaml module providing basic types for computer graphics. It
-defines types and functions for floats, vectors, points, sizes,
-matrices, quaternions, axis-aligned boxes, colors, color spaces, and
-raster data.
+Gg provides basic types for computer graphics. It defines types and
+functions for floats, vectors, points, sizes, matrices, quaternions,
+axis-aligned boxes, colors, color spaces, and raster data.
 
 {!modules: Gg}

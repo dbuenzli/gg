@@ -9,25 +9,36 @@
     {{!vectors}vectors}, {{!points}points}, {{!matrices}matrices},
     {{!quaternions}quaternions}, {{!sizes}sizes},
     {{!aboxes}axis aligned boxes}, {{!colors}colors},
-    {{!Color.colorprofiles}color profiles}, {{!bigarray}linear bigarrays}
+    {{!Color.colorprofiles}color profiles},
+    {{!section-bigarray}linear bigarrays}
     and
-    {{!raster}raster data}.
+    {{!section-raster}raster data}.
 
     Consult the {{!basics}basics}. Open the module to use it, this
-    defines only modules and types in your scope.
+    defines only modules and types in your scope. *)
 
-    {e %%VERSION%% - {{:%%PKG_HOMEPAGE%% }homepage}} *)
+(** The following type are defined so that they can be used in vector
+    modules. The matrix modules are {{!matrices}here}. *)
 
-(**    {1:float Floats} *)
+type m2
+(** The type for 2x2 matrices. *)
+
+type m3
+(** The type for 3x3 matrices. *)
+
+type m4
+(** The type for 4x4 matrices. *)
+
+(** {1:float Floats} *)
 
 (** Floating point number utilities.
 
-    This module defines a few useful {{!constants}constants},
-    {{!functions}functions}, {{!preds}predicates and
-    comparisons} on floating point numbers. The {{!printers}printers}
+    This module defines a few useful {{!Float.constants}constants},
+    {{!Float.functions}functions}, {{!Float.preds}predicates and
+    comparisons} on floating point numbers. The {{!Float.printers}printers}
     output a lossless textual representation of floats.
 
-    {{!floatrecall}Quick recall} on OCaml's floating
+    {{!Float.floatrecall}Quick recall} on OCaml's floating
     point representation. *)
 module Float : sig
 
@@ -306,18 +317,6 @@ v}
 
 end
 
-(** The following type are defined so that they can be used
-    in vector modules. The matrix modules are {{!matrices}here}. *)
-
-type m2
-(** The type for 2x2 matrices. *)
-
-type m3
-(** The type for 3x3 matrices. *)
-
-type m4
-(** The type for 4x4 matrices. *)
-
 (** {1:vectors Vectors}
 
     An n-dimensional {e vector} [v] is a sequence of n, zero indexed,
@@ -485,6 +484,7 @@ module type V = sig
       [pp_comp] to print floating point values. *)
 end
 
+(** 2D vectors. *)
 module V2 : sig
   type t = v2
   (** The type for 2D vectors. *)
@@ -697,6 +697,7 @@ module V2 : sig
       [pp_comp] to print floating point values. *)
 end
 
+(** 3D vectors. *)
 module V3 : sig
   type t = v3
   (** The type for 3D vectors. *)
@@ -925,6 +926,7 @@ module V3 : sig
       [pp_comp] to print floating point values. *)
 end
 
+(** 4D vectors. *)
 module V4 : sig
   type t = v4
   (** The type for 4D vectors. *)
@@ -1162,6 +1164,7 @@ module type P = sig
       (its last coordinate in homogenous space is 1). *)
 end
 
+(** 2D points. *)
 module P2 : sig
   type t = p2
   (** The type for points. *)
@@ -1205,6 +1208,7 @@ module P2 : sig
       to transform vectors (infinite points). *)
 end
 
+(** 3D points. *)
 module P3 : sig
   type t = p3
   (** The type for points. *)
@@ -1262,6 +1266,7 @@ end
 type quat = v4
 (** The type for quaternions. *)
 
+(** Quaternions. *)
 module Quat : sig
 
   type t = quat
@@ -1491,6 +1496,7 @@ module type M = sig
       [pp_e] to print floating point values. *)
 end
 
+(** 2D square matrices. *)
 module M2 : sig
   type t = m2
   (** The type for 2D square matrices. *)
@@ -1657,6 +1663,7 @@ module M2 : sig
   val e11 : m2 -> float
 end
 
+(** 3D square matrices. *)
 module M3 : sig
   type t = m3
   (** The type for 3D square matrices. *)
@@ -1865,6 +1872,7 @@ module M3 : sig
   val e22 : m3 -> float
 end
 
+(** 4D square matrices. *)
 module M4 : sig
   type t = m4
   (** The type for 4D square matrices. *)
@@ -2165,11 +2173,10 @@ module type Size = sig
   (** [unit] is the unit size, one extent in each dimension. *)
 end
 
+(** Sizes in 1D space.
+
+    In 1D space, {e width} is the extent along the x-axis. *)
 module Size1 : sig
-  (** In 1D space, {e width} is the extent along the x-axis.
-
-      {1:top  }*)
-
   type t = float
   (** The type for 1D sizes. *)
 
@@ -2191,12 +2198,11 @@ module Size1 : sig
   (** [unit] is the unit size, one width. *)
 end
 
+(** Sizes in 2D space.
+
+    In 2D space, {e width} is the extent along the x-axis and
+    {e height} the extent along the y-axis. *)
 module Size2 : sig
-(** In 2D space, {e width} is the extent along the x-axis and
-    {e height} the extent along the y-axis.
-
-    {1:top  }*)
-
   type t = size2
   (** The type for 2D sizes. *)
 
@@ -2232,12 +2238,12 @@ module Size2 : sig
   (** [of_h h aspect] is [v (h *. aspect) h]. *)
 end
 
-module Size3 : sig
-(** In 3D space, {e width} is the extent along the x-axis,
-    {e height} the extent along the y-axis and {e depth}
-    the extent along the z-axis.
+(** Sizes in 3D spaces.
 
-    {1:top  }*)
+    In 3D space, {e width} is the extent along the x-axis,
+    {e height} the extent along the y-axis and {e depth}
+    the extent along the z-axis. *)
+module Size3 : sig
 
   type t = size3
   (** The type for 3D sizes. *)
@@ -2440,6 +2446,7 @@ module type Box = sig
       [pp_fl] to print floating point values. *)
 end
 
+(** 1D axis-aligned boxes. *)
 module Box1 : sig
 
   type t = box1
@@ -2616,6 +2623,7 @@ module Box1 : sig
       [pp_fl] to print floating point values. *)
 end
 
+(** 2D axis-aligned boxes. *)
 module Box2 : sig
   type t = box2
   (** The type for 2D boxes
@@ -2848,6 +2856,7 @@ module Box2 : sig
       [pp_fl] to print floating point values. *)
 end
 
+(** 3D axis-aligned boxes. *)
 module Box3 : sig
   type t = box3
   (** The type for 3D boxes
@@ -3096,8 +3105,8 @@ type color = v4
 
 (** Colors and color profiles.
 
-    [Color] provides some function to operate on {{!t}color} values
-    and basic support for ICC based {{!profile}color profiles} to
+    [Color] provides some function to operate on {{!Color.t}color} values
+    and basic support for ICC based {{!Color.profile}color profiles} to
     precisely specify how to interpret raw color samples.
 
     {3 References.}
@@ -3593,20 +3602,20 @@ type raster
     Raster data organizes data samples of any dimension in discrete
     1D, 2D (images) or 3D space.
 
-    A sample has a {{!type:Sample.semantics}{e semantics}} that defines its
-    dimension and the meaning of its {e components}. For example a 4D
-    sample could represent a linear sRGBA sample. Samples are stored
-    in a {{!buffer}linear buffer} of {e scalars} of a given
-    {{!type:Ba.scalar_type}type}. A sample can use one scalar per component,
-    can be packed in a single scalar or may have no direct obvious
-    relationship to buffer scalars (compressed data). The
-    {{!type:Sample.format}sample format} defines the semantics and
-    scalar storage of a sample.
+    A sample has a {{!Raster.Sample.type-semantics}{e semantics}} that
+    defines its dimension and the meaning of its {e components}. For
+    example a 4D sample could represent a linear sRGBA sample. Samples
+    are stored in a {{!buffer}linear buffer} of {e scalars} of a given
+    {{!type:Ba.scalar_type}type}. A sample can use one scalar per
+    component, can be packed in a single scalar or may have no direct
+    obvious relationship to buffer scalars (compressed data). The
+    {{!Raster.Sample.type-format}sample format} defines the semantics
+    and scalar storage of a sample.
 
-    A {{!t}{e raster data}} value is a collection of samples indexed
+    A {{!Raster.t}{e raster data}} value is a collection of samples indexed
     by width, height and depth (i.e. x, y, z) stored in a buffer.  It
     defines the sample data, the extents of the index and the sample
-    format.  The optional {{!res}resolution} in samples per meters of
+    format.  The optional {{!Raster.res}resolution} in samples per meters of
     a raster data can specify its physical dimension.
 
     {b Spatial convention.} If the sample index has to be interpreted
@@ -3618,11 +3627,11 @@ type raster
     {b Index sizes.} Index sizes are specified using
     {{!sizes}size} types which are made of floats as it is more
     pratical in most scenarios. These floats should however be {e
-    integral} floats. The function {!v}, {!Sample.scalar_count}
-    and {!sub} ensure this by applying {!Float.round} to these values.
-    This means that the {{!rsize}raster size functions} when called with
-    [meters = false] will always return sizes that are integral floats that
-    you can convert to integers safely without having to think about
+    integral} floats. The function {!Raster.v}, {!Raster.Sample.scalar_count}
+    and {!Raster.sub} ensure this by applying {!Float.round} to these values.
+    This means that the {{!Raster.section-rsize}raster size functions} when
+    called with [meters = false] will always return sizes that are integral
+    floats that you can convert to integers safely without having to think about
     rounding issues. Note also that index sizes are always strictly
     positive.*)
 module Raster : sig
@@ -3767,7 +3776,7 @@ module Raster : sig
   (** [res r] is [r]'s resolution in sample per meters, if any. *)
 
   val get_res : t -> v3
-  (** [get_res r] is {!res} but @raise Invalid_argument
+  (** [get_res r] is {!res} but raises [Invalid_argument]
       if there's no resolution. *)
 
   val first : t -> int
@@ -3912,8 +3921,10 @@ end
 
     [Gg] is designed to be opened in your module. This defines only
     types and modules in your scope, no values. Thus to use [Gg] start
-    with : {[open Gg]}
-
+    with :
+{[
+open Gg
+]}
     In the toplevel enter:
 {[
 > #require "gg.top";;
