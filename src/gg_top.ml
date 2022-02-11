@@ -1,7 +1,6 @@
 (*---------------------------------------------------------------------------
    Copyright (c) 2013 The gg programmers. All rights reserved.
    Distributed under the ISC license, see terms at the end of the file.
-   %%NAME%% %%VERSION%%
   ---------------------------------------------------------------------------*)
 
 let () = ignore (Toploop.use_file Format.err_formatter "gg_top_init.ml")
