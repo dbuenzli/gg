@@ -195,22 +195,10 @@ module Float : sig
   (** {1:printers Printers} *)
 
   val pp : Format.formatter -> float -> unit
-  (** [pp ppf x] prints a lossless textual representation of [x] on [ppf].
-
-      {ul
-      {- Normals are represented by ["[-]0x1.<f>p<e>"] where
-         [<f>] is the significand bits in hexadecimal and [<e>] the
-         unbiased exponent in decimal.}
-      {- Subnormals are represented by ["[-]0x0.<f>p-1022"] where
-         [<f>] is the significand bits in hexadecimal.}
-      {- NaNs are represented by ["[-]nan(0x<p>)"] where [<p>] is the payload
-         in hexadecimal.}
-      {- Infinities and zeroes are represented by ["[-]inf"] and ["[-]0."].}}
-
-      This format should be compatible with recent implementations of
-      {{:http://www.opengroup.org/onlinepubs/000095399/functions/strtod.html}
-      strtod} and hence with [float_of_string] (but negative NaNs seem to
-      be problematic to get back). *)
+  (** [pp ppf x] formats a lossless textual representation of [x] on
+      [ppf] using ["%h"]. Since 1.0.0, before this was the slower
+      {!pp_legacy} whose output differs on the representation of nan,
+      infinities, or zeros. *)
 
   (** {1:deprecated Deprecated} *)
 
@@ -229,6 +217,30 @@ module Float : sig
   val is_int : float -> bool
   [@@ocaml.deprecated "Use Float.is_integer instead."]
   (** Deprecated use {!is_integer}. *)
+
+  val legacy_pp : Format.formatter -> float -> unit
+  [@@ocaml.deprecated
+    "Use Float.pp instead (some values may render differently)."]
+  (** Deprecated use {!Float.pp}.
+
+     [pp_legacy ppf x] prints a lossless textual representation of [x]
+     on [ppf].
+
+      {ul
+      {- Normals are represented by ["[-]0x1.<f>p<e>"] where
+         [<f>] is the significand bits in hexadecimal and [<e>] the
+         unbiased exponent in decimal.}
+      {- Subnormals are represented by ["[-]0x0.<f>p-1022"] where
+         [<f>] is the significand bits in hexadecimal.}
+      {- NaNs are represented by ["[-]nan(0x<p>)"] where [<p>] is the payload
+         in hexadecimal.}
+      {- Infinities and zeroes are represented by ["[-]inf"] and ["[-]0."].}}
+
+      This format should be compatible with recent implementations of
+      {{:http://www.opengroup.org/onlinepubs/000095399/functions/strtod.html}
+      strtod} and hence with [float_of_string] (but negative NaNs seem to
+      be problematic to get back). *)
+
 
   (** {1:floatrecall Quick recall on OCaml's [float]s}
 

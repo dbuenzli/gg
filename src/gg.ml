@@ -165,7 +165,7 @@ module Float = struct
 
   (* Printers *)
 
-  let pp ppf x =                                     (* too slow, ∃ better ? *)
+  let legacy_pp ppf x =                              (* too slow, ∃ better ? *)
     let pr_neg ppf neg = if neg then pp ppf "-" else () in
     match classify_float x with
     | FP_normal ->
@@ -191,6 +191,8 @@ module Float = struct
         let neg = Int64.logand x bfloat_sign <> 0L in
         let p = Int64.logand x bfloat_nanp in
         pp ppf "%anan(0x%LX)" pr_neg neg p
+
+  let pp ppf x = pp ppf "%h" x
 end
 
 (* Vector and matrix types are defined here so that they can be seen

@@ -1,4 +1,6 @@
 
+- Require OCaml 4.08.
+
 - Handle `Pervasives`'s deprecation (and thus provide OCaml
   5.00 support).
 
@@ -9,11 +11,16 @@
   empty box when the size in a dimension `i` become negative, clamp it
   to `0` and use the `i`th coordinate of the mid point of the box for
   the `i`th coordinate of the resulting box's origin. This means that
-  insetting boxes with larges values eventually degenerates to the mid
+  insetting boxes with large values eventually degenerates to the mid
   point of a box instead of the empty box. This avoids losing a box's
   location when one grows and shrinks them arbitrarily, e.g. in
   reaction to user input. Thanks to Michel Schinz for suggesting this
   better semantics.
+
+- Change `Gg.Float.pp` hexadecimal notation renderer to use the
+  built-in `"%h"` string introduced in OCaml 4.03.0. Nans, zeros and
+  infinities will render differently. Use the deprecated
+  `Gg.Float.pp_legacy` if you need to recover the old hex rendering.
 
 - The `Gg.Float` module now includes `Stdlib.Float` (#19). Some values
   initially implemented in `Gg.Float` now use `Stdlib.Float`'s
