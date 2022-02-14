@@ -2017,9 +2017,10 @@ module Box1 = struct
   let inset d = function
   | E -> E
   | R (o, s) ->
-      let o' = o +. d in
       let s' = s -. 2. *. d in
-      if s' < 0. then E else v o' s'
+      let s' = if s' < 0. then 0. else s' in
+      let o' = if s' = 0. then o +. 0.5 *. s else o +. d in
+      v o' s'
 
   let round = function
   | E -> E
@@ -2204,11 +2205,13 @@ module Box2 = struct
   let inset d = function
   | E -> E
   | R (o, s) ->
-      let o' = V2.add o d in
       let w = s.x -. 2. *. d.x in
       let h = s.y -. 2. *. d.y in
-      if w < 0. || h < 0. then E else
-      v o' (Size2.v w h)
+      let w = if w < 0. then 0. else w in
+      let h = if h < 0. then 0. else h in
+      let ox = if w = 0. then o.x +. 0.5 *. s.x else o.x +. d.x in
+      let oy = if h = 0. then o.y +. 0.5 *. s.y else o.y +. d.y in
+      v (P2.v ox oy) (Size2.v w h)
 
   let round = function
   | E -> E
@@ -2447,15 +2450,19 @@ module Box3 = struct
       in
       v (P3.v ox oy oz) (Size3.v w h d)
 
-  let inset d = function
+  let inset dv = function
   | E -> E
   | R (o, s) ->
-      let o' = V3.add o d in
-      let w = s.x -. 2. *. d.x in
-      let h = s.y -. 2. *. d.y in
-      let d = s.z -. 2. *. d.z in
-      if w < 0. || h < 0. || d < 0. then E else
-      v o' (Size3.v w h d)
+      let w = s.x -. 2. *. dv.x in
+      let h = s.y -. 2. *. dv.y in
+      let d = s.z -. 2. *. dv.z in
+      let w = if w < 0. then 0. else w in
+      let h = if h < 0. then 0. else h in
+      let d = if d < 0. then 0. else d in
+      let ox = if w = 0. then o.x +. 0.5 *. s.x else o.x +. dv.x in
+      let oy = if h = 0. then o.y +. 0.5 *. s.y else o.y +. dv.y in
+      let oz = if d = 0. then o.z +. 0.5 *. s.z else o.z +. dv.z in
+      v (P3.v ox oy oz) (Size3.v w h d)
 
   let round = function
   | E -> E

@@ -4,6 +4,16 @@
 
 - Drop dependency on `bigarray`'s ocamlfind package (and thus
   provide OCaml 5.00 support).
+  
+- Change the semantics of `Box{1,2,3}.inset`. Rather than return the
+  empty box when the size in a dimension `i` become negative, clamp it
+  to `0` and use the `i`th coordinate of the mid point of the box for
+  the `i`th coordinate of the resulting box's origin. This means that
+  insetting boxes with larges values eventually degenerates to the mid
+  point of a box instead of the empty box. This avoids losing a box's
+  location when one grows and shrinks them arbitrarily, e.g. in
+  reaction to user input. Thanks to Michel Schinz for suggesting this
+  better semantics.
 
 - The `Gg.Float` module now includes `Stdlib.Float` (#19). Some values
   initially implemented in `Gg.Float` now use `Stdlib.Float`'s

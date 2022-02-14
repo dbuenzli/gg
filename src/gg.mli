@@ -2364,7 +2364,9 @@ module type Box = sig
   val inset : v -> t -> t
   (** [inset d b] is [b] whose edges are inset in each dimension
       according to amounts in [d]. Negative values in [d] outset. If
-      the resulting size is negative returns {!empty}.  Returns
+      the size in dimension [i] becomes negative it is clamped to [0]
+      and the [i]th coordinate of the mid point of [b] is used for the
+      [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
 
   val round : t -> t
@@ -2537,7 +2539,9 @@ module Box1 : sig
   val inset : float -> box1 -> box1
   (** [inset d b] is [b] whose edges are inset in each dimension
       according to amounts in [d]. Negative values in [d] outset. If
-      the resulting size is negative returns {!empty}.  Returns
+      the size in dimension [i] becomes negative it is clamped to [0]
+      and the [i]th coordinate of the mid point of [b] is used for the
+      [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
 
   val round : box1 -> box1
@@ -2766,7 +2770,9 @@ module Box2 : sig
   val inset : v2 -> box2 -> box2
   (** [inset d b] is [b] whose edges are inset in each dimension
       according to amounts in [d]. Negative values in [d] outset. If
-      the resulting size is negative returns {!empty}.  Returns
+      the size in dimension [i] becomes negative it is clamped to [0]
+      and the [i]th coordinate of the mid point of [b] is used for the
+      [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
 
   val round : box2 -> box2
@@ -3004,7 +3010,9 @@ module Box3 : sig
   val inset : v3 -> box3 -> box3
   (** [inset d b] is [b] whose edges are inset in each dimension
       according to amounts in [d]. Negative values in [d] outset. If
-      the resulting size is negative returns {!empty}.  Returns
+      the size in dimension [i] becomes negative it is clamped to [0]
+      and the [i]th coordinate of the mid point of [b] is used for the
+      [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
 
   val round : box3 -> box3

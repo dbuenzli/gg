@@ -1998,14 +1998,18 @@ module Box_tests
       let vmid = V.smul 0.5 usize in
       let i = Box.inset vmid Box.unit in
       let o = Box.inset (V.neg usize) Box.unit in
-      let e = Box.inset usize Box.unit in
+      let mid = Box.inset usize Box.unit in
+      let mid' = Box.inset (V.smul 4.0 usize) Box.unit in
       r
       >> (Cbox.holds Box.is_pt i)
       >> (Box.min i = vmid)
       >> (Box.max i = vmid)
       >> (Box.min o = V.neg usize)
       >> (Box.max o = V.smul 2. usize)
-      >> (Cbox.holds Box.is_empty e)
+      >> (Cbox.holds Box.is_pt mid)
+      >> (Box.min mid = vmid)
+      >> (Box.max mid = vmid)
+      >> Cbox.holds (Box.equal mid') mid
       >> (Cbox.holds Box.is_empty (Box.inset vmid Box.empty))
       >> (Cbox.holds Box.is_empty (Box.inset (V.neg vmid) Box.empty))
       >> C.success
