@@ -25,7 +25,7 @@
 
     This module defines a few useful {{!Float.constants}constants},
     {{!Float.functions}functions}, {{!Float.preds}predicates and
-    comparisons} on floating point numbers. The {{!Float.printers}printers}
+    comparisons} on floating point numbers. The {{!Float.fmt}formatters}
     output a lossless textual representation of floats.
 
     {{!Float.floatrecall}Quick recall} on OCaml's floating
@@ -192,12 +192,12 @@ module Float : sig
   (** [compare_tol ~eps x y] is [0] iff [equal_tol ~eps x y] is [true]
       and [Stdlib.compare x y] otherwise. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> float -> unit
   (** [pp ppf x] formats a lossless textual representation of [x] on
       [ppf] using ["%h"]. Since 1.0.0, before this was the slower
-      {!pp_legacy} whose output differs on the representation of nan,
+      {!legacy_pp} whose output differs on the representation of nan,
       infinities, or zeros. *)
 
   (** {1:deprecated Deprecated} *)
@@ -221,7 +221,7 @@ module Float : sig
   val legacy_pp : Format.formatter -> float -> unit
   [@@ocaml.deprecated
     "Use Float.pp instead (some values may render differently)."]
-  (** Deprecated use {!Float.pp}.
+  (** Deprecated use {!pp}.
 
      [pp_legacy ppf x] prints a lossless textual representation of [x]
      on [ppf].
@@ -464,7 +464,7 @@ module type V = sig
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> t -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
@@ -677,7 +677,7 @@ module V2 : sig
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> v2 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
@@ -906,7 +906,7 @@ module V3 : sig
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> v3 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
@@ -1097,7 +1097,7 @@ module V4 : sig
   (** [compare_f cmp u v] compares [u] and [v] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> v4 -> unit
   (** [pp ppf v] prints a textual representation of [v] on [ppf]. *)
@@ -1476,7 +1476,7 @@ module type M = sig
   (** [compare_f cmp a b] compares [a] and [b] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> t -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
@@ -1636,7 +1636,7 @@ module M2 : sig
   (** [compare_f cmp a b] compares [a] and [b] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> m2 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
@@ -1840,7 +1840,7 @@ module M3 : sig
   (** [compare_f cmp a b] compares [a] and [b] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> m3 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
@@ -2103,7 +2103,7 @@ module M4 : sig
   (** [compare_f cmp a b] compares [a] and [b] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> m4 -> unit
   (** [pp ppf a] prints a textual representation of [a] on [ppf]. *)
@@ -2428,7 +2428,7 @@ module type Box = sig
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> t -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
@@ -2607,7 +2607,7 @@ module Box1 : sig
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> box1 -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
@@ -2842,7 +2842,7 @@ module Box2 : sig
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> box2 -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
@@ -3086,7 +3086,7 @@ module Box3 : sig
   (** [compare_f cmp b b'] compares [b] and [b'] like {!compare}
       but uses [cmp] to compare floating point values. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> box3 -> unit
   (** [pp ppf b] prints a textual representation of [b] on [ppf]. *)
@@ -3896,7 +3896,7 @@ module Raster : sig
   val compare : t -> t -> int
   (** [compare r r'] is [Stdlib.compare r r']. *)
 
-  (** {1:printers Printers} *)
+  (** {1:fmt Formatters} *)
 
   val pp : Format.formatter -> t -> unit
   (** [pp ppf t] prints a textual represenation of [t] on [ppf]. Doesn't

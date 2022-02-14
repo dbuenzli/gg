@@ -163,7 +163,7 @@ module Float = struct
     if max = infinity then c else
     if abs_float (x -. y) <= eps *. max then 0 else c
 
-  (* Printers *)
+  (* Formatters *)
 
   let legacy_pp ppf x =                              (* too slow, ∃ better ? *)
     let pr_neg ppf neg = if neg then pp ppf "-" else () in
