@@ -116,6 +116,12 @@ module Float = struct
     if x0 = x1 then y0 else
     y0 +. ((v -. x0) /. (x1 -. x0)) *. (y1 -. y0)
 
+  let seg_inter ~u0 ~u1 ~v0 ~v1 =
+    if u1 < v0 || u0 > v1 then `None else
+    if not (u1 > v0) then (* u1 = v0 *) `Pt u1 else
+    if not (u0 < v1) then (* u0 = v1 *) `Pt u0 else
+    `Seg ((if u0 < v0 then v0 else u0), (if u1 > v1 then v1 else u1))
+
   (* Rounding and truncating *)
 
   let int_of_round x = truncate (round x)

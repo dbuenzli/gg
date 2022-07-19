@@ -134,6 +134,22 @@ module Float : sig
       transform is undefined ([x0 = x1] and [y0 <> y1]) the function
       returns [y0] for any [v]. *)
 
+  val seg_inter :
+    u0:float -> u1:float -> v0:float -> v1:float ->
+    [ `None | `Pt of float | `Seg of float * float ]
+  (** [seg_inter ~u0 ~u1 ~v0 ~v1] is the intersection
+      between segments (intervals) \[[u0];[u1]\] (with [u0] <= [u1])
+      and \[[v0];[v1]\] (with [v0] <= [v1]). This
+      is:
+
+      - [`None] if the intervals are disjoint.
+      - [`Pt x] if they intersect on the single point [x].
+      - [`Seg (x0, x1)] if they intersect on the interval \[[x0];[x1]\]
+        (with [x0 < x1]).
+
+      {b Note.} Terminology uses segments rather intervals to match
+      {!P2.seg_inter}. *)
+
   (** {1:round Rounding and truncating} *)
 
   val int_of_round : float -> int
