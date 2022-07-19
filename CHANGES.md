@@ -1,5 +1,7 @@
 
+
 - Add `P2.orient`.
+- Add `P2.seg_inter`.
 - Add `Float.seg_inter`.
 
 v1.0.0 2022-02-15 La Forclaz (VS)

@@ -1229,6 +1229,20 @@ module P2 : sig
       Incidentally this is the signed area of the parallelogram
       spanned by vectors [pr] and [qr], which is twice the signed area of
       the triangle [pqr]. *)
+
+  val seg_inter :
+    ?eps2:float -> p0:p2 -> p1:p2 -> q0:p2 -> q1:p2 -> unit ->
+    [ `None | `Pt of p2 | `Seg of p2 * p2 ]
+    (** [seg_inter ~p0 ~p1 ~q0 ~q1 ()] is the intersection between
+        segments [p0p1] and [q0q1]. This is:
+
+        - [`None] if the segments do not intersect.
+        - [`Pt i] if they intersect on the single point [i].
+        - [`Seg (i0, i1)] if they intersect on the segment [i0i1].
+
+        [eps2] is a squared relative epsilon. It is used as a
+        threshold for testing the zeroness of the angle between the
+        segments. Defaults to [1e-8]. *)
 end
 
 (** 3D points. *)

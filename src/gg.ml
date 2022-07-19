@@ -724,6 +724,41 @@ module P2 = struct
   let orient p0 p1 p2 =
     (p0.x -. p2.x) *. (p1.y -. p2.y) -.
     (p1.x -. p2.x) *. (p0.y -. p2.y)
+
+  let seg_inter ?(eps2 = 1e-8) ~p0 ~p1 ~q0 ~q1 () =
+    (* This intersection code is adapted from:
+       Schneider et al. Geometry Tools for computer Graphics p.244
+       https://doi.org/10.1016/B978-1-55860-594-7.X5000-0 *)
+    let ex  = q0.x -. p0.x and ey  = q0.y -. p0.y in
+    let d0x = p1.x -. p0.x and d0y = p1.y -. p0.y in
+    let d1x = q1.x -. q0.x and d1y = q1.y -. q0.y in
+    let kross = (d0x *. d1y) -. (d0y *. d1x) in
+    let sqr_kross = kross *. kross in
+    let sqr_len0 = (d0x *. d0x) +. (d0y *. d0y) in
+    let sqr_len1 = (d1y *. d1x) +. (d1y *. d1y) in
+    if sqr_kross > eps2 *. sqr_len0 *. sqr_len1
+    then (* segment lines are not // *)
+      let s = ((ex *. d1y) -. (ey *. d1x)) /. kross in
+      if s < 0. || s > 1. then (* isect beyond (p0,p1) *) `None else
+      let t = ((ex *. d0y) -. (ey *. d0x)) /. kross in
+      if t < 0. || t > 1. then (* isect beyond (q0,q1) *) `None else
+      `Pt (v (p0.x +. (s *. d0x)) (p0.y +. (s *. d0y)))
+    else (* segments lines are // *)
+    let sqr_lene = (ex *. ex) +. (ey *. ey) in
+    let kross = (ex *. d0y) -. (ey *. d0x) in
+    let sqr_kross = kross *. kross in
+    if sqr_kross > eps2 *. sqr_len0 *. sqr_lene
+    then (* segments lines are parallel but don't overlap  *) `None
+    else (* segement lines overlap, check if segments overlap *)
+    let s0 = ((d0x *. ex) +. (d0y *. ey)) /. sqr_len0 in
+    let s1 = s0 +. (((d0x *. d1x) +. (d0y *. d1y)) /. sqr_len0) in
+    let smin = Float.min s0 s1 and smax = Float.max s0 s1 in
+    match Float.seg_inter ~u0:0. ~u1:1.0 ~v0:smin ~v1:smax with
+    | `None -> `None
+    | `Pt s -> `Pt (v (p0.x +. (s *. d0x)) (p0.y +. (s *. d0y)))
+    | `Seg (s, t) ->
+        `Seg (v (p0.x +. (s *. d0x)) (p0.y +. (s *. d0y)),
+              v (p0.x +. (t *. d0x)) (p0.y +. (t *. d0y)))
 end
 
 module P3 = struct
