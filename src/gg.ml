@@ -720,6 +720,10 @@ module P2 = struct
     let open M3t in
     v (m.e00 *. p.x +. m.e01 *. p.y +. m.e02)
       (m.e10 *. p.x +. m.e11 *. p.y +. m.e12)
+
+  let orient p0 p1 p2 =
+    (p0.x -. p2.x) *. (p1.y -. p2.y) -.
+    (p1.x -. p2.x) *. (p0.y -. p2.y)
 end
 
 module P3 = struct
