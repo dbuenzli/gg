@@ -69,7 +69,7 @@ module Float = struct
   let max_frac_float = 4503599627370495.5                (* Float.pred 2^52. *)
   let max_int_arith = 9007199254740992.                             (* 2^53. *)
 
-  (* Functions *)
+  (* Angles *)
 
   let r2d = 180. /. pi
   let d2r = pi /. 180.
@@ -80,6 +80,8 @@ module Float = struct
   let wrap_angle r =
     let r = mod_float (r +. pi) pi2 in
     if r < 0. then r +. pi else r -. pi
+
+  (* Random *)
 
   let random ?(min = 0.) ~len () =
     let t0 = float (Random.bits ()) /. 1073741823. in (* ≠ from Random.float *)
@@ -92,6 +94,8 @@ module Float = struct
     let t1 = (float (Random.State.bits s) +. t0) /. 1073741824. in
     let t2 = (float (Random.State.bits s) +. t1) /. 1073741824. in
     min +. (t2 *. len)
+
+  (* Intervals *)
 
   let mix x y t = x +. t *. (y -. x)
   let step : float -> float -> float = fun edge x -> if x < edge then 0. else 1.
@@ -112,6 +116,8 @@ module Float = struct
     if x0 = x1 then y0 else
     y0 +. ((v -. x0) /. (x1 -. x0)) *. (y1 -. y0)
 
+  (* Rounding and truncating *)
+
   let int_of_round x = truncate (round x)
   let round_dfrac d x =
     if x -. (round x) = 0. then x else                   (* x is an integer. *)
@@ -129,7 +135,7 @@ module Float = struct
     let xi = floor (x +. 0.5) in
     if (abs_float (x -. xi)) < eps then xi else x
 
-  let sign x = if x > 0. then 1. else (if x < 0. then -1. else x)
+  (* NaNs *)
 
   let nan_with_payload p =
     let p = (Int64.logand (Int64.of_int p) bfloat_nanp) in
@@ -141,6 +147,7 @@ module Float = struct
 
   (* Predicates and comparisons *)
 
+  let sign x = if x > 0. then 1. else (if x < 0. then -1. else x)
   let is_zero ~eps x = abs_float x < eps
   let is_inf = is_infinite
   let is_int = is_integer
