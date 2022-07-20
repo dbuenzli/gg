@@ -2427,6 +2427,9 @@ module type Box = sig
       [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
 
+  val outset : v -> t -> t
+  (** [outset d b] is [inset -d b]. *)
+
   val round : t -> t
   (** [round b] is the smallest box containing [b] with integer valued
       corners. Returns {!empty} on {!empty}. *)
@@ -2601,6 +2604,9 @@ module Box1 : sig
       and the [i]th coordinate of the mid point of [b] is used for the
       [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
+
+  val outset : float -> box1 -> box1
+  (** [outset d b] is [inset (-d) b]. *)
 
   val round : box1 -> box1
   (** [round b] is the smallest box containing [b] with integer valued
@@ -2832,6 +2838,9 @@ module Box2 : sig
       and the [i]th coordinate of the mid point of [b] is used for the
       [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
+
+  val outset : v2 -> box2 -> box2
+  (** [outset d b] is [inset (V2.neg d) b]. *)
 
   val round : box2 -> box2
   (** [round b] is the smallest box containing [b] with integer valued
@@ -3072,6 +3081,9 @@ module Box3 : sig
       and the [i]th coordinate of the mid point of [b] is used for the
       [i]th coordinate of the resulting box's origin.  Returns
       {!empty} on {!empty}. *)
+
+  val outset : v3 -> box3 -> box3
+  (** [outset d b] is [inset (V3.neg d) b]. *)
 
   val round : box3 -> box3
   (** [round b] is the smallest box containing [b] with integer valued

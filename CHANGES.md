@@ -1,8 +1,8 @@
 
-
 - Add `P2.orient`.
 - Add `P2.seg_inter`.
 - Add `Float.seg_inter`.
+- Add `Box{1,2,3}.outset`.
 
 v1.0.0 2022-02-15 La Forclaz (VS)
 --------------------------------
