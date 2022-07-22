@@ -8,6 +8,9 @@ It defines types and functions for floats, vectors, points, sizes,
 matrices, quaternions, axis-aligned boxes, colors, color spaces, and
 raster data.
 
+On top of this the optional Gg_kit and Gg_unstable libraries provide a
+few more tools and algorithms for working with geometry and graphics.
+
 Gg is made of a single module, and is distributed under the ISC
 license.
 

@@ -16,3 +16,25 @@ package "top" (
  plugin(native) = "gg_top.cmxs"
  exists_if = "gg_top.cma"
 )
+
+package "kit" (
+ version = "%%VERSION_NUM%%"
+ description = "Gg toolkit"
+ requires = "gg"
+ archive(byte) = "gg_kit.cma"
+ archive(native) = "gg_kit.cmxa"
+ plugin(byte) = "gg_kit.cma"
+ plugin(native) = "gg_kit.cmxs"
+ exists_if = "gg_kit.cma"
+)
+
+package "unstable" (
+ version = "%%VERSION_NUM%%"
+ description = "Gg unstable"
+ requires = "gg"
+ archive(byte) = "gg_unstable.cma"
+ archive(native) = "gg_unstable.cmxa"
+ plugin(byte) = "gg_unstable.cma"
+ plugin(native) = "gg_unstable.cmxs"
+ exists_if = "gg_unstable.cma"
+)

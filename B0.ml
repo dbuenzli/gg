@@ -5,6 +5,8 @@ open B00_std
 
 let gg = B0_ocaml.libname "gg"
 let gg_top = B0_ocaml.libname "gg.top"
+let gg_kit = B0_ocaml.libname "gg.kit"
+let gg_unstable = B0_ocaml.libname "gg.unstable"
 
 let str = B0_ocaml.libname "str"
 let compiler_libs_toplevel = B0_ocaml.libname "compiler-libs.toplevel"
@@ -21,6 +23,18 @@ let gg_top_lib =
   let requires = [compiler_libs_toplevel] in
   let doc = "The gg toplevel support library" in
   B0_ocaml.lib gg_top ~doc ~srcs ~requires
+
+let gg_kit_lib =
+  let srcs = Fpath.[ `Dir (v "src-kit") ] in
+  let requires = [gg] in
+  let doc = "The gg kit library" in
+  B0_ocaml.lib gg_kit ~doc ~srcs ~requires
+
+let gg_unstable_lib =
+  let srcs = Fpath.[ `Dir (v "src-unstable") ] in
+  let requires = [gg] in
+  let doc = "The gg unstable library" in
+  B0_ocaml.lib gg_unstable ~doc ~srcs ~requires
 
 (* Tests *)
 
