@@ -735,7 +735,7 @@ module P2 = struct
     let kross = (d0x *. d1y) -. (d0y *. d1x) in
     let sqr_kross = kross *. kross in
     let sqr_len0 = (d0x *. d0x) +. (d0y *. d0y) in
-    let sqr_len1 = (d1y *. d1x) +. (d1y *. d1y) in
+    let sqr_len1 = (d1x *. d1x) +. (d1y *. d1y) in
     if sqr_kross > eps2 *. sqr_len0 *. sqr_len1
     then (* segment lines are not // *)
       let s = ((ex *. d1y) -. (ey *. d1x)) /. kross in
@@ -749,7 +749,7 @@ module P2 = struct
     let sqr_kross = kross *. kross in
     if sqr_kross > eps2 *. sqr_len0 *. sqr_lene
     then (* segments lines are parallel but don't overlap  *) `None
-    else (* segement lines overlap, check if segments overlap *)
+    else (* segments lines overlap, check if segments overlap *)
     let s0 = ((d0x *. ex) +. (d0y *. ey)) /. sqr_len0 in
     let s1 = s0 +. (((d0x *. d1x) +. (d0y *. d1y)) /. sqr_len0) in
     let smin = Float.min s0 s1 and smax = Float.max s0 s1 in
