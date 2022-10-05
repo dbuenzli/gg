@@ -1218,8 +1218,8 @@ module P2 : sig
       (its last coordinate in homogenous space is 1). Use {!V2.tr}
       to transform vectors (infinite points). *)
 
-  val orient : p2 -> p2 -> p2 -> float
-  (** [orient p q r] is:
+  val orient_fast : p2 -> p2 -> p2 -> float
+  (** [orient_fast p q r] is:
       - [> 0.] if the sequence [p], [q], [r] is in counterclockwise order.
         [r] is on the left of the line [pq].
       - [< 0.] if the sequence [p], [q], [r] is in clockwise order.
@@ -1227,8 +1227,8 @@ module P2 : sig
       - [= ±0.] if [p], [q] and [r] are collinear. [r] is on [pq].
 
       Incidentally this is the signed area of the parallelogram
-      spanned by vectors [pr] and [qr], which is twice the signed area of
-      the triangle [pqr]. *)
+      spanned by vectors [pr] and [qr], which is twice the signed area
+      of the triangle [pqr]. *)
 
   val seg_inter :
     ?eps2:float -> p0:p2 -> p1:p2 -> q0:p2 -> q1:p2 -> unit ->

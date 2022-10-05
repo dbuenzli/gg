@@ -1,5 +1,5 @@
 
-- Add `P2.orient`.
+- Add `P2.orient_fast`.
 - Add `P2.seg_inter`.
 - Add `Float.seg_inter`.
 - Add `Box{1,2,3}.outset`.
