@@ -1,18 +1,16 @@
-Gg — Basic types for computer graphics in OCaml
-===============================================
+Gg — Basic types and tools for computer graphics in OCaml
+=========================================================
 %%VERSION%%
 
-Gg is an OCaml module providing basic types for computer graphics.
+Gg provides basic types for computer graphics. It defines types and
+functions for floats, vectors, points, sizes, matrices, quaternions,
+axis-aligned boxes, colors, color spaces, and raster data.
 
-It defines types and functions for floats, vectors, points, sizes,
-matrices, quaternions, axis-aligned boxes, colors, color spaces, and
-raster data.
+On top of this the Gg_kit library provides a few more tools and
+algorithms for working with geometry and graphics.
 
-On top of this the optional Gg_kit and Gg_unstable libraries provide a
-few more tools and algorithms for working with geometry and graphics.
-
-Gg is made of a single module, and is distributed under the ISC
-license.
+Gg and Gg_kit are distributed under the ISC license. They have
+no dependencies.
 
 Home page: <http://erratique.ch/software/gg>  
 
@@ -27,7 +25,14 @@ instructions and a complete specification of the dependencies.
 
 # Documentation
 
-The documentation and API reference is automatically from the interfaces.
-It can be consulted [online][doc] or via `odig doc gg`.
+The documentation can be consulted [online] or via `odig doc gg`.
 
-[doc]: http://erratique.ch/software/gg/doc/Gg
+Questions are welcome but better asked on the [OCaml forum] than on
+the issue tracker.
+
+A few basic sample programs can be found in the [`test`](test/)
+directory.
+
+[online]: https://erratique.ch/software/gg
+[OCaml forum]: https://discuss.ocaml.org/
+

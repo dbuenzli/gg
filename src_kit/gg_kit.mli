@@ -3,7 +3,16 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
-module Pgon = Gg_pgon
+(** Geometry and graphics toolkit. *)
+
+(** {1:unstable Unstable}
+
+    These interfaces are not stabilized or their implementation
+    is not entirely satisfactory, read the docs. *)
+
+[@@@alert "-unstable"]
+module Pgon2 = Gg__pgon2
+[@@@alert "+unstable"]
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The gg programmers

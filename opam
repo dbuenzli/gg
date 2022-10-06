@@ -1,15 +1,15 @@
 opam-version: "2.0"
 name: "gg"
-synopsis: "Basic types for computer graphics in OCaml"
+synopsis: "Basic types and tools for computer graphics in OCaml"
 description: """\
-Gg is an OCaml module providing basic types for computer graphics.
+Gg provides basic types for computer graphics.It defines types and
+functions for floats, vectors, points, sizes, matrices, quaternions,
+axis-aligned boxes, colors, color spaces, and raster data.
 
-It defines types and functions for floats, vectors, points, sizes,
-matrices, quaternions, axis-aligned boxes, colors, color spaces, and
-raster data.
+On top of this Gg_kit library provides a few more tools and algorithms
+for working with geometry and graphics.
 
-Gg is made of a single module, and is distributed under the ISC
-license.
+Gg and Gg_kit are distributed under the ISC license.
 
 Home page: <http://erratique.ch/software/gg>"""
 maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
@@ -24,6 +24,8 @@ depends: [
   "ocamlfind" {build}
   "ocamlbuild" {build}
   "topkg" {build & >= "1.0.3"}
+  "brr" {with-test}
+  "vg" {with-test}
 ]
 build: ["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]
 dev-repo: "git+https://erratique.ch/repos/gg.git"

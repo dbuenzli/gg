@@ -3,7 +3,7 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
-(* Test polygons *)
+(* Test polygons for Pgon2 boolean operations *)
 
 let t000 =
   __LOC__,
@@ -266,8 +266,8 @@ let t028 =
 
 let make_test (loc, a,  b, ops, doc) =
   let pt (x, y) = Gg.P2.v x y in
-  let contour ps = Gg_unstable.Pgon.Contour.of_seg_pts (List.map pt ps) in
-  let pgon cs = Gg_unstable.Pgon.v (List.map contour cs) in
+  let contour ps = Gg_kit.Pgon2.Contour.of_seg_pts (List.map pt ps) in
+  let pgon cs = Gg_kit.Pgon2.v (List.map contour cs) in
   loc, pgon a, pgon b, ops, doc
 
 let list = List.rev_map make_test

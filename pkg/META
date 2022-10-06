@@ -28,15 +28,3 @@ package "kit" (
  plugin(native) = "gg_kit.cmxs"
  exists_if = "gg_kit.cma"
 )
-
-package "unstable" (
- version = "%%VERSION_NUM%%"
- description = "Gg unstable"
- requires = "gg"
- directory = "unstable"
- archive(byte) = "gg_unstable.cma"
- archive(native) = "gg_unstable.cmxa"
- plugin(byte) = "gg_unstable.cma"
- plugin(native) = "gg_unstable.cmxs"
- exists_if = "gg_unstable.cma"
-)

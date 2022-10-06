@@ -7,7 +7,6 @@ let b0_std = B0_ocaml.libname "b0.std"
 let gg = B0_ocaml.libname "gg"
 let gg_top = B0_ocaml.libname "gg.top"
 let gg_kit = B0_ocaml.libname "gg.kit"
-let gg_unstable = B0_ocaml.libname "gg.unstable"
 
 let str = B0_ocaml.libname "str"
 let compiler_libs_toplevel = B0_ocaml.libname "compiler-libs.toplevel"
@@ -26,16 +25,10 @@ let gg_top_lib =
   B0_ocaml.lib gg_top ~doc ~srcs ~requires
 
 let gg_kit_lib =
-  let srcs = Fpath.[ `Dir (v "src-kit") ] in
+  let srcs = Fpath.[ `Dir (v "src_kit") ] in
   let requires = [gg] in
   let doc = "The gg kit library" in
   B0_ocaml.lib gg_kit ~doc ~srcs ~requires
-
-let gg_unstable_lib =
-  let srcs = Fpath.[ `Dir (v "src-unstable") ] in
-  let requires = [gg] in
-  let doc = "The gg unstable library" in
-  B0_ocaml.lib gg_unstable ~doc ~srcs ~requires
 
 (* Tests *)
 
@@ -56,20 +49,20 @@ let test =
   let doc = "Gg test suite" in
   B0_ocaml.exe "test" ~srcs ~doc ~meta ~requires
 
-(* N.B. Unless vg is in the build universe, those tests with vg needs to be
-   build with `-x gg` otherwise we get inconsistent assumptions. See the
-   pgon-viz pack. *)
+(* N.B. Unless vg is in the build universe, those tests with vg needs
+   to be build with `-x gg` otherwise we get inconsistent
+   assumptions. See the also the pgon2_bool_tests pack. *)
 
 let vg = B0_ocaml.libname "vg"
 let vg_htmlc = B0_ocaml.libname "vg.htmlc"
 let vg_pdf = B0_ocaml.libname "vg.pdf"
 let brr = B0_ocaml.libname "brr"
 
-let pgon_debug =
+let pgon2_bool_steps =
   let srcs =
-    Fpath.[`Dir (v "src-unstable");
-           `File (v "test/pgon_cases.ml");
-           `File (v "test/pgon_debug.ml");]
+    Fpath.[`Dir (v "src_kit");
+           `File (v "test/pgon2_test_cases.ml");
+           `File (v "test/pgon2_bool_steps.ml");]
   in
   let requires = [gg; vg; vg_htmlc; brr] in
   let assets_root = Fpath.v "test" in
@@ -77,28 +70,29 @@ let pgon_debug =
     let comp_mode = `Separate in
     B0_jsoo.meta ~requires ~assets_root ~comp_mode ~source_map:(Some `Inline) ()
   in
-  B0_jsoo.web "pgon_debug" ~doc:"Polygon boolean ops step debugger" ~srcs ~meta
+  let doc = "Pgon2 boolean operations step debugger" in
+  B0_jsoo.web "pgon2_bool_steps" ~doc ~srcs ~meta
 
-let pgon_tests =
+let pgon2_bool_tests =
   let srcs =
-    Fpath.[`Dir (v "src-unstable");
-           `File (v "test/pgon_cases.ml");
-           `File (v "test/pgon_tests.ml");]
+    Fpath.[`Dir (v "src_kit");
+           `File (v "test/pgon2_test_cases.ml");
+           `File (v "test/pgon2_bool_tests.ml");]
   in
   let requires = [b0_std; gg; vg; vg_pdf] in
   let meta = B0_meta.(empty |> tag test) in
-  let doc = "Polygon boolean op tests" in
-  B0_ocaml.exe "pgon_tests" ~srcs ~doc ~meta ~requires
+  let doc = "Pgon2 boolean operations tests" in
+  B0_ocaml.exe "pgon2_bool_tests" ~srcs ~doc ~meta ~requires
 
 let viz_orient =
-  let srcs = Fpath.[`File (v "test/viz_orient.ml")] in
+  let srcs = Fpath.[`File (v "test/orient_p2.ml")] in
   let requires = [gg; brr] in
-  let comp_mode = `Separate in
   let meta =
+    let comp_mode = `Separate in
     B0_jsoo.meta ~requires ~comp_mode ~source_map:(Some `Inline) ()
   in
-  let doc = "Orientation predicate vizualisation"in
-  B0_jsoo.web "viz_orient" ~doc ~srcs ~meta
+  let doc = "Orientation predicate visualization"in
+  B0_jsoo.web "orient_p2" ~doc ~srcs ~meta
 
 (* Packs *)
 
@@ -107,8 +101,9 @@ let pgon_test_pack =
      otherwise we compile gg and we get inconsistent assumptions with
      installed vg. *)
   let meta = B0_meta.(empty |> tag test) in
-  B0_pack.v "pgon-test" ~doc:"Polygon visual testing" ~meta ~locked:true @@
-  [pgon_debug; pgon_tests]
+  let doc = "Pgon2 boolean operations visual testing" in
+  B0_pack.v "pgon2_bool_tests" ~doc ~meta ~locked:true @@
+  [pgon2_bool_tests; pgon2_bool_steps]
 
 let default =
   let meta =
@@ -130,11 +125,11 @@ let default =
         "ocamlfind", {|build|};
         "ocamlbuild", {|build|};
         "topkg", {|build & >= "1.0.3"|};
-        "brr", {|test|};
-        "vg", {|test|};
+        "brr", {|with-test|};
+        "vg", {|with-test|};
       ]
     |> add B0_opam.Meta.build
       {|[["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]]|}
   in
   B0_pack.v "default" ~doc:"gg package" ~meta ~locked:true @@
-  [gg_lib; gg_kit_lib; gg_top_lib; gg_unstable_lib; test]
+  [gg_lib; gg_kit_lib; gg_top_lib; test; viz_orient]

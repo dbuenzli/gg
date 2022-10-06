@@ -3,10 +3,9 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
-(** Geometry and graphics toolkit.
-
-    The toolkit is empty at the moment. At some point stuff from
-    {!Gg_unstable} will get in. *)
+[@@@alert "-unstable"]
+module Pgon2 = Gg__pgon2
+[@@@alert "+unstable"]
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The gg programmers

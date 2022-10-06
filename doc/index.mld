@@ -4,11 +4,9 @@ Gg provides basic types for computer graphics. It defines types and
 functions for floats, vectors, points, sizes, matrices, quaternions,
 axis-aligned boxes, colors, color spaces, and raster data.
 
-The {!Gg_kit} and {!Gg_unstable} modules provide a few more
-alorithm and data structures. They live in separate libraries.
+The {!Gg_kit} module provide a few more tools.
 
 {!modules:
 Gg
 Gg_kit
-Gg_unstable
 }

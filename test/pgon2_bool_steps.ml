@@ -4,15 +4,15 @@
   ---------------------------------------------------------------------------*)
 
 open Gg
-open Gg_unstable
+open Gg_kit
 open Vg
 open Brr_canvas
 open Brr
 
 (* The tested polygons *)
 
-let test = List.hd Pgon_cases.list
-let step_op = Pgon.Inter
+let test = List.hd Pgon2_test_cases.list
+let step_op = Pgon2.Inter
 
 (* This stuff should be added to a lib *)
 
@@ -72,11 +72,11 @@ let cut_pt ~w pt color =
 
 let contour_path ?(acc = P.empty) c =
   let add pt p = if p == acc then P.sub pt p else P.line pt p in
-  P.close (Pgon.Contour.fold_pts add c acc)
+  P.close (Pgon2.Contour.fold_pts add c acc)
 
 let pgon_path p =
   let add c path = contour_path c ~acc:path in
-  Pgon.fold_contours add p P.empty
+  Pgon2.fold_contours add p P.empty
 
 let cut_pgon ?(o = I.const Color.black) ?(area = `Aeo) ~w:width p i =
   let outline = `O { P.o with width } in
@@ -100,9 +100,9 @@ let cut_sweep_line ~w:width ~x ~box color =
   I.cut ~area (P.empty |> P.sub l0 |> P.line l1) (I.const color)
 
 let cut_sweep_result ~w evs =
-  let add acc (e : Pgon.Event.t) =
+  let add acc (e : Pgon2.Event.t) =
     if not e.is_left then acc else
-    let color (e : Pgon.Event.t) = if e.in_result then green else qual.(2) in
+    let color (e : Pgon2.Event.t) = if e.in_result then green else qual.(2) in
     let p0 = e.pt and p1 = e.other.pt in
     acc
     |> I.blend (cut_seg ~w p0 p1 Color.black)
@@ -111,11 +111,11 @@ let cut_sweep_result ~w evs =
   in
   List.fold_left add I.void evs
 
-let cut_step_event ~w ~box (ev : Pgon.Event.t) =
+let cut_step_event ~w ~box (ev : Pgon2.Event.t) =
   let p0 = ev.pt and p1 = ev.other.pt in
   let sweep_line = cut_sweep_line ~w:(w *. 0.5) ~x:(P2.x p0) ~box Color.black in
   let seg_w = if ev.in_result || ev.other.in_result then 8. *. w else w in
-  let linec = if ev.polygon = Pgon.Subject then green else qual.(1) in
+  let linec = if ev.polygon = Pgon2.Subject then green else qual.(1) in
   sweep_line
   |> I.blend (cut_seg ~w:seg_w p0 p1 linec)
   |> I.blend (cut_pt ~w:(8. *. w) p0 linec)
@@ -124,13 +124,13 @@ let cut_step_event ~w ~box (ev : Pgon.Event.t) =
 let cut_step ~w ~box below ev above ss =
   let cut_neighbor ~is_above = function
   | None -> I.void
-  | Some (ev : Pgon.Event.t) ->
+  | Some (ev : Pgon2.Event.t) ->
       let c = if is_above then yellowish else pink in
       cut_seg ~w:(4. *. w) ev.pt ev.other.pt c
   in
   let status_others =
     let ev = Some ev and eq = Option.equal ( == ) in
-    let add acc (e : Pgon.Event.t) =
+    let add acc (e : Pgon2.Event.t) =
       let se = Some e in
       if eq se below || eq se ev || eq se above then acc else
       I.blend (cut_seg ~w:(4. *. w) e.pt e.other.pt (Color.gray ~a:0.2 0.)) acc
@@ -144,50 +144,50 @@ let cut_step ~w ~box below ev above ss =
 
 let dump_contour ppf c =
   let pp_v2 ppf pt = Format.fprintf ppf "%.17f, %.17f" (V2.x pt) (V2.y pt) in
-  let pts = List.rev (Pgon.Contour.fold_pts List.cons c []) in
+  let pts = List.rev (Pgon2.Contour.fold_pts List.cons c []) in
   let pp_sep ppf () = Format.fprintf ppf ";@," in
   Format.fprintf ppf "@[<v1>[%a]@]" (Format.pp_print_list ~pp_sep pp_v2) pts
 
 let dump_pgon ppf p =
   let pp_sep ppf () = Format.fprintf ppf ";@," in
-  let cs = List.rev (Pgon.fold_contours List.cons p []) in
+  let cs = List.rev (Pgon2.fold_contours List.cons p []) in
   Format.fprintf ppf "@[<v1>[%a]@]"
     (Format.pp_print_list ~pp_sep dump_contour) cs
 
 let dump_result r =
   Format.(printf "@[<v>Results:@, @[<v>%a@]@]@."
-            (pp_print_list Pgon.Event.pp_dump) r)
+            (pp_print_list Pgon2.Event.pp_dump) r)
 
 let retract r =
   let v = match r with Ok (v, _) -> v | Error ((v, _), _) -> v in
-  let cpts c = Pgon.Contour.fold_pts (fun _ acc -> acc + 1) c 0 in
-  let cs = Pgon.fold_contours (fun c acc -> cpts c :: acc) v [] in
+  let cpts c = Pgon2.Contour.fold_pts (fun _ acc -> acc + 1) c 0 in
+  let cs = Pgon2.fold_contours (fun c acc -> cpts c :: acc) v [] in
   Format.printf "@[<v>Result contours counts: @[<h>[%a]@]@,Result:@,%a@]@."
     Format.(pp_print_list ~pp_sep:pp_print_space pp_print_int) cs dump_pgon v;
   v
 
 let img p0 p1 step_op =
   let box, gutter =
-    let box = Box2.union (Pgon.box p0) (Pgon.box p1) in
+    let box = Box2.union (Pgon2.box p0) (Pgon2.box p1) in
     let margin = V2.(0.1 * Box2.size box) in
     Box2.outset margin box, Size2.h margin
   in
   let w = 0.0025 *. Float.min (Box2.w box) (Box2.h box) in
   let h = h_stack ~gutter and v l = v_stack ~gutter (List.rev l) in
-  let res = Pgon.Sweep.debug_result step_op p0 p1 in
+  let res = Pgon2.Sweep.debug_result step_op p0 p1 in
   dump_result res;
   let res = box, cut_sweep_result ~w res in
   let res' =
     box, cut_sweep_result ~w
-      (Pgon.Sweep.debug_result ~filtered:false step_op p0 p1)
+      (Pgon2.Sweep.debug_result ~filtered:false step_op p0 p1)
   in
   let op =
     let cut_pgon p = cut_pgon ~w p (I.const (Color.gray 0.9 ~a:0.75)) in
     match step_op with
-    | Pgon.Union -> box, cut_pgon (retract (Pgon.union p0 p1))
-    | Pgon.Inter -> box, cut_pgon (retract (Pgon.inter p0 p1))
-    | Pgon.Diff -> box, cut_pgon (retract (Pgon.diff p0 p1))
-    | Pgon.Xor -> box, cut_pgon (retract (Pgon.xor p0 p1))
+    | Pgon2.Union -> box, cut_pgon (retract (Pgon2.union p0 p1))
+    | Pgon2.Inter -> box, cut_pgon (retract (Pgon2.inter p0 p1))
+    | Pgon2.Diff -> box, cut_pgon (retract (Pgon2.diff p0 p1))
+    | Pgon2.Xor -> box, cut_pgon (retract (Pgon2.xor p0 p1))
   in
   (* ^ are constant images, let's not recompute them every step *)
   fun step ->
@@ -205,9 +205,9 @@ let img p0 p1 step_op =
         h [op; res']]
 
 let stepper op p0 p1 =
-  let step = ref (Pgon.Sweep.debug_stepper op p0 p1) in
+  let step = ref (Pgon2.Sweep.debug_stepper op p0 p1) in
   fun () -> match !step () with
-  | None -> step := Pgon.Sweep.debug_stepper op p0 p1; None
+  | None -> step := Pgon2.Sweep.debug_stepper op p0 p1; None
   | Some _ as v -> v
 
 let render r (view, img) =

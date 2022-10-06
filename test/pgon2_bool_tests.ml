@@ -6,7 +6,7 @@
 open B0_std
 open Vg
 open Gg
-open Gg_unstable
+open Gg_kit
 
 (* Render *)
 
@@ -83,11 +83,11 @@ let cut_pt ~w pt color =
 
 let contour_path ?(acc = P.empty) c =
   let add pt p = if p == acc then P.sub pt p else P.line pt p in
-  P.close (Pgon.Contour.fold_pts add c acc)
+  P.close (Pgon2.Contour.fold_pts add c acc)
 
 let pgon_path p =
   let add c path = contour_path c ~acc:path in
-  Pgon.fold_contours add p P.empty
+  Pgon2.fold_contours add p P.empty
 
 let cut_pgon ?(area = `Aeo) ?(o = I.const Color.black) ~w:width p i =
   let p = pgon_path p and outline = `O { P.o with width } in
@@ -119,7 +119,7 @@ let retract loc doc op = function
 
 let test (loc, a, b, _, doc) =
   try
-    let box = Box2.union (Pgon.box a) (Pgon.box b) in
+    let box = Box2.union (Pgon2.box a) (Pgon2.box b) in
     let w = 0.005 *. Float.min (Box2.w box) (Box2.h box) in
     let cut_arg col p =
       let o = I.const (Color.with_a col 1.0) and a = I.const col in
@@ -127,10 +127,10 @@ let test (loc, a, b, _, doc) =
     in
     let cut_op ?area p = cut_pgon ~w p (I.const (Color.gray 0.9)) in
     let src = box, (cut_arg qual.(0) a) |> I.blend (cut_arg qual.(1) b) in
-    let u = box, cut_op (retract loc doc `Union (Pgon.union a b)) in
-    let i = box, cut_op (retract loc doc `Inter (Pgon.inter a b)) in
-    let d = box, cut_op (retract loc doc `Diff (Pgon.diff a b)) in
-    let x = box, cut_op (retract loc doc `Xor (Pgon.xor a b)) in
+    let u = box, cut_op (retract loc doc `Union (Pgon2.union a b)) in
+    let i = box, cut_op (retract loc doc `Inter (Pgon2.inter a b)) in
+    let d = box, cut_op (retract loc doc `Diff (Pgon2.diff a b)) in
+    let x = box, cut_op (retract loc doc `Xor (Pgon2.xor a b)) in
     h_squares ~size:Size2.unit ~gutter:0.25 [src; u; i; d; x]
   with exn ->
     let bt = Printexc.get_raw_backtrace () in
@@ -159,7 +159,8 @@ let main () =
   in
   (Log.time ~level:Log.App result @@ fun () ->
    let img =
-     let box, i = v_stack ~gutter:0.1 (List.rev_map test Pgon_cases.list) in
+     let tests = List.rev_map test Pgon2_test_cases.list in
+     let box, i = v_stack ~gutter:0.1 tests in
      Box2.outset (Size2.v 0.5 0.1) box, i
    in
    render r img);

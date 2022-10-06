@@ -6,7 +6,9 @@
 open Gg
 open Brr_canvas
 open Brr
-open Fut.Syntax
+
+(* This set of coordinates was found via
+   https://observablehq.com/@mourner/non-robust-arithmetic-as-art *)
 
 let p = P2.v 16.5 16.5
 let q = P2.v 18.  18.
@@ -24,12 +26,13 @@ let render_predicate ~w:iw ~h:ih orient =
     for x = 0 to iw - 1 do
       let rx = P2.x r0 +. (float x *. (window /. w)) in
       let ry = P2.y r0 +. (float y *. (window /. h)) in
-      let r, g, b = match orient p q (P2.v rx ry) with
-      | o when o < 0. -> 0x38, 0x6c, 0xb0
-      | o when o = 0. -> 0xfd, 0xc0, 0x86
-      | o (* when o > 0. *) -> 0xf0, 0x02, 0x7f
+      let r, g, b =
+        (* if x = y then 0x00, 0x00, 0x00 else *)
+        match orient p q (P2.v rx ry) with
+        | o when o < 0. -> 0x38, 0x6c, 0xb0
+        | o when o = 0. -> 0xfd, 0xc0, 0x86
+        | o (* when o > 0. *) -> 0xf0, 0x02, 0x7f
       in
-      let r, g, b = if x = y then 0x00, 0x00, 0x00 else r, g, b in
       let off = 4 * (y * iw + x) in
       Tarray.set pixels (off    ) r;
       Tarray.set pixels (off + 1) g;
@@ -41,16 +44,13 @@ let render_predicate ~w:iw ~h:ih orient =
   Canvas.to_el c
 
 let main () =
-  let h1 = El.h1 [El.txt' "Visualize orientation predicates"] in
+  let h1 = El.h1 [El.txt' "Orientation predicates"] in
   let fast = render_predicate ~w:350 ~h:350 P2.orient_fast in
   let robust = render_predicate ~w:350 ~h:350 P2.orient in
   let html = [h1; fast; El.txt' "   "; robust] in
-  El.set_children (Document.body G.document) html;
+  El.set_children (Document.body G.document) html
 
-  Fut.return ()
-
-let () = ignore (main ())
-
+let () = main ()
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The gg programmers

@@ -1,1 +1,1 @@
-(srcs-x pkg test)
+(srcs-x pkg test tmp)
