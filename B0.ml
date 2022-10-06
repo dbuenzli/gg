@@ -56,7 +56,6 @@ let test =
   let doc = "Gg test suite" in
   B0_ocaml.exe "test" ~srcs ~doc ~meta ~requires
 
-
 (* N.B. Unless vg is in the build universe, those tests with vg needs to be
    build with `-x gg` otherwise we get inconsistent assumptions. See the
    pgon-viz pack. *)
@@ -90,6 +89,16 @@ let pgon_tests =
   let meta = B0_meta.(empty |> tag test) in
   let doc = "Polygon boolean op tests" in
   B0_ocaml.exe "pgon_tests" ~srcs ~doc ~meta ~requires
+
+let viz_orient =
+  let srcs = Fpath.[`File (v "test/viz_orient.ml")] in
+  let requires = [gg; brr] in
+  let comp_mode = `Separate in
+  let meta =
+    B0_jsoo.meta ~requires ~comp_mode ~source_map:(Some `Inline) ()
+  in
+  let doc = "Orientation predicate vizualisation"in
+  B0_jsoo.web "viz_orient" ~doc ~srcs ~meta
 
 (* Packs *)
 

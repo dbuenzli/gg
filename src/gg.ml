@@ -721,6 +721,48 @@ module P2 = struct
     v (m.e00 *. p.x +. m.e01 *. p.y +. m.e02)
       (m.e10 *. p.x +. m.e11 *. p.y +. m.e12)
 
+  (* For the following see, Robust adaptive floating-point geometric
+     predicates. Johnathan Richard Shewchuk.
+     https://doi.org/10.1145/237218.237337
+     https://www.cs.cmu.edu/afs/cs/project/quake/public/code/predicates.c *)
+
+  let epsilon = 1.1102230246251565e-16
+  let ccw_err_bound_A = (3. +. 16. *. epsilon) *. epsilon
+  let ccw_err_bound_B = (2. +. 12. *. epsilon) *. epsilon
+  let ccw_err_bound_C = (9. +. 64. *. epsilon) *. epsilon *. epsilon
+
+  let orient_adapt pa pb pc detsum_abs =
+    failwith "TODO"
+
+  let _orient pa pb pc =
+    let det_left = (pa.x -. pc.x) *. (pb.y -. pc.y) in
+    let det_right = (pa.y -. pc.y) *. (pb.x -. pc.x) in
+    let det = det_left -. det_right in
+    if (det_left = 0.) ||
+       (det_left > 0. && det_right <= 0.0) ||
+       (det_left < 0. && det_right >= 0.0) then det else
+    let detsum_abs = Float.abs (det_left +. det_right) in
+    let err_bound = ccw_err_bound_A *. detsum_abs in
+    if Float.abs det >= err_bound then det else
+    orient_adapt pa pb pc detsum_abs
+
+  let orient pa pb pc =
+    let orient_better  pa pb pc =
+      let det_left = (pa.x -. pc.x) *. (pb.y -. pc.y) in
+      let det_right = (pa.y -. pc.y) *. (pb.x -. pc.x) in
+      let det = det_left -. det_right in
+      if (det_left = 0.) ||
+         (det_left > 0. && det_right <= 0.0) ||
+         (det_left < 0. && det_right >= 0.0) then det else
+      let detsum_abs = Float.abs (det_left +. det_right) in
+      if Float.abs det >= ccw_err_bound_A *. detsum_abs then det else 0.
+    in
+    let o = orient_better pa pb pc in
+    if o <> 0. then o else
+    let o = orient_better pc pa pb in
+    if o <> 0. then o else
+    orient_better pb pc pa
+
   let orient_fast p0 p1 p2 =
     (p0.x -. p2.x) *. (p1.y -. p2.y) -.
     (p1.x -. p2.x) *. (p0.y -. p2.y)

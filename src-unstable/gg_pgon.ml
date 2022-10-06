@@ -243,7 +243,7 @@ module Event = struct
 
   let is_seg_vertical e = Float.equal (P2.x e.pt) (P2.x e.other.pt)
 
-  let p2_orient = P2.orient_fast
+  let p2_orient = P2.orient
 
   let is_seg_below ~seg:e ~pt = (* [true] if segment [e] is below [pt] *)
     if e.is_left
