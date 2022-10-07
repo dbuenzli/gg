@@ -5,6 +5,7 @@
 
 [@@@alert "-unstable"]
 module Pgon2 = Gg__pgon2
+module Color_scheme = Gg__color_scheme
 [@@@alert "+unstable"]
 
 (*---------------------------------------------------------------------------

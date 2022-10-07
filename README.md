@@ -9,8 +9,9 @@ axis-aligned boxes, colors, color spaces, and raster data.
 On top of this the Gg_kit library provides a few more tools and
 algorithms for working with geometry and graphics.
 
-Gg and Gg_kit are distributed under the ISC license. They have
-no dependencies.
+Gg and Gg_kit have no dependencies. Gg is distributed under the ISC
+license. Gg_kit is distributed under the ISC license and some color
+schemes are distributed under the Apache 2.0 license.
 
 Home page: <http://erratique.ch/software/gg>  
 

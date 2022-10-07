@@ -49,6 +49,11 @@ let test =
   let doc = "Gg test suite" in
   B0_ocaml.exe "test" ~srcs ~doc ~meta ~requires
 
+
+let test_color_schemes =
+  let doc = "Color scheme tests" in
+  test_exe "test/test_color_schemes.ml" ~doc ~requires:[gg_kit]
+
 (* N.B. Unless vg is in the build universe, those tests with vg needs
    to be build with `-x gg` otherwise we get inconsistent
    assumptions. See the also the pgon2_bool_tests pack. *)
@@ -94,6 +99,16 @@ let viz_orient =
   let doc = "Orientation predicate visualization"in
   B0_jsoo.web "orient_p2" ~doc ~srcs ~meta
 
+let color_schemes =
+  let srcs = Fpath.[`File (v "test/color_schemes.ml")] in
+  let requires = [gg; gg_kit; brr; vg; vg_htmlc] in
+  let meta =
+    let comp_mode = `Separate in
+    B0_jsoo.meta ~requires ~comp_mode ~source_map:(Some `Inline) ()
+  in
+  let doc = "Color schemes visualization"in
+  B0_jsoo.web "color_schemes" ~doc ~srcs ~meta
+
 (* Packs *)
 
 let pgon_test_pack =
@@ -114,7 +129,7 @@ let default =
     |> add maintainers ["Daniel Bünzli <daniel.buenzl i@erratique.ch>"]
     |> add homepage "https://erratique.ch/software/gg"
     |> add online_doc "https://erratique.ch/software/gg/doc/"
-    |> add licenses ["ISC"]
+    |> add licenses ["ISC"; "Apache-2.0"]
     |> add repo "git+https://erratique.ch/repos/gg.git"
     |> add issues "https://github.com/dbuenzli/gg/issues"
     |> add description_tags
