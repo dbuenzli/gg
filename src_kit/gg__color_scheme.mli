@@ -111,6 +111,13 @@ val diverging_wijffelaars' :
     except it returns a discrete diverging scheme with [size] colors
     and [c] defaults to [min 0.88 (1.0 - 0.06 *. (11 - ((n / 2) + 1)))]. *)
 
+(** {1:cyclic Cyclic} *)
+
+val cyclic_sinebow : ?a:float -> unit -> continuous
+(** [cylic_sinebow ()] is the sinebow cyclical scheme by
+    {{:https://krazydad.com/tutorials/makecolors.php}Jim Bumgardner}
+    and {{:http://basecase.org/env/on-rainbows}Charlie Loyd}. *)
+
 (** {1:qualitative Qualitative}
 
     Qualitative schemes are for nominal or categorical data. *)

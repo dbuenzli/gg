@@ -21,13 +21,13 @@
    The turbo color scheme is Copyright 2019 Google LLC. Licensed under
    the Apache License version 2.0.
    See http://www.apache.org/licenses/LICENSE-2.0
-*)
+
+   The sinebow color scheme is by Jim Bumgardner and Charlie Loyd. *)
 
 open Gg
 
 type continuous = float -> Gg.color
 type discrete = int -> Gg.color
-
 
 let r_lch_uv_c = 179.0413773582776
 let y_lch_uv = V3.v 97.1392672 107.0642904 1.4987619    (* yellow LCH_uv. *)
@@ -107,7 +107,7 @@ let max_s l h =
   let alpha = (l -. pendL) /. (V4.x pmid -. pendL) in
   alpha *. V4.y pmid
 
-(* Sequential color schemes, see Wijffelaars 2008 p. 747 table 1. *)
+(* Sequential schemes *)
 
 let p2_multi_hue w s h = (* see Wijffelaars 2008 p. 747 table 2. *)
   let pb = y_lch_uv in
@@ -116,7 +116,7 @@ let p2_multi_hue w s h = (* see Wijffelaars 2008 p. 747 table 2. *)
   let p2s = min (max_s p2l p2h) (w *. s *. V3.y pb) in
   V3.v p2l p2s p2h
 
-let sequential_wijffelaars
+let sequential_wijffelaars (* see Wijffelaars 2008 p. 747 table 1. *)
     ?(a = 1.) ?(w = 0.) ?(s = 0.6) ?(b = 0.75) ?(c = 0.88) ~h ()
   =
   let p0 = V3.v 0. 0. h in
@@ -187,9 +187,9 @@ let sequential_turbo ?(a = 1.0) () = fun t ->
   in
   Color.v_srgb r g b ~a
 
-(* Diverging color schemes, see Wijffelaars 2008 p. 53 table 1. *)
+(* Diverging schemes *)
 
-let diverging_wijffelaars
+let diverging_wijffelaars (* see Wijffelaars 2008 p. 53 table 1. *)
     ?(a = 1.) ?(w = 0.) ?(s = 0.6) ?(b = 0.75) ?(c = 0.88) ?(m = 0.5)
     ~h0 ~h1 ()
   =
@@ -240,6 +240,17 @@ let diverging_wijffelaars' ?a ?w ?s ?b ?c ?(m = 0.5) ~h0 ~h1 ~size:n () =
          else div ((i +. 1.) /. max))
   in
   fun i -> Array.get colors i
+
+(* Cyclic schemes *)
+
+let pi_1_div_3 = Float.pi /. 3.
+let pi_2_div_3 = Float.two_pi /. 3.
+let cyclic_sinebow ?(a = 1.0) () = fun t ->
+  let t = (0.5 -. t) *. Float.pi in
+  let r = let v = Float.sin t in v *. v in
+  let g = let v = Float.sin (t +. pi_1_div_3) in v *. v in
+  let b = let v = Float.sin (t +. pi_2_div_3) in v *. v in
+  Color.v_srgb r g b ~a
 
 (* Qualitative schemes *)
 

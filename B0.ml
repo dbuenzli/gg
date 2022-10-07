@@ -72,8 +72,8 @@ let pgon2_bool_steps =
   let requires = [gg; vg; vg_htmlc; brr] in
   let assets_root = Fpath.v "test" in
   let meta =
-    let comp_mode = `Separate in
-    B0_jsoo.meta ~requires ~assets_root ~comp_mode ~source_map:(Some `Inline) ()
+    let comp_mode = `Separate and source_map = Some `Inline in
+    B0_jsoo.meta ~requires ~assets_root ~comp_mode ~source_map ()
   in
   let doc = "Pgon2 boolean operations step debugger" in
   B0_jsoo.web "pgon2_bool_steps" ~doc ~srcs ~meta

@@ -57,6 +57,8 @@ let schemes =
         Color_scheme.diverging_wijffelaars'
           ~h0:(h 255.) ~h1:(h 10.) ~s:0.3 ~c:0.9 ~b:0.5 ~size:6 (), 6);
     `Blank;
+    `C (true, Color_scheme.cyclic_sinebow (), 9.);
+    `Blank;
     `D (false, Color_scheme.qualitative `Brewer_accent_8 (), 8);
     `D (false, Color_scheme.qualitative `Brewer_dark2_8 (), 8);
     `D (false, Color_scheme.qualitative `Brewer_paired_12 (), 12);
