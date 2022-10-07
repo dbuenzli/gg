@@ -10,19 +10,7 @@ open Gg_kit
 
 (* Render *)
 
-let qual ~a =
-  (* http://colorbrewer2.org/#type=qualitative&scheme=Accent&n=7 *)
-  [| Color.v_srgbi ~a 127 201 127;
-     Color.v_srgbi ~a 190 174 212;
-     Color.v_srgbi ~a 253 192 134;
-     Color.v_srgbi ~a 255 255 153;
-     Color.v_srgbi ~a 56 108 176;
-     Color.v_srgbi ~a 240 2 127;
-     Color.v_srgbi ~a 191 91 23;
-     (* Additional used for meta, pts *)
-     Color.v_srgbi ~a 228 26 28; |]
-
-let qual = qual ~a:0.5
+let qual = Color_scheme.qualitative ~a:0.5 `Brewer_accent_8 ()
 
 let frame_box ~src ~dst = (* fits and center *)
   let sy = Box2.h dst /. Box2.h src in
@@ -126,7 +114,7 @@ let test (loc, a, b, _, doc) =
       cut_pgon ~w:(2. *. w) ~o p a
     in
     let cut_op ?area p = cut_pgon ~w p (I.const (Color.gray 0.9)) in
-    let src = box, (cut_arg qual.(0) a) |> I.blend (cut_arg qual.(1) b) in
+    let src = box, (cut_arg (qual 0) a) |> I.blend (cut_arg (qual 1) b) in
     let u = box, cut_op (retract loc doc `Union (Pgon2.union a b)) in
     let i = box, cut_op (retract loc doc `Inter (Pgon2.inter a b)) in
     let d = box, cut_op (retract loc doc `Diff (Pgon2.diff a b)) in

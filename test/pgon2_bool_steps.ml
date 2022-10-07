@@ -14,27 +14,11 @@ open Brr
 let test = List.hd Pgon2_test_cases.list
 let step_op = Pgon2.Inter
 
-(* This stuff should be added to a lib *)
-
-let qual ~a =
-  (* http://colorbrewer2.org/#type=qualitative&scheme=Accent&n=7 *)
-  [| Color.v_srgbi ~a 127 201 127;
-     Color.v_srgbi ~a 190 174 212;
-     Color.v_srgbi ~a 253 192 134;
-     Color.v_srgbi ~a 255 255 153;
-     Color.v_srgbi ~a 56 108 176;
-     Color.v_srgbi ~a 240 2 127;
-     Color.v_srgbi ~a 191 91 23;
-     (* Additional used for meta, pts *)
-     Color.v_srgbi ~a 228 26 28; |]
-
-let qual = qual ~a:0.5
-
-let green = qual.(0)
-let purple = qual.(1)
-let yellowish = qual.(6) (* segment above *)
-let pink = qual.(5) (* segment below *)
-
+let qual = Color_scheme.qualitative ~a:0.5 `Brewer_accent_8 ()
+let green = qual 0
+let purple = qual 1
+let yellowish = qual 6 (* segment above *)
+let pink = qual 5 (* segment below *)
 
 let v_stack ~gutter imgs = (* Start at P2.o and left-aligned on oy *)
   let rec loop gutter maxw pos acc = function
@@ -102,7 +86,7 @@ let cut_sweep_line ~w:width ~x ~box color =
 let cut_sweep_result ~w evs =
   let add acc (e : Pgon2.Event.t) =
     if not e.is_left then acc else
-    let color (e : Pgon2.Event.t) = if e.in_result then green else qual.(2) in
+    let color (e : Pgon2.Event.t) = if e.in_result then green else (qual 2) in
     let p0 = e.pt and p1 = e.other.pt in
     acc
     |> I.blend (cut_seg ~w p0 p1 Color.black)
@@ -115,7 +99,7 @@ let cut_step_event ~w ~box (ev : Pgon2.Event.t) =
   let p0 = ev.pt and p1 = ev.other.pt in
   let sweep_line = cut_sweep_line ~w:(w *. 0.5) ~x:(P2.x p0) ~box Color.black in
   let seg_w = if ev.in_result || ev.other.in_result then 8. *. w else w in
-  let linec = if ev.polygon = Pgon2.Subject then green else qual.(1) in
+  let linec = if ev.polygon = Pgon2.Subject then green else (qual 1) in
   sweep_line
   |> I.blend (cut_seg ~w:seg_w p0 p1 linec)
   |> I.blend (cut_pt ~w:(8. *. w) p0 linec)

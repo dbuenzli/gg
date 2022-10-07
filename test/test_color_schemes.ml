@@ -56,7 +56,10 @@ let test_color_seq () =
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun s ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun b ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun c ->
-  let cs = Color_scheme.seq ~w ~s ~b ~c ~h:(Float.rad_of_deg h) () in
+  let cs =
+    Color_scheme.sequential_wijffelaars
+      ~w ~s ~b ~c ~h:(Float.rad_of_deg h) ()
+  in
   irange ~min:0. ~max:1. ~dt:1. >>= fun t ->
   let color = cs t in
   let urange d = 0. <= d && d <= 1. in
@@ -73,9 +76,10 @@ let test_qual () =
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun s ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun b ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun c ->
-  let q = Color_scheme.qual_d 16 in
-  for i = 0 to Array.length q - 1 do
-    let color = q.(i) in
+  let size = 16 in
+  let q = Color_scheme.qualitative_wijffelaars ~size () in
+  for i = 0 to size - 1 do
+    let color = q i in
     let urange d = 0. <= d && d <= 1. in
     if V4.for_all urange color then () else
     let cr, cg, cb, _ = V4.to_tuple color in

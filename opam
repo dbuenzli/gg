@@ -2,19 +2,21 @@ opam-version: "2.0"
 name: "gg"
 synopsis: "Basic types and tools for computer graphics in OCaml"
 description: """\
-Gg provides basic types for computer graphics.It defines types and
+Gg provides basic types for computer graphics. It defines types and
 functions for floats, vectors, points, sizes, matrices, quaternions,
 axis-aligned boxes, colors, color spaces, and raster data.
 
-On top of this Gg_kit library provides a few more tools and algorithms
-for working with geometry and graphics.
+On top of this the Gg_kit library provides a few more tools and
+algorithms for working with geometry and graphics.
 
-Gg and Gg_kit are distributed under the ISC license.
+Gg and Gg_kit have no dependencies. Gg is distributed under the ISC
+license. Gg_kit is distributed under the ISC license and some color
+schemes are distributed under the Apache 2.0 license.
 
 Home page: <http://erratique.ch/software/gg>"""
 maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
 authors: "The gg programmers"
-license: "ISC"
+license: ["ISC" "Apache-2.0"]
 tags: ["matrix" "vector" "color" "data-structure" "graphics" "org:erratique"]
 homepage: "https://erratique.ch/software/gg"
 doc: "https://erratique.ch/software/gg/doc/"
