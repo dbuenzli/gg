@@ -11,7 +11,7 @@ algorithms for working with geometry and graphics.
 
 Gg and Gg_kit have no dependencies. Gg is distributed under the ISC
 license. Gg_kit is distributed under the ISC license and some color
-schemes are distributed under the Apache 2.0 license.
+schemes are distributed under the Apache 2.0 and CC0 licenses.
 
 Home page: <http://erratique.ch/software/gg>"""
 maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"

@@ -71,7 +71,31 @@ val sequential_turbo : ?a:float -> unit -> continuous
 (** [sequential_turbo ()] is the
     {{:https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html}
     turbo} sequential scheme by Anton Mikhailov with alpha component
-    [a] (default to [1.]). *)
+    [a] (defaults to [1.]). *)
+
+val sequential_magma : ?a:float -> unit -> continuous
+(** [sequential_magma ()] is the
+    {{:https://bids.github.io/colormap/}plasma} color map
+    by Stéfan van der Walt and Nathaniel Smith. with alpha component
+    [a] (defaults to [1.]). *)
+
+val sequential_inferno : ?a:float -> unit -> continuous
+(** [sequential_inferno ()] is the
+    {{:https://bids.github.io/colormap/}plasma} color map
+    by Stéfan van der Walt and Nathaniel Smith. with alpha component
+    [a] (defaults to [1.]). *)
+
+val sequential_plasma : ?a:float -> unit -> continuous
+(** [sequential_viridis ()] is the
+    {{:https://bids.github.io/colormap/}plasma} color map
+    by Stéfan van der Walt and Nathaniel Smith. with alpha component
+    [a] (defaults to [1.]). *)
+
+val sequential_viridis : ?a:float -> unit -> continuous
+(** [sequential_viridis ()] is the
+    {{:https://bids.github.io/colormap/}viridis} color map
+    by Stéfan van der Walt, Nathaniel Smith and Eric Firing with alpha component
+    [a] (defaults to [1.]). *)
 
 (** {1:diverging Diverging}
 

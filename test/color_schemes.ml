@@ -31,6 +31,10 @@ let schemes =
           ~s:0.5 ~b:1. ~h:(h 255.) ~size:9 (), 9);
     `Blank;
     `C (true, Color_scheme.sequential_turbo (), 9.);
+    `C (true, Color_scheme.sequential_magma (), 9.);
+    `C (true, Color_scheme.sequential_inferno (), 9.);
+    `C (true, Color_scheme.sequential_plasma (), 9.);
+    `C (true, Color_scheme.sequential_viridis (), 9.);
     `Blank;
     `C (true,
         Color_scheme.diverging_wijffelaars ~w:0.15 ~h0:(h 255.) ~h1:(h 10.) (),
