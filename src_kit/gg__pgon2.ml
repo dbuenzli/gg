@@ -153,6 +153,8 @@ let min_max_coords cs = (* assert (cs <> []) *)
   let fmax = Float.max_float and fmin = ~-. Float.max_float in
   loop fmax fmax fmin fmin cs
 
+let min_max_nil = P2.o, P2.o
+
 type t =
   { cs : Contour.t list;
     (* Note. We do not store this as a Box2.t value because we need a
@@ -160,18 +162,29 @@ type t =
        cases. If we get an under approximation because of the minx
        +. (maxx - minx) computation the algo returns bogus results
        (some events that need to be in the list resulting from the
-       sweep may not be in). *)
-    min_max : (P2.t * P2.t) Lazy.t }
+       sweep may not be in).
 
-let empty = { cs = []; min_max = Lazy.from_fun ((fun () -> assert false))  }
+       We use a mutable field instead of a lazy value. In `js_of_ocaml` that
+       allows us pass polygons through the structured clone algorithm. *)
+    mutable min_max : (P2.t * P2.t) option }
+
+let empty = { cs = []; min_max = None }
 let v cs =
   let cs = List.filter (fun c -> c <> []) cs in
-  if cs = [] then empty else { cs; min_max = lazy (min_max_coords cs) }
+  if cs = [] then empty else { cs; min_max = None }
 
 let is_empty p = p.cs = []
+
+let min_max p = match p.min_max with
+| Some min_max -> min_max
+| None ->
+    let min_max = min_max_coords p.cs in
+    p.min_max <- Some min_max; min_max
+
 let box p =
   if is_empty p then Box2.empty else
-  let min, max = Lazy.force p.min_max in Box2.of_pts min max
+  let min, max = min_max p in
+  Box2.of_pts min max
 
 let fold_contours f p acc = List.fold_left (Fun.flip f) acc p.cs
 
@@ -634,7 +647,7 @@ module Sweep = struct
     | _ -> s
 
   let[@inline] maxx p =
-    if is_empty p then -. min_float else P2.x (snd (Lazy.force p.min_max))
+    if is_empty p then -. min_float else P2.x (snd (min_max p))
 
   let events op p0 p1 =
     let rec loop err op b0maxx minmaxx evs q s = match Equeue.take q with
@@ -803,8 +816,8 @@ let bool_op_empty_cases op p0 p1 =
 
 let bool_op_trivial_cases op p0 p1 =
   (* assert (not (is_empty p0) && not (is_empty p1)); *)
-  let p0_min, p0_max = Lazy.force p0.min_max in
-  let p1_min, p1_max = Lazy.force p1.min_max in
+  let p0_min, p0_max = min_max p0 in
+  let p1_min, p1_max = min_max p1 in
   let no_overlap =
     (P2.x p0_min > P2.x p1_max) || (P2.x p1_min > P2.x p0_max) ||
     (P2.y p0_min > P2.y p1_max) || (P2.y p1_min > P2.y p0_max)
