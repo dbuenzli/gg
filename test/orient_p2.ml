@@ -18,7 +18,7 @@ let window = 2. ** (-42.)
 let render_predicate ~w:iw ~h:ih orient =
   let c = Canvas.create ~w:iw ~h:ih [] in
   let w = float iw and h = float ih in
-  let ctx = C2d.create c in
+  let ctx = C2d.get_context c in
   C2d.clear_rect ctx ~x:0. ~y:0. ~w ~h;
   let data = C2d.get_image_data ctx ~x:0 ~y:0 ~w:iw ~h:ih in
   let pixels = C2d.Image_data.data data in
