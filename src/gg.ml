@@ -2811,6 +2811,53 @@ module Color = struct
     (truncate (255. *. r +. 0.5), truncate (255. *. g +. 0.5),
      truncate (255. *. b +. 0.5), c.V4t.w)
 
+  (* Oklab *)
+
+  let _of_oklab ~lch c =
+    let open V4t in
+    let l = c.V4t.x in
+    let a = if lch then c.y *. (cos c.z) else c.y in
+    let b = if lch then c.y *. (sin c.z) else c.z in
+    let l' = l +. 0.3963377774 *. a +. 0.2158037573 *. b in
+    let m' = l -. 0.1055613458 *. a -. 0.0638541728 *. b in
+    let s' = l -. 0.0894841775 *. a -. 1.2914855480 *. b in
+    let l = l' *. l' *. l' in
+    let m = m' *. m' *. m' in
+    let s = s' *. s' *. s' in
+    let r = +4.0767416621 *. l -. 3.3077115913 *. m +. 0.2309699292 *. s in
+    let g = -1.2684380046 *. l +. 2.6097574011 *. m -. 0.3413193965 *. s in
+    let b = -0.0041960863 *. l -. 0.7034186147 *. m +. 1.7076147010 *. s in
+    V4.v r g b c.w
+
+
+  let _to_oklab ~lch c =
+    let open V4t in
+    let l = 0.4122214708 *. c.x +. 0.5363325363 *. c.y +. 0.0514459929 *. c.z in
+    let m = 0.2119034982 *. c.x +. 0.6806995451 *. c.y +. 0.1073969566 *. c.z in
+    let s = 0.0883024619 *. c.x +. 0.2817188376 *. c.y +. 0.6299787005 *. c.z in
+    let l' = Float.cbrt l in
+    let m' = Float.cbrt m in
+    let s' = Float.cbrt s in
+    let l = 0.2104542553 *. l' +. 0.7936177850 *. m' -. 0.0040720468 *. s' in
+    let a = 1.9779984951 *. l' -. 2.4285922050 *. m' +. 0.4505937099 *. s' in
+    let b = 0.0259040371 *. l' +. 0.7827717662 *. m' -. 0.8086757660 *. s' in
+    if not lch then V4.v l a b c.w else
+    let h =
+      let h = atan2 b a in
+      if h < 0. then h +. Float.two_pi else h
+    in
+    V4.v l (sqrt (a *. a +. b *. b)) h c.w
+
+  type oklab = v4
+  let[@inline] of_oklab c = _of_oklab ~lch:false c
+  let[@inline] to_oklab c = _to_oklab ~lch:false c
+
+  (* Oklch *)
+
+  type oklch = v4
+  let[@inline] of_oklch c = _of_oklab ~lch:true c
+  let[@inline] to_oklch c = _to_oklab ~lch:true c
+
   (* CIE Luv *)
 
   type luv = v4

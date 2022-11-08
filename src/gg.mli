@@ -3304,6 +3304,48 @@ module Color : sig
   (** [to_srgbi c] is the [Gg] color [c] as a 24-bit sRGB color
       [(r, g, b, a)], see {!v_srgbi}. *)
 
+  (** {2:oklab Oklab} *)
+
+  type oklab = v4
+  (** The type for colors in the {{:https://bottosson.github.io/posts/oklab/}
+      Oklab color space} with an alpha component. The meaning and range of
+      components is:
+      {ul
+      {- [L] is the perceived lightness in the range [0.] to [1.]}
+      {- [a] is how green/red the color is, unbounded but typical
+         range in [-0.5] to [0.5]}
+      {- [b] is how blue/yellow the color is, unbounded but typical
+         range in [-0.5] to [0.5]}}
+
+      Note that euclidian distance between two oklab colors
+      {{:https://www.w3.org/TR/css-color-4/#color-difference-OK}can be
+      used} as a perceptual color difference metric. *)
+
+  val of_oklab : oklab -> color
+  (** [of_oklab c] is the Oklab color [c] as a [Gg] color. *)
+
+  val to_oklab : color -> oklab
+  (** [to_oklab c] is the [Gg] color [c] as an Oklab color. *)
+
+  (** {2:oklch Oklch} *)
+
+  type oklch = v4
+  (** The type for colors in the
+      {{:https://bottosson.github.io/posts/oklab}Oklch color
+      space} with an alpha component. This is a polar form of
+      {!section-oklab}. The meaning and range of components is:
+      {ul
+      {- [L] is the perceived lightness in the range [0.] to [1.]}
+      {- [C] is the chroma in the range [0.] to unbounded but typically
+         [0.5]}
+      {- [h] is the hue in radians in the range [0.] to [2pi].}} *)
+
+  val of_oklch : oklch -> color
+  (** [of_oklch c] is the Oklch color [c] as a [Gg] color. *)
+
+  val to_oklch : color -> oklch
+  (** [to_oklch c] is the [Gg] color [c] as an Oklch color. *)
+
   (** {2:luv CIE L*u*v*} *)
 
   type luv = v4

@@ -1,4 +1,5 @@
 
+- Add `Color.{to,of}_{oklab,oklch}`.
 - Add `Gg_kit.Color_scheme`. Note that some of the color schemes
   are licensed under the Apache 2.0 and CC0 licenses.
 - Add `P2.orient_fast`.
