@@ -3319,7 +3319,8 @@ module Color : sig
 
       Note that euclidian distance between two oklab colors
       {{:https://www.w3.org/TR/css-color-4/#color-difference-OK}can be
-      used} as a perceptual color difference metric. *)
+      used} as a perceptual color difference metric. A JND is a difference
+      of 0.02 ({{:https://www.w3.org/TR/css-color-4/#css-gamut-mapping}ref}). *)
 
   val of_oklab : oklab -> color
   (** [of_oklab c] is the Oklab color [c] as a [Gg] color. *)
