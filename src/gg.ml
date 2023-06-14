@@ -2212,6 +2212,7 @@ module Box2 = struct
   let size = function E -> err_e () | R (_, size) -> size
   let w = function E -> err_e () | R (_, size) -> size.x
   let h = function E -> err_e () | R (_, size) -> size.y
+  let aspect = function E -> err_e () | R (_, size) -> Size2.aspect size
   let zero = v P2.o Size2.zero
   let unit = v P2.o Size2.unit
   let of_pts p p' =

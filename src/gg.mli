@@ -2736,6 +2736,9 @@ module Box2 : sig
   val h : box2 -> float
   (** [h b] is [Size2.h (size b)]. *)
 
+  val aspect : box2 -> float
+  (** [aspect b] is {!Size2.aspect}[ (size b)]. *)
+
   val zero : box2
   (** [zero] is a box whose origin and size is zero. *)
 
