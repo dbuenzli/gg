@@ -7,6 +7,8 @@
 - Add `P2.seg_inter`.
 - Add `Float.seg_inter`.
 - Add `Box{1,2,3}.outset`.
+- Add `Gg_kit.Field2`. A module to represent vector fields,
+  and compute their isolines.
 
 v1.0.0 2022-02-15 La Forclaz (VS)
 --------------------------------

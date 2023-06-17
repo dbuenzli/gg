@@ -4,8 +4,9 @@
   ---------------------------------------------------------------------------*)
 
 [@@@alert "-unstable"]
-module Pgon2 = Gg__pgon2
 module Color_scheme = Gg__color_scheme
+module Pgon2 = Gg__pgon2
+module Field2 = Gg__field2
 [@@@alert "+unstable"]
 
 (*---------------------------------------------------------------------------
