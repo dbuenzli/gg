@@ -1,13 +1,18 @@
 
 - Add `Box2.aspect`.
 - Add `Color.{to,of}_{oklab,oklch}`.
-- Add `Gg_kit.Color_scheme`. Note that some of the color schemes
-  are licensed under the Apache 2.0 and CC0 licenses.
 - Add `P2.orient_fast`.
 - Add `P2.seg_inter`.
 - Add `Float.seg_inter`.
 - Add `Box{1,2,3}.outset`.
-- Add `Gg_kit.Field2`. A module to represent vector fields,
+
+
+- Add `Gg_kit.Color_scheme`. Note that some of the color schemes
+  are licensed under the Apache 2.0 and CC0 licenses.
+- Add `Gg_kit.Ring2`, a module to represent linear rings.
+- Add `Gg_kit.Pgon2`, a module to represent polygons 
+  and compute their boolean intersections.
+- Add `Gg_kit.Field2`, a module to represent vector fields
   and compute their isolines.
 
 v1.0.0 2022-02-15 La Forclaz (VS)

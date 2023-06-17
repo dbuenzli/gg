@@ -93,19 +93,19 @@ val map_values : ('a array -> 'b array) -> 'a t -> 'b t
 
 (** {1:isolines Isolines}  *)
 
-val isolines : ?smooth:bool -> float t -> float -> P2.t list list
-(** [isolines f iso] is a polygon bounding the areas of [f] where
+val isoline : ?smooth:bool -> float t -> float -> Gg__pgon2.t
+(** [isoline f iso] is a polygon bounding the areas of [f] where
     the value of [f] is [>= iso]. The rings of the polygon have
     correct winding order. Values outside the field [f] are assumed
     to be [neg_infinity] (< [iso]); this ensures that all polygons
     have a finite surface in {!dom}.
 
-    {{:https://en.wikipedia.org/wiki/Contour_line} Isolines} are
+    The {{:https://en.wikipedia.org/wiki/Contour_line}isoline} is
     computed with the
     {{:https://en.wikipedia.org/wiki/Marching_squares} marching
-    squares algorithm}.  If [smooth] is [true] linear interpolation
-    is used to find out the iso value on square boundaries,
-    otherwise the iso value is assumed to be in the middle.
+    squares algorithm}. If [smooth] is [true] linear interpolation is
+    used to find out the iso value on square boundaries, otherwise the
+    iso value is assumed to be in the middle.
 
     {b Note.} We could generalize that, we'd need a comparator and
     an interpolator. *)

@@ -3,87 +3,36 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
-[@@@alert unstable
-    "This interface may change in incompatible ways or disappear \
-     in the future."]
-
 (** 2D polygons.
 
-    {b TODO}
-
-    - Not really happy about the naming scheme. Contours
-      are the mathematical polygons. We could use Pgon and Multipgon
-      but that doesn't seem to correspond what e.g. GeoJSON has. *)
+    A polygon is defined by a list of {!Ring2.t}s. Polygon
+    surface is determined by the even-odd rule. *)
 
 open Gg
-
-(** {1:contours Contours} *)
-
-(** Contours (simple polygons).
-
-    Contours are polygons made of a single closed list of straight segments.
-    They may self-intersect. *)
-module Contour : sig
-
-  type t
-  (** The type for contours. *)
-
-  val of_seg_pts : P2.t list -> t
-  (** [of_seg_pts ps] is a contour defined by points [ps]. Any two
-      consecutive points of [ps] defines a segment of the contour the
-      last point is connected to the first one. *)
-
-  val is_empty : t -> bool
-  (** [is_empty c] is [true] iff [c] is empty. *)
-
-  val fold_pts : (P2.t -> 'a -> 'a) -> t -> 'a -> 'a
-  (** [fold f c acc] is the result of folding [f] with [acc] on the points
-      of [c]. This is [acc] if [c] is empty. *)
-
-  val fold_segs : (P2.t -> P2.t -> 'a -> 'a) -> t -> 'a -> 'a
-  (** [fold_segs f c acc] is the result of folding [f] with [acc] on the
-      segments of [c]. This is [acc] if [c] is empty, and calls [f p p] on
-      degenerate singleton contours [[p]]. *)
-
-  val centroid : t -> P2.t
-  (** [centroid c] is the centroid of the contour. *)
-
-  val mem : P2.t -> t -> bool
-  (** [mem pt c] is [true] iff [pt] is inside the contour [c]. *)
-
-  val area : t -> float
-    (** [area c] is the signed area of the contour [c]. You may be
-        suprised by results on self-intersecting contours. *)
-
-  val box : t -> Box2.t
-  (** [box c] is the bounding box of [c]. This is {!Box2.empty} if
-        {!is_empty}[ c] is [true]. *)
-end
 
 (** {1:polygons Polygons} *)
 
 type t
-(** The type for polygons. These polygons are made of several contours
-    (polygons). Their surface is determined by the
-    {{:https://en.wikipedia.org/wiki/Even%E2%80%93odd_rule}even-odd}
-    rule that is does not depend on the orientation of their
-    contours. *)
+(** The type for polygons. *)
 
-val v : Contour.t list -> t
-(** [v cs] is a polygon from the list of contours. Polygon surface is
-    determined by the even-odd rule. *)
+val of_rings : Gg__ring2.t list -> t
+(** [of_rings rs] is a polygon from the list of rings [rs]. *)
 
 val empty : t
 (** [empty] is an empty polygon. *)
 
-val is_empty : t -> bool
-(** [is_empty p] is [true] iff [p] is empty. *)
+(** {1:props Properties} *)
 
-val fold_contours : (Contour.t -> 'a -> 'a) -> t -> 'a -> 'a
-(** [fold_contours f p acc] folds on the contours of [p]. *)
+val rings : t -> Gg__ring2.t list
+(** [rings p] are the rings of [p]. *)
 
 val box : t -> Box2.t
 (** [box p] is a bounding box for the polygon. *)
+
+(** {1:predicates Predicates} *)
+
+val is_empty : t -> bool
+(** [is_empty p] is [true] iff [p] is empty. *)
 
 (** {1:bool Boolean operations}
 
@@ -92,17 +41,22 @@ val box : t -> Box2.t
     algorithm}.
 
     Input polygons can be concave and self-interesting the only
-    constraint is that no two contour edges should overlap in a {e
-    single} input polygon. Overlap between input polygons is
-    supported. *)
+    constraint is that no two ring edges should overlap in a {e
+    single} input polygon. The orientation of the rings does not
+    matter for the algorithm it determines holes using the even-odd
+    rule: any ring included in an odd number of rings bounds a
+    hole.
+
+    Overlap between input polygons is supported. *)
 
 type holes = int list list
-(** The type for the contour holds, one list per contour in the
+(** The type for the rings holds, one list per ring in the
     order of {!fold_contours}. The list has the position of holes in
-    the order of {!fold_contours}. *)
+    the order of {!fold_contours}. FIXME forget about that and
+    return correctly oriented polygons. *)
 
 type bool_op_error =
-[ `Edge_overlap (** The input polygos have overlapping edges *)
+[ `Edge_overlap (** The input polygons have overlapping edges *)
 | `Topology_panic of string
   (** Internal error, please report the test case. *) ]
 
@@ -139,7 +93,7 @@ val xor : t -> t -> bool_op_result
 (** [xor p0 p1] is the exclusive union of [p0] and [p1]. *)
 
 (**/**)
-(* This is exposed for [pgon_debug.ml] we should removed that at
+(* This is exposed for [pgon_debug.ml] we should remove that at
    some point. *)
 
 type polygon = Subject | Clipping (* left and right argument of bool ops *)
@@ -175,6 +129,11 @@ module Sweep : sig
   val debug_result : ?filtered:bool -> bool_op -> t -> t -> Event.t list
 end
 (**/**)
+
+(** {1:traversals Traversals} *)
+
+val fold_rings : (Gg__ring2.t -> 'a -> 'a) -> t -> 'a -> 'a
+(** [fold_rings f p acc] folds on the rings of [p]. *)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The gg programmers

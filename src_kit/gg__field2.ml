@@ -143,7 +143,7 @@ let append slots c ~before =
      endpoints are (if any) as the slot may need updating when we append
      contours. *)
 
-let isolines ?(smooth = true) f iso =
+let isoline ?(smooth = true) f iso =
   let vs = f.values and ih = f.ih and iw = f.iw and acc = ref [] in
   let slots = Array.make (iw + 1) no_contour in
   let contour_prev = ref no_contour in
@@ -240,7 +240,7 @@ let isolines ?(smooth = true) f iso =
       | _ -> assert false
     done;
   done;
-  !acc
+  Gg__pgon2.of_rings (List.map Gg__ring2.of_pts !acc)
 
 type bigbytes =
   (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
