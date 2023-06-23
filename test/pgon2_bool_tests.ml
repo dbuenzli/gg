@@ -69,13 +69,13 @@ let cut_pt ~w pt color =
   let full = Color.with_a color 1.0 in
   I.cut p (I.const color) |> I.blend (I.cut ~area:outline p (I.const full))
 
-let contour_path ?(acc = P.empty) c =
+let ring_path ?(acc = P.empty) c =
   let add pt p = if p == acc then P.sub pt p else P.line pt p in
-  P.close (Pgon2.Contour.fold_pts add c acc)
+  P.close (Ring2.fold_pts add c acc)
 
 let pgon_path p =
-  let add c path = contour_path c ~acc:path in
-  Pgon2.fold_contours add p P.empty
+  let add c path = ring_path c ~acc:path in
+  Pgon2.fold_rings add p P.empty
 
 let cut_pgon ?(area = `Aeo) ?(o = I.const Color.black) ~w:width p i =
   let p = pgon_path p and outline = `O { P.o with width } in

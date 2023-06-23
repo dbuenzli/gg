@@ -266,8 +266,8 @@ let t028 =
 
 let make_test (loc, a,  b, ops, doc) =
   let pt (x, y) = Gg.P2.v x y in
-  let contour ps = Gg_kit.Pgon2.Contour.of_seg_pts (List.map pt ps) in
-  let pgon cs = Gg_kit.Pgon2.v (List.map contour cs) in
+  let ring ps = Gg_kit.Ring2.of_pts (List.map pt ps) in
+  let pgon cs = Gg_kit.Pgon2.of_rings (List.map ring cs) in
   loc, pgon a, pgon b, ops, doc
 
 let list = List.rev_map make_test

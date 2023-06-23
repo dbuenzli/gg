@@ -54,13 +54,13 @@ let cut_pt ~w pt color =
   let full = Color.with_a color 1.0 in
   I.cut p (I.const color) |> I.blend (I.cut ~area:outline p (I.const full))
 
-let contour_path ?(acc = P.empty) c =
+let ring_path ?(acc = P.empty) c =
   let add pt p = if p == acc then P.sub pt p else P.line pt p in
-  P.close (Pgon2.Contour.fold_pts add c acc)
+  P.close (Ring2.fold_pts add c acc)
 
 let pgon_path p =
-  let add c path = contour_path c ~acc:path in
-  Pgon2.fold_contours add p P.empty
+  let add c path = ring_path c ~acc:path in
+  Pgon2.fold_rings add p P.empty
 
 let cut_pgon ?(o = I.const Color.black) ?(area = `Aeo) ~w:width p i =
   let outline = `O { P.o with width } in
@@ -126,17 +126,17 @@ let cut_step ~w ~box below ev above ss =
   |> I.blend (cut_neighbor ~is_above:false below)
   |> I.blend (cut_neighbor ~is_above:true above)
 
-let dump_contour ppf c =
+let dump_ring ppf c =
   let pp_v2 ppf pt = Format.fprintf ppf "%.17f, %.17f" (V2.x pt) (V2.y pt) in
-  let pts = List.rev (Pgon2.Contour.fold_pts List.cons c []) in
+  let pts = List.rev (Ring2.fold_pts List.cons c []) in
   let pp_sep ppf () = Format.fprintf ppf ";@," in
   Format.fprintf ppf "@[<v1>[%a]@]" (Format.pp_print_list ~pp_sep pp_v2) pts
 
 let dump_pgon ppf p =
   let pp_sep ppf () = Format.fprintf ppf ";@," in
-  let cs = List.rev (Pgon2.fold_contours List.cons p []) in
+  let cs = List.rev (Pgon2.fold_rings List.cons p []) in
   Format.fprintf ppf "@[<v1>[%a]@]"
-    (Format.pp_print_list ~pp_sep dump_contour) cs
+    (Format.pp_print_list ~pp_sep dump_ring) cs
 
 let dump_result r =
   Format.(printf "@[<v>Results:@, @[<v>%a@]@]@."
@@ -144,9 +144,9 @@ let dump_result r =
 
 let retract r =
   let v = match r with Ok (v, _) -> v | Error ((v, _), _) -> v in
-  let cpts c = Pgon2.Contour.fold_pts (fun _ acc -> acc + 1) c 0 in
-  let cs = Pgon2.fold_contours (fun c acc -> cpts c :: acc) v [] in
-  Format.printf "@[<v>Result contours counts: @[<h>[%a]@]@,Result:@,%a@]@."
+  let cpts c = Ring2.fold_pts (fun _ acc -> acc + 1) c 0 in
+  let cs = Pgon2.fold_rings (fun c acc -> cpts c :: acc) v [] in
+  Format.printf "@[<v>Result ring counts: @[<h>[%a]@]@,Result:@,%a@]@."
     Format.(pp_print_list ~pp_sep:pp_print_space pp_print_int) cs dump_pgon v;
   v
 
@@ -214,8 +214,8 @@ let main () =
   let () =
     let on_click _ = render_step () in
     let on_keydown v = render_step () in
-    Ev.listen Ev.click on_click (El.as_target body);
-    Ev.listen Ev.keydown on_keydown (El.as_target body);
+    ignore (Ev.listen Ev.click on_click (El.as_target body));
+    ignore (Ev.listen Ev.keydown on_keydown (El.as_target body));
   in
   render r (img None);
   ()
