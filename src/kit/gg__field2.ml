@@ -240,7 +240,8 @@ let isoline ?(smooth = true) f iso =
       | _ -> assert false
     done;
   done;
-  Gg__pgon2.of_rings (List.map Gg__ring2.of_pts !acc)
+  (* The rev dance is still needed for js_of_ocaml *)
+  Gg__pgon2.of_rings (List.rev_map Gg__ring2.of_pts !acc)
 
 type bigbytes =
   (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
