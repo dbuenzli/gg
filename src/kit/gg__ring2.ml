@@ -16,15 +16,22 @@ let empty = []
 let pts = Fun.id
 let area = function
 | [] | [_] | [_; _] -> 0.
-| pt :: (_ :: _ as pts) ->
-    (* XXX this is not robust see p. 245 of gds for cg.  *)
-    let[@inline] det p0 p1 = (V2.x p0 *. V2.y p1) -. (V2.y p0 *. V2.x p1) in
-    let rec loop acc first prev = function
-    | [] -> 0.5 *. (acc +. (det[@inlined]) first prev)
-    | pt :: pts ->
-        (loop[@tailcall]) (acc +. (det[@inlined]) pt prev) first pt pts
-    in
-    loop 0. pt pt pts
+| pts ->
+    let a = ref 0. and acc = ref pts and last = ref false in
+    while !acc <> [] do match !acc with
+    | p0 :: (p1 :: _ as acc') ->
+        (* XXX this is not robust see p. 245 of
+             Geometric data structures for computer graphics. *)
+        let x0 = P2.x p0 and y0 = P2.y p0 in
+        let x1 = P2.x p1 and y1 = P2.y p1 in
+        let w = (x0 *. y1) -. (x1 *. y0) in
+        a := !a +. w;
+        acc := acc';
+    | [p] ->
+        if !last then acc := [] else (last := true ; acc := [p; List.hd pts])
+    | [] -> assert false
+    done;
+    0.5 *. !a
 
 let centroid = function
 | [] | [_] | [_; _] -> P2.o
