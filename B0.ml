@@ -23,7 +23,7 @@ let gg_top_lib =
   B0_ocaml.lib gg_top ~doc:"The gg toplevel support library" ~srcs ~requires
 
 let gg_kit_lib =
-  let srcs = [ `Dir ~/"src_kit" ] in
+  let srcs = [ `Dir ~/"src/kit" ] in
   B0_ocaml.lib gg_kit ~doc:"The gg kit library" ~srcs ~requires:[gg]
 
 (* Tests *)
