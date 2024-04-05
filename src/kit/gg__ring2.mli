@@ -41,8 +41,9 @@ val area : t -> float
     rings. *)
 
 val centroid : t -> P2.t
-(** [centroid r] is the {{:https://en.wikipedia.org/wiki/Centroid}
-    centroid} of [r] *)
+(** [centroid r] is the
+    {{:https://paulbourke.net/geometry/polygonmesh/centroid.pdf}
+    centroid} of [r]. Returns {!P2.o} on degenerate rings. *)
 
 val box : t -> Box2.t
 (** [box r] is the bounding box of [r]. This is {!Box2.empty} if

@@ -7,7 +7,7 @@ open Gg
 
 (* Linear rings *)
 
-type t = P2.t list
+type t = P2.t list (* XXX maybe switch to arrays. *)
 let of_pts pts = pts
 let empty = []
 
@@ -26,12 +26,28 @@ let area = function
     in
     loop 0. pt pt pts
 
-let centroid pts =
-  let rec loop n cx cy = function
-  | [] -> let n = float n in V2.v (cx /. n) (cy /. n)
-  | pt :: pts  -> (loop[@tailcall]) (n + 1) (cx +. V2.x pt) (cy +. V2.y pt) pts
-  in
-  loop 0 0. 0. pts
+let centroid = function
+| [] | [_] | [_; _] -> P2.o
+| pts ->
+  (* https://paulbourke.net/geometry/polygonmesh/centroid.pdf *)
+  let cx = ref 0. and cy = ref 0. and a = ref 0. in
+  let acc = ref pts and last = ref false in
+  while !acc <> [] do match !acc with
+  | p0 :: (p1 :: _ as acc') ->
+      let x0 = P2.x p0 and y0 = P2.y p0 in
+      let x1 = P2.x p1 and y1 = P2.y p1 in
+      let w = (x0 *. y1) -. (x1 *. y0) in
+      a := !a +. w;
+      cx := !cx +. (x0 +. x1) *. w;
+      cy := !cy +. (y0 +. y1) *. w;
+      acc := acc';
+  | [p] ->
+      if !last then acc := [] else (last := true ; acc := [p; List.hd pts])
+  | [] -> assert false
+  done;
+  let a = 0.5 *. !a in
+  let wa = 1. /. (6. *. a) in
+  P2.v (wa *. !cx) (wa *. !cy)
 
 let box pts =
   if pts = [] then Box2.empty else
