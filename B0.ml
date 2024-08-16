@@ -44,8 +44,10 @@ let test_gg =
   let requires = [str] in
   test ~/"test/test_gg.ml" ~srcs ~requires
 
-let test_color_schemes =
+let test_ring2 = test ~/"test/test_ring2.ml" ~requires:[gg_kit]
+let test_color_scheme =
   test ~/"test/test_color_scheme.ml" ~long:true ~requires:[gg_kit]
+
 
 (* N.B. Unless vg is in the build, those tests with vg needs to be
    build with `-x gg` otherwise we get inconsistent assumptions. See
@@ -142,4 +144,5 @@ let default =
     |> B0_meta.tag B0_opam.tag
   in
   B0_pack.make "default" ~doc:"gg package" ~meta ~locked:true @@
-  [gg_lib; gg_kit_lib; gg_top_lib; test_gg; test_color_schemes; viz_orient]
+  [ gg_lib; gg_kit_lib; gg_top_lib; test_gg; test_ring2;
+    test_color_scheme; viz_orient]
