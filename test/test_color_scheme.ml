@@ -3,21 +3,18 @@
    Distributed under the ISC license, see terms at the end of the file.
   ---------------------------------------------------------------------------*)
 
+open B0_testing
+
 open Gg
 open Gg_kit
 
 (* Colors *)
 
 let str = Format.sprintf
-let log f = Format.printf (f ^^ "@?")
-let fail fmt =
-  let fail _ = failwith (Format.flush_str_formatter ()) in
-  Format.kfprintf fail Format.str_formatter fmt
 
-let raises f v = try f v; fail "didn't raise" with _ -> ()
 let eqf v v' =
   if v = v' then () else
-  fail "%f (%a) = %f (%a)" v Float.pp v v' Float.pp v'
+  Test.log_fail "%f (%a) = %f (%a)" v Float.pp v v' Float.pp v'
 
 let irange ?(min = 0.) ?(max = 1.) ~dt f =
   let n = truncate (((max -. min) /. dt) +. 1.) in
@@ -50,7 +47,7 @@ let test_msc () =
 *)
 
 let test_color_seq () =
-  log "Testing sequential color schemes do not NaN.\n";
+  Test.test "Sequential color schemes do not NaN" @@ fun () ->
   irange ~min:0. ~max:359. ~dt:1. >>= fun h ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun w ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun s ->
@@ -65,12 +62,12 @@ let test_color_seq () =
   let urange d = 0. <= d && d <= 1. in
   if V4.for_all urange color then () else
   let cr, cg, cb, ca = V4.to_tuple color in
-  fail "not in rgb cube w:%g s:%g b:%g c:%g h:%g t:%g \
-        (%.16f %.16f %.16f)"
-    w s b c h t cr cg cb
+  Test.log_fail "not in rgb cube w:%g s:%g b:%g c:%g h:%g t:%g \
+                 (%.16f %.16f %.16f)"
+    w s b c h t cr cg cb; assert true
 
 let test_qual () =
-  log "Testing qualitative color schemes do not NaN.\n";
+  Test.test "Qualitative color schemes do not NaN" @@ fun () ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun eps ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun r ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun s ->
@@ -83,18 +80,20 @@ let test_qual () =
     let urange d = 0. <= d && d <= 1. in
     if V4.for_all urange color then () else
     let cr, cg, cb, _ = V4.to_tuple color in
-    fail "qualitative color not in rgb cube eps:%g r:%g s:%g b:%g c:%g \
-          (%.16f %.16f %.16f)"
+    Test.log_fail
+      "qualitative color not in rgb cube eps:%g r:%g s:%g b:%g c:%g \
+       (%.16f %.16f %.16f)"
       eps r s b c cr cg cb
   done
 
-let test () =
-  Printexc.record_backtrace true;
+let main () =
+  Test.main @@ fun () ->
+  Test.log "Be patient…";
   test_color_seq ();
   test_qual ();
-  log "All tests succeded.\n"
+  ()
 
-let () = if not !Sys.interactive then test ()
+let () = if !Sys.interactive then () else exit (main ())
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2022 The gg programmers

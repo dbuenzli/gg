@@ -3,50 +3,49 @@ open B0_kit.V000
 (* OCaml library names *)
 
 let b0_std = B0_ocaml.libname "b0.std"
+let str = B0_ocaml.libname "str"
+let compiler_libs_toplevel = B0_ocaml.libname "compiler-libs.toplevel"
 
 let gg = B0_ocaml.libname "gg"
 let gg_top = B0_ocaml.libname "gg.top"
 let gg_kit = B0_ocaml.libname "gg.kit"
 
-let str = B0_ocaml.libname "str"
-let compiler_libs_toplevel = B0_ocaml.libname "compiler-libs.toplevel"
-
 (* Libraries *)
 
 let gg_lib =
   let srcs = [ `File ~/"src/gg.mli"; `File ~/"src/gg.ml" ] in
-  B0_ocaml.lib gg ~doc:"The gg library" ~srcs
+  B0_ocaml.lib gg ~srcs
 
 let gg_top_lib =
   let srcs = [ `File ~/"src/gg_top.ml" ] in
   let requires = [compiler_libs_toplevel] in
-  B0_ocaml.lib gg_top ~doc:"The gg toplevel support library" ~srcs ~requires
+  B0_ocaml.lib gg_top ~srcs ~requires
 
 let gg_kit_lib =
   let srcs = [ `Dir ~/"src/kit" ] in
-  B0_ocaml.lib gg_kit ~doc:"The gg kit library" ~srcs ~requires:[gg]
+  B0_ocaml.lib gg_kit ~srcs ~requires:[gg]
 
 (* Tests *)
 
-let test_exe ?(requires = []) src ~doc =
-  let srcs = [`File src] in
-  let meta = B0_meta.(empty |> tag test) in
-  let requires = gg :: requires in
-  B0_ocaml.exe (Fpath.basename ~strip_ext:true src) ~srcs ~doc ~meta ~requires
-
-let test =
-  let doc = "Gg test suite" in
-  let srcs =
-    [ `File ~/"test/test.ml"; `File ~/"test/checkm.ml";
-      `File ~/"test/checkm.mli" ]
+let test
+    ?doc ?run:(r = true) ?long:(l = false) ?(requires = []) ?(srcs = []) src
+  =
+  let srcs = (`File src) :: srcs in
+  let requires = b0_std :: gg :: requires in
+  let meta =
+    B0_meta.(empty |> tag test |> ~~ run r |> ~~ long l
+             |> ~~ B0_unit.Action.cwd `Scope_dir)
   in
-  let meta = B0_meta.(empty |> tag test) in
-  let requires = [gg; str] in
-  B0_ocaml.exe "test" ~srcs ~doc ~meta ~requires
+  let name = Fpath.basename ~strip_ext:true src in
+  B0_ocaml.exe name ~srcs ~requires ~meta ?doc
+
+let test_gg =
+  let srcs = [ `File ~/"test/checkm.mli"; `File ~/"test/checkm.ml" ] in
+  let requires = [str] in
+  test ~/"test/test_gg.ml" ~srcs ~requires
 
 let test_color_schemes =
-  let doc = "Color scheme tests" in
-  test_exe ~/"test/test_color_schemes.ml" ~doc ~requires:[gg_kit]
+  test ~/"test/test_color_scheme.ml" ~long:true ~requires:[gg_kit]
 
 (* N.B. Unless vg is in the build, those tests with vg needs to be
    build with `-x gg` otherwise we get inconsistent assumptions. See
@@ -97,7 +96,7 @@ let viz_orient =
 
 let color_schemes =
   let doc = "Color schemes visualization"in
-  let srcs = [`File ~/"test/color_schemes.ml"] in
+  let srcs = [`File ~/"test/color_scheme.ml"] in
   let requires = [gg; gg_kit; brr; vg; vg_htmlc] in
   let meta =
     B0_meta.empty
@@ -143,4 +142,4 @@ let default =
     |> B0_meta.tag B0_opam.tag
   in
   B0_pack.make "default" ~doc:"gg package" ~meta ~locked:true @@
-  [gg_lib; gg_kit_lib; gg_top_lib; test; viz_orient]
+  [gg_lib; gg_kit_lib; gg_top_lib; test_gg; test_color_schemes; viz_orient]
