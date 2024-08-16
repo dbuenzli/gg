@@ -17,7 +17,7 @@ let gg_lib =
   B0_ocaml.lib gg ~srcs
 
 let gg_top_lib =
-  let srcs = [ `File ~/"src/gg_top.ml" ] in
+  let srcs = [ `File ~/"src/top/gg_top.ml" ] in
   let requires = [compiler_libs_toplevel] in
   B0_ocaml.lib gg_top ~srcs ~requires
 

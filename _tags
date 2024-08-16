@@ -4,8 +4,5 @@ true : bin_annot, safe_string
 <src> : include
 <test> : include
 
-<src_kit/*> : no_alias_deps
-<src/gg_top.*> : package(compiler-libs.toplevel)
-
-<test/test.{byte,native}> : use_str
-<test/benchmark.{byte,native,ml}>: package(unmark), package(unmark.cli)
+<src/kit/*> : no_alias_deps
+<src/top/gg_top.*> : package(compiler-libs.toplevel)
