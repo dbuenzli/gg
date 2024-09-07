@@ -12,32 +12,18 @@ let gg_kit = B0_ocaml.libname "gg.kit"
 
 (* Libraries *)
 
-let gg_lib =
-  let srcs = [ `File ~/"src/gg.mli"; `File ~/"src/gg.ml" ] in
-  B0_ocaml.lib gg ~srcs
+let gg_lib = B0_ocaml.lib gg ~srcs:[`Dir ~/"src/"]
 
 let gg_top_lib =
   let srcs = [ `File ~/"src/top/gg_top.ml" ] in
-  let requires = [compiler_libs_toplevel] in
-  B0_ocaml.lib gg_top ~srcs ~requires
+  B0_ocaml.lib gg_top ~srcs ~requires:[compiler_libs_toplevel]
 
 let gg_kit_lib =
-  let srcs = [ `Dir ~/"src/kit" ] in
-  B0_ocaml.lib gg_kit ~srcs ~requires:[gg]
+  B0_ocaml.lib gg_kit ~srcs:[`Dir ~/"src/kit"] ~requires:[gg]
 
 (* Tests *)
 
-let test
-    ?doc ?run:(r = true) ?long:(l = false) ?(requires = []) ?(srcs = []) src
-  =
-  let srcs = (`File src) :: srcs in
-  let requires = b0_std :: gg :: requires in
-  let meta =
-    B0_meta.(empty |> tag test |> ~~ run r |> ~~ long l
-             |> ~~ B0_unit.Action.cwd `Scope_dir)
-  in
-  let name = Fpath.basename ~strip_ext:true src in
-  B0_ocaml.exe name ~srcs ~requires ~meta ?doc
+let test ?(requires = []) = B0_ocaml.test ~requires:(b0_std :: gg :: requires)
 
 let test_gg =
   let srcs = [ `File ~/"test/checkm.mli"; `File ~/"test/checkm.ml" ] in
