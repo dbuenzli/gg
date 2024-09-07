@@ -21,7 +21,7 @@ let render_predicate ~w:iw ~h:ih orient =
   let ctx = C2d.get_context c in
   C2d.clear_rect ctx ~x:0. ~y:0. ~w ~h;
   let data = C2d.get_image_data ctx ~x:0 ~y:0 ~w:iw ~h:ih in
-  let pixels = C2d.Image_data.data data in
+  let pixels = Tarray.to_bigarray1 (C2d.Image_data.data data) in
   for y = 0 to ih - 1 do
     for x = 0 to iw - 1 do
       let rx = P2.x r0 +. (float x *. (window /. w)) in
@@ -34,10 +34,10 @@ let render_predicate ~w:iw ~h:ih orient =
         | o (* when o > 0. *) -> 0xf0, 0x02, 0x7f
       in
       let off = 4 * (y * iw + x) in
-      Tarray.set pixels (off    ) r;
-      Tarray.set pixels (off + 1) g;
-      Tarray.set pixels (off + 2) b;
-      Tarray.set pixels (off + 3) 0xFF;
+      Bigarray.Array1.set pixels (off    ) r;
+      Bigarray.Array1.set pixels (off + 1) g;
+      Bigarray.Array1.set pixels (off + 2) b;
+      Bigarray.Array1.set pixels (off + 3) 0xFF;
     done;
   done;
   C2d.put_image_data ctx data ~x:0 ~y:0;
