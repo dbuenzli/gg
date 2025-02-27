@@ -3,8 +3,6 @@
    SPDX-License-Identifier: ISC
   ---------------------------------------------------------------------------*)
 
-open Gg
-
 [@@@alert unstable
     "This interface may change in incompatible ways in the future."]
 
@@ -21,6 +19,7 @@ open Gg
     usual convention for raster images (is it a good idea though ?
     {!Gg.Raster} did not). *)
 
+open Gg
 
 (** {1:fields Fields} *)
 
