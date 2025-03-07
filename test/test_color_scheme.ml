@@ -46,7 +46,7 @@ let test_msc () =
   test_edge (fun t -> Color.v 1. 0. t  1.)
 *)
 
-let test_color_seq () =
+let test_color_seq =
   Test.test "Sequential color schemes do not NaN" @@ fun () ->
   irange ~min:0. ~max:359. ~dt:1. >>= fun h ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun w ->
@@ -66,7 +66,7 @@ let test_color_seq () =
                  (%.16f %.16f %.16f)"
     w s b c h t cr cg cb; assert true
 
-let test_qual () =
+let test_qual =
   Test.test "Qualitative color schemes do not NaN" @@ fun () ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun eps ->
   irange ~min:0. ~max:1. ~dt:0.1 >>= fun r ->
@@ -89,8 +89,7 @@ let test_qual () =
 let main () =
   Test.main @@ fun () ->
   Test.log "Be patient…";
-  test_color_seq ();
-  test_qual ();
+  Test.autorun ();
   ()
 
 let () = if !Sys.interactive then () else exit (main ())
