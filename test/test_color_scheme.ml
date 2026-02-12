@@ -14,7 +14,7 @@ let str = Format.sprintf
 
 let eqf v v' =
   if v = v' then () else
-  Test.log_fail "%f (%a) = %f (%a)" v Float.pp v v' Float.pp v'
+  Test.Log.fail "%f (%a) = %f (%a)" v Float.pp v v' Float.pp v'
 
 let irange ?(min = 0.) ?(max = 1.) ~dt f =
   let n = truncate (((max -. min) /. dt) +. 1.) in
@@ -62,7 +62,7 @@ let test_color_seq =
   let urange d = 0. <= d && d <= 1. in
   if V4.for_all urange color then () else
   let cr, cg, cb, ca = V4.to_tuple color in
-  Test.log_fail "not in rgb cube w:%g s:%g b:%g c:%g h:%g t:%g \
+  Test.Log.fail "not in rgb cube w:%g s:%g b:%g c:%g h:%g t:%g \
                  (%.16f %.16f %.16f)"
     w s b c h t cr cg cb; assert true
 
@@ -80,7 +80,7 @@ let test_qual =
     let urange d = 0. <= d && d <= 1. in
     if V4.for_all urange color then () else
     let cr, cg, cb, _ = V4.to_tuple color in
-    Test.log_fail
+    Test.Log.fail
       "qualitative color not in rgb cube eps:%g r:%g s:%g b:%g c:%g \
        (%.16f %.16f %.16f)"
       eps r s b c cr cg cb
@@ -88,7 +88,7 @@ let test_qual =
 
 let main () =
   Test.main @@ fun () ->
-  Test.log "Be patient…";
+  Test.Log.msg "Be patient…";
   Test.autorun ();
   ()
 
